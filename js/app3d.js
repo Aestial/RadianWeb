@@ -16,7 +16,7 @@ var zoomBlurShader, zoomCenter; // Glow emissive
 var opacity; // Black transparent
 // Animation
 var mixer;
-var actions = {};
+var actions = [];
 // Mouse Input
 var mouseX = 0;
 var mouseY = 0;
@@ -74,7 +74,7 @@ function init() {
 	//scene.add( lights[ 1 ] );
 	//scene.add( lights[ 2 ] );
 	// REFLECTION
-	var path = "textures/cube/6/";
+	var path = "textures/cube/4/";
 	var format = '.png';
 	var urls = [
 		path + 'px' + format, path + 'nx' + format,
@@ -150,7 +150,7 @@ function init() {
 		roughness: 0.1,
 		metalness: 1,
 		envMap: reflectionCube,
-		envMapIntensity: 1.0,
+		envMapIntensity: 0.4,
 		transparent: true,
 		opacity: 0.94
 	} );
@@ -160,7 +160,7 @@ function init() {
 		roughness: 0.5,
 		metalness: 0.5,
 		envMap: reflectionCube,
-		envMapIntensity: 0.8
+		envMapIntensity: 0.16
 	} );
 	redMat = new THREE.MeshStandardMaterial( {
 		color: 0xff0024,
@@ -221,11 +221,15 @@ function init() {
 		glowScene.add(glowParent);
 
 		mixer = new THREE.AnimationMixer( object );
-		console.log("Total animations: "+object.animations.length);
-		actions.test = mixer.clipAction(object.animations[0]);
-		actions.test.setLoop(THREE.LoopOnce);
-		actions.test.timeScale = 1;
-		actions.test.clampWhenFinished = true;
+		var numAnim = object.animations.length;
+		console.log("Total animations: " + numAnim);
+		for(var i = 0; i < numAnim; i++) {
+			var newAction = mixer.clipAction(object.animations[i]);
+			newAction.setLoop(THREE.LoopOnce);
+			newAction.timeScale = 1;
+			newAction.clampWhenFinished = true;
+			actions.push(newAction);
+		}
 		// TEMP: First time animation trigger (ABOUT Section)
 		//TriggerAnim(1);
 	} );
@@ -252,29 +256,11 @@ function init() {
 }
 
 function TriggerAnim (index) {
-	console.log("Animation index: "+index);
-	switch(index){
-		case 1:
-			actions.test.reset();
-			actions.test.play();
-			break;
-		default:
-			break;
-	}
+	var i = index -1;
+	console.log("Animation index: " + i);
+	mixer.stopAllAction();
+	actions[i].play();
 }
-/*function OnLoaded() {
-	init();
-	animate();
-}*/
-/*
-function createScene( geometry, scale, material ) {
-	var mesh = new THREE.Mesh( geometry, material );
-	mesh.position.set(5,0,0.5);
-	mesh.scale.set( scale, scale, scale );
-	mesh.castShadow = true;
-	mesh.receiveShadow = true;
-	scene.add( mesh );
-}*/
 //
 function onWindowResize( event ) {
 	SCREEN_WIDTH = window.innerWidth;
@@ -305,8 +291,8 @@ function onDocumentMouseMove( event ) {
 //
 function animate() {
 	//requestAnimationFrame( animate );
-	targetX = mouseX * .001;
-	targetY = mouseY * .001;
+	targetX = mouseX * .0005;
+	targetY = mouseY * .0005;
 	if ( parent ) {
 		parent.rotation.y += 0.1 * ( targetX - parent.rotation.y );
 		parent.rotation.x += 0.1 * ( targetY - parent.rotation.x );
