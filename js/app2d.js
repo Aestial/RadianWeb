@@ -9,6 +9,7 @@ uniforms.alpha = {type: "1f", value: 1.0};
 uniforms.shift = {type: "1f", value: 1.6};
 uniforms.time = {type: "1f", value: 0};
 uniforms.speed = {type: "v2", value: {x: 0.7, y: 0.4}};
+
 var shaderCode;
 var shaderContainer;
 var smokeShader;
@@ -19,7 +20,10 @@ var count = 0;
 //SHADER_LOADER.load(
 function shaderLoad(data) {
     shaderCode = data.smoke.fragment;
-    smokeShader = new PIXI.Filter("", shaderCode, uniforms);
+    // v3
+    smokeShader = new PIXI.AbstractFilter(null, shaderCode, uniforms);
+    // v4
+    //smokeShader = new PIXI.Filter(null, shaderCode, uniforms);
     bg.filters = [smokeShader];
     bg.width = width;
     bg.height = height;
@@ -43,7 +47,8 @@ function rendererResize() {
     pixi_renderer.resize(screenWidth, screenHeight);
     bg.width = screenWidth;
     bg.height = screenHeight;
-    uniforms.resolution = {type: "v2", value: {x: screenWidth, y: screenHeight}};
+    //uniforms.resolution = {type: "v2", value: {x: screenWidth, y: screenHeight}};
+    smokeShader.uniforms.resolution = {x: screenWidth, y: screenHeight};
     team.x = screenWidth / 2;
 }
 function pixi_init() {
@@ -66,7 +71,7 @@ function pixi_animate() {
     requestAnimationFrame(pixi_animate);
     count += 0.01;
     if (typeof smokeShader != "undefined") {
-        smokeShader.uniforms.time = count;
+        smokeShader.uniforms.time.value = count;
     }
     // this is the main render call that makes pixi draw your container and its children.
     pixi_renderer.render(stage);

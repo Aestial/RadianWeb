@@ -73,6 +73,9 @@ h1{
 	letter-spacing: 15px;
 	padding: 20px 0px;
 }
+#video{
+	display: none;
+}
 input,textarea{
 	z-index: 9;
 	color: #eee;
