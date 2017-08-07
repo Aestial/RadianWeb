@@ -1,11 +1,11 @@
 // GLOBAL CONTROL
 var debug = true;
-// ENUMS
-var CSSAnimType = Object.freeze({Entrance:1, Exit:2, Fixed:3});
-var deleteLog = false;
+// TODO: Fix this temporal globals
+// Interface with jQueryExtents (Animation)
+var isPlaying = false;
+// Script globals
 var imageActive = false;
 var imageNames = ["French.jpg","Dog.jpg","Chilaquil.jpg","Pug.jpg"];
-var isPlaying = false;
 var isLoaded = false;
 var loadBar;
 
@@ -132,99 +132,7 @@ function fullpage_init() {
 	});
 //});
 }
-function checkAnimType(animationName) {
-	if (animationName.includes("In")){
-		return CSSAnimType.Entrance;
-	} else if (animationName.includes("Out")){
-		return CSSAnimType.Exit;
-	} else {
-		return CSSAnimType.Fixed;
-	}
-	return 0;
-}
-$.fn.extend({
-    animateOnce: function (animationName, display=false, displayValue="initial") {
-    	var animationEnd = 'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend';
-    	var type = checkAnimType(animationName);
-		isPlaying = true;
-    	switch (type) {
-    		case CSSAnimType.Entrance:
-				this.addClass('animated ' + animationName).one(animationEnd, function() {
-		        	isPlaying = false;
-					console.log("CSS Animation finished. (Entrance)");
-		            $(this).removeClass('animated ' + animationName);
-		        }).css( (display)?
-		        		{"display":displayValue}:
-		        		{"visibility":"visible"}
-		        );
-    			break;
-    		case CSSAnimType.Exit:
-	    		this.addClass('animated ' + animationName).one(animationEnd, function() {
-		        	isPlaying = false;
-					console.log("CSS Animation finished. (Exit)");
-		            $(this).removeClass('animated ' + animationName)
-		            .css( (display)?
-		        		  {"display":"none"}:
-		        		  {"visibility":"hidden"}
-		        	);
-		        });
-    			break;
-    		case CSSAnimType.Fixed:
-	    		this.addClass('animated ' + animationName).one(animationEnd, function() {
-		        	isPlaying = false;
-					console.log("CSS Animation finished. (Fixed)");
-		            $(this).removeClass('animated ' + animationName)
-		        });
-    			break;
-    		default:
-    			break;
-    	}
-    }
-});
 
-$(function() {
-    // Get the form.
-    var form = $('#ajax-contact');
-    // Get the messages div.
-    var formMessages = $('#form-messages');
-    // Set up an event listener for the contact form.
-	$(form).submit(function(event) {
-	    // Stop the browser from submitting the form.
-	    event.preventDefault();
-	    // TODO
-	    // Serialize the form data.
-		var formData = $(form).serialize();
-		// Submit the form using AJAX.
-		$.ajax({
-		    type: 'POST',
-		    url: $(form).attr('action'),
-		    data: formData
-		}).done(function(response) {
-		    // Make sure that the formMessages div has the 'success' class.
-		    $(formMessages).removeClass('error');
-		    $(formMessages).addClass('success');
-
-		    // Set the message text.
-		    $(formMessages).text(response);
-
-		    // Clear the form.
-		    $('#name').val('');
-		    $('#email').val('');
-		    $('#message').val('');
-		}).fail(function(data) {
-		    // Make sure that the formMessages div has the 'error' class.
-		    $(formMessages).removeClass('success');
-		    $(formMessages).addClass('error');
-
-		    // Set the message text.
-		    if (data.responseText !== '') {
-		        $(formMessages).text(data.responseText);
-		    } else {
-		        $(formMessages).text('Oops! An error occured and your message could not be sent.');
-		    }
-		});
-	});
-});
 
 function toggleBigImage(index) {
 	if (!isPlaying) {

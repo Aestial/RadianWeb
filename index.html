@@ -26,7 +26,10 @@
 	<!--APP-->
 	<script type="text/javascript" src="js/app3d.js"></script>
 	<script type="text/javascript" src="js/app2d.js"></script>
+	<script type="text/javascript" src="js/contact.js"></script>
 	<script type="text/javascript" src="js/main.js"></script>
+	<!--UTILS-->
+	<script type="text/javascript" src="js/utils/jQueryExtents.js"></script>
 	<!--[if IE]>
 	<script type="text/javascript">
 		 var console = { log: function() {} };
@@ -107,8 +110,6 @@
 			    </div>	
 			    <div class="field">
 			        <button type="submit">Send</button>
-			    </div>
-			    <div class="field">
 			        <button type="reset">Clear</button>
 			    </div>
 			</form>
@@ -142,7 +143,7 @@
    		</div>
 	</div>
 </div>
-<video id="video" autoplay loop webkit-playsinline>
+<video id="video" autoplay loop muted webkit-playsinline>
 	<source src="textures/BBB_720.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'>
 	<!--source src="textures/sintel.ogv" type='video/ogg; codecs="theora, vorbis"'-->
 </video>

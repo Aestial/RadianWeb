@@ -73,7 +73,7 @@ h1{
 	letter-spacing: 15px;
 	padding: 20px 0px;
 }
-#video{
+video{
 	display: none;
 }
 input,textarea{
@@ -246,7 +246,7 @@ Aqui comienza para el menu
 }
 #loadScreen{
 	/* DEBUG: ----- */
-	display: none;
+	/* display: none;
 	/* ------------ */
 	position: absolute;
 	background-color: #000;
