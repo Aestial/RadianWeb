@@ -17,6 +17,7 @@ var opacity; // Black transparent
 // Animation
 var mixer;
 var actions = [];
+var currentAction;
 // Arcade
 var arcade;
 var arcadeSprite;
@@ -269,7 +270,7 @@ function init() {
             var newAction = mixer.clipAction(object.animations[i]);
             newAction.setLoop(THREE.LoopOnce);
             newAction.timeScale = 1;
-            newAction.clampWhenFinished = true;
+            //newAction.clampWhenFinished = true;
             actions.push(newAction);
         }
         // TEMP: First time animation trigger (ABOUT Section)
@@ -299,9 +300,21 @@ function init() {
 
 function TriggerAnim (index) {
     var i = index -1;
+    console.log(currentAction);
     console.log("Animation index: " + i);
-    mixer.stopAllAction();
-    actions[i].play();
+    if (currentAction) 
+    {
+        console.log(currentAction._clip.name)
+        currentAction.crossFadeTo(actions[i], 0.5, true);
+        console.log("Has current action");
+    }
+    else 
+    {
+        mixer.stopAllAction();
+        actions[i].play();
+        console.log("First action");
+    }
+    currentAction = actions[i];
 }
 //
 function onWindowResize( event ) {
