@@ -88,8 +88,8 @@ function init() {
     arcadeSprite = new THREE.Sprite( arcadeMaterial );
     videoSprite = new THREE.Sprite( videoMaterial );
 
-    videoSprite.scale.set(0.25, 0.15, 1);
-    videoSprite.position.set(0.005, 0.16, 0.01);
+    videoSprite.scale.set(0.285, 0.16, 1);
+    videoSprite.position.set(0.015, 0.16, -0.01);
     arcadeSprite.scale.set(0.343, 0.859, 1);
     arcadeSprite.position.set(0, 0, 0);
 
