@@ -47,13 +47,13 @@
 </head>
 <body>
 <ul id="menu">
-	<li ><img id="title-logo" src="svg/logo_kata.svg"></img></li> 
-	<li id="title">RADIAN</li> 
-	<li data-menuanchor="aboutus"><a href="#aboutus">ABOUT</a></li>
-	<li data-menuanchor="edesign"><a href="#edesign">ELECTRONIC DESIGN</a></li>
-	<li data-menuanchor="vfx"><a href="#vfx">VFX</a></li>
-	<li data-menuanchor="videogames"><a href="#videogames">VIDEOGAMES</a></li>
-	<li data-menuanchor="contact"><a href="#contact">CONTACT</a></li>
+	<li ><img id="title-logo" src="svg/logo_kata.svg"></img></li>
+	<li id="title">RADIAN</li>
+	<li data-menuanchor="aboutus"><a href="#aboutus">ACERCA DE</a></li>
+	<li data-menuanchor="edesign"><a href="#edesign">ELECTRÓNICA APLICADA</a></li>
+	<li data-menuanchor="vfx"><a href="#vfx">DISEÑO Y EFECTOS VISUALES</a></li>
+	<li data-menuanchor="videogames"><a href="#videogames">VIDEOJUEGOS E INTERACTIVOS</a></li>
+	<li data-menuanchor="contact"><a href="#contact">CONTACTO</a></li>
 </ul>
 
 <div id="bigImage">
@@ -62,38 +62,39 @@
 <div id="fullpage">
 	<div class="section" id="section0">
 		<div class="info" id="about">
-			<h1>ABOUT</h1>
-			<p>We are RADIAN we can make you do anything for us!</p>
+			<h1>ACERCA DE</h1>
+			<p>Somos un estudio que desarrolla aplicaciones tecnológicas con el fin de ofrecer experiencias nuevas y únicas a nuestros clientes, conoce nuestro trabajo:</p>
+			<p><a class="bigImage_toggle" onclick = "toggleBigImage(0);">Ver más</a></p>
 		</div>
 	</div>
 	<div class="section" id="section1">
 		<div class="info project">
-			<h1>ELECTRONIC DESIGN</h1>
-			<p>Proyecto Dog Chow E-Design.</p>
-			<p><a class="bigImage_toggle" onclick = "toggleBigImage(0);">View project</a></p>
+			<h1>ELECTRÓNICA APLICADA</h1>
+			<p>Diseñamos sistemas electrónicos que complementan experiencias digitales de software con hardware y el mundo físico.</p>
+			<p><a class="bigImage_toggle" onclick = "toggleBigImage(0);">Ver más</a></p>
 			<img src="images/French.jpg" class="dummy" alt=""/>
 		</div>
-	</div>	
+	</div>
 	<div class="section" id="section2">
 		<div class="info project">
-			<h1>VFX</h1>
-			<p>Proyecto Arcade VFX.</p>
-			<p><a class="bigImage_toggle" onclick = "toggleBigImage(1);">View project</a></p>
+			<h1>DISEÑO Y EFECTOS VISUALES</h1>
+			<p>En Radian trabajamos a detalle la parte visual de cada desarrollo, y generamos una identidad visual única en cada proyecto que desarrollamos.</p>
+			<p><a class="bigImage_toggle" onclick = "toggleBigImage(1);">Ver más</a></p>
 			<img src="images/Dog.jpg" class="dummy" alt=""/>
 		</div>
 	</div>
 	<div class="section" id="section3">
 		<div class="info project">
-			<h1>VIDEOGAMES</h1>
-			<p>Proyecto Runners VR Videogames.</p>
-			<p><a class="bigImage_toggle" onclick = "toggleBigImage(2);">View project</a></p>
+			<h1>VIDEOJUEGOS E INTERACTIVOS</h1>
+			<p>Los videojuegos son nuestra principal influencia para realizar cualquier desarrollo, cada interfaz que creamos debe ser atractiva e intuitiva al usuario, hacemos videojuegos por el placer de usarlos.</p>
+			<p><a class="bigImage_toggle" onclick = "toggleBigImage(2);">Ver más</a></p>
 			<img src="images/Chilaquil.jpg" class="dummy" alt=""/>
 		</div>
 	</div>
 	<div class="section" id="section4">
 		<div id="app2d_cont"></div>
 		<div class="info contact">
-			<h1>CONTACT</h1>
+			<h1>CONTACTO</h1>
 			<div id="form-messages"></div>
 			<form id="ajax-contact" method="post" action="php/mailer.php">
 				<div class="field">
@@ -104,7 +105,7 @@
 			    </div>
 			    <div class="field">
 			        <textarea id="message" name="message" placeholder="MESSAGE" required></textarea>
-			    </div>	
+			    </div>
 			    <div class="field">
 			        <button type="submit">Send</button>
 			        <button type="reset">Clear</button>
@@ -114,10 +115,10 @@
 	</div>
 </div>
 
-<div id="contactMenu">	
+<div id="contactMenu">
     <ul>
         <li><a href="https://www.facebook.com/RadianDevStudio" target="_blank">Facebook</a></li>
-        <li><a href="https://twitter.com/Aestial" target="_blank">Twitter</a></li>
+        <li><a href="https://twitter.com/Radian_DevS" target="_blank">Twitter</a></li>
         <li><a href="https://www.instagram.com/radian_ds" target="_blank">Instagram</a></li>
     </ul>
 </div>
@@ -131,12 +132,12 @@
 		<img id="logo" src="svg/logo_kata.svg"></img>
 	</div>
 	<div id="loadBarCont">
-		<div id="loadBar" class="ldBar label-center" 
+		<div id="loadBar" class="ldBar label-center"
 			data-stroke="white"
    			data-stroke-width="4"
    			data-stroke-trail="gray"
    			data-stroke-trail-width="2"
-   			data-value="0">		
+   			data-value="0">
    		</div>
 	</div>
 </div>

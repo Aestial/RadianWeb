@@ -95,8 +95,8 @@ function init() {
 
     arcade.add(arcadeSprite);
     arcade.add(videoSprite);
-    arcade.scale.set(10, 10, 1);
-    arcade.position.set(2, 0, -3.5);
+    arcade.scale.set(25, 25, 1);
+    arcade.position.set(0, 0, -20);
     scene.add(arcade);
 
     parent = new THREE.Object3D();
@@ -170,7 +170,7 @@ function init() {
                 uniforms: {
                     tBase: { type: "t", value: 0, texture: baseTexture },
                     tGlow: { type: "t", value: 1, texture: blurTexture },
-                    glowStrength: { type: "f", value: 0.8 }
+                    glowStrength: { type: "f", value: 0.95 }
                 },
                 vertexShader: data.ortho.vertex,
                 fragmentShader: data.composite.fragment,
@@ -269,7 +269,7 @@ function init() {
         for(var i = 0; i < numAnim; i++) {
             var newAction = mixer.clipAction(object.animations[i]);
             newAction.setLoop(THREE.LoopOnce);
-            newAction.timeScale = 1;
+            newAction.timeScale = 3;
             newAction.weight = 0;
             newAction.clampWhenFinished = true;
             newAction.play();
@@ -310,7 +310,7 @@ function TriggerAnim (index) {
         console.log(currentAction._clip.name);
         actions[i].reset();
         actions[i].weight = 1;
-        currentAction.crossFadeTo(actions[i], 0.75);
+        currentAction.crossFadeTo(actions[i], 1);
         console.log("Has current action");
     }
     else
@@ -318,6 +318,8 @@ function TriggerAnim (index) {
         //mixer.stopAllAction();
         //actions[i].play();
         actions[i].weight = 1;
+        actions[i].reset();
+        actions[i].play();
         console.log("First action");
     }
     currentAction = actions[i];

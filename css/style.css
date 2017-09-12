@@ -69,7 +69,7 @@ body{
 	background-color: rgba(0,0,0,1);
 }
 h1{
-	font-size: 3.8em;
+	font-size: 2.2em;
 	letter-spacing: 15px;
 	padding: 20px 0px;
 }
@@ -111,7 +111,7 @@ input:hover, textarea:hover{
 p,.field, #form-messages{
 /*	margin-left: 28%;*/
 	width: 360px;
-	font-size: 1.45em;
+	font-size: 1.2em;
 	letter-spacing: 8px;
 }
 .wrap{
@@ -129,7 +129,7 @@ p,.field, #form-messages{
 	z-index: -2;
 }
 .pixi{
-	z-index: -1;	
+	z-index: -1;
 }
 .info {
 	margin-left: 250px;
@@ -137,14 +137,14 @@ p,.field, #form-messages{
 }
 .project h1{
 	width: 350px;
-	font-size: 1.4em;
+	font-size: 1.15em;
 	letter-spacing: 10px;
 	padding: 10px 0px;
 	padding-top: 150px;
 }
 .project p{
 	width: 350px;
-	font-size: 1.3em;
+	font-size: 0.95em;
 	padding: 10px 0px;
 }
 .contact h1{
@@ -166,11 +166,11 @@ p,.field, #form-messages{
 	letter-spacing: 5px;
 }
 /*
-Aqui comienza para el menu 
+Aqui comienza para el menu
 */
 #title{
 	font-family: Renogare,helvetica;
-	font-size: 1.3em;	
+	font-size: 1.3em;
 	display: block;
     width: 120px;
 	color: #fff;
@@ -185,7 +185,7 @@ Aqui comienza para el menu
 	position: absolute;
 	top: 25px;
 	left: 40px;
-	z-index: 10;	
+	z-index: 10;
 }
 #menu li {
 	letter-spacing: 3px;
@@ -195,10 +195,11 @@ Aqui comienza para el menu
 	color: #ddd;
 }
 #menu li a{
+  font-size: 0.85em;
 	display: block;
-    width: 120px;
+  width: 150px;
 	text-decoration:none;
-	color: #777	;	
+	color: #777	;
 	padding: 6px 10px;
 }
 #menu li a:hover{
