@@ -227,7 +227,7 @@ function init() {
 
     objMaterials.push(obj2Mats);
     loader = new THREE.ObjectLoader(manager);
-    loader.load( "obj/bot.json", function( obj ) {
+    loader.load( "obj/botanim.json", function( obj ) {
         oclObject = obj.clone( true );
         //console.log(obj);
         //console.log(oclObject);
@@ -252,13 +252,13 @@ function init() {
         }
         object = obj;
         parent.add(object);
-        parent.position.set(4.5,0,0);
+        //parent.position.set(4.5,0,0);
         object.rotation.set(0,Math.PI/2,0);
         //object.rotation.set(-Math.PI/2,0,0);
         scene.add(parent);
 
         glowParent.add(oclObject);
-        glowParent.position.set(4.5,0,0);
+        //glowParent.position.set(4.5,0,0);
         oclObject.rotation.set(0,Math.PI/2,0);
         //oclObject.rotation.set(-Math.PI/2,0,0);
         glowScene.add(glowParent);
@@ -269,7 +269,7 @@ function init() {
         for(var i = 0; i < numAnim; i++) {
             var newAction = mixer.clipAction(object.animations[i]);
             newAction.setLoop(THREE.LoopOnce);
-            newAction.timeScale = 3;
+            //newAction.timeScale = 1;
             newAction.weight = 0;
             newAction.clampWhenFinished = true;
             newAction.play();
