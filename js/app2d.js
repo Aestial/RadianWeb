@@ -76,38 +76,3 @@ function pixi_animate() {
     // this is the main render call that makes pixi draw your container and its children.
     pixi_renderer.render(stage);
 }
-
-/* PURGED code */
-/* ----------- */
-/*
-// FILTER
-//logo.blendMode = PIXI.BLEND_MODES.ADD;
-blur = new PIXI.filters.BlurFilter(16, 2, 4, 11);
-//blur.blurY = 20;
-team.filters = [blur];
-/*
-// VIDEO AND MASK TEXTURES
-// create a video texture from a path
-var video = PIXI.Texture.fromVideo("videos/BBB_720.mp4");
-video.baseTexture.source.autoplay = false;
-video.baseTexture.source.currentTime = 0;
-video.baseTexture.source.loop = true;
-video.baseTexture.source.muted = true;
-// create a new Sprite using the video texture (yes it"s that easy)
-var videoSprite = new PIXI.Sprite(video);
-// Stetch the fullscreen
-videoSprite.width = pixi_renderer.width;
-videoSprite.height = pixi_renderer.height;
-videoSprite.alpha = 0.25;
-//stage.addChild(videoSprite);
-//Video Mask
-var mask = PIXI.Sprite.fromImage("images/arcade_mask.png");
-mask.width = pixi_renderer.height*0.85;
-mask.height = pixi_renderer.height*0.85;
-mask.anchor.set(0.5);
-mask.x = pixi_renderer.width*0.52;
-mask.y = pixi_renderer.height*0.57;
-stage.addChild(mask);
-videoSprite._mask = mask;
-stage.addChild(videoSprite);
-*/

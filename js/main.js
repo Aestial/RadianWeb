@@ -60,64 +60,6 @@ function fullpage_init() {
 		onLeave: function(index, nextIndex, direction){
 			//console.log("onLeave--" + "index: " + index + " nextIndex: " + nextIndex + " direction: " +  direction);
 			hideBigImage();
-			// MENU
-			switch (index) {
-				case 1:
-					switch(nextIndex){
-						case 5:
-							break;
-						default:
-							$("#title").animateOnce('fadeOutUpBig', true, "block");
-							$("#title-logo").animateOnce('bounceInDown', true);
-							break;
-					}
-					break;
-				case 2:
-					switch(nextIndex){
-						case 1:
-						case 5:
-							$("#title-logo").animateOnce('bounceOutUp', true);
-							$("#title").animateOnce('fadeInDownBig', true, "block");
-							break;
-						default:
-							break;
-					}
-					break;
-				case 3:
-					switch(nextIndex){
-						case 1:
-						case 5:
-							$("#title-logo").animateOnce('bounceOutUp', true);
-							$("#title").animateOnce('fadeInDownBig', true, "block");
-							break;
-						default:
-							break;
-					}
-					break;
-				case 4:
-					switch(nextIndex){
-						case 1:
-						case 5:
-							$("#title-logo").animateOnce('bounceOutUp', true);
-							$("#title").animateOnce('fadeInDownBig', true, "block");
-							break;
-						default:
-							break;
-					}
-					break;
-				case 5:
-					switch(nextIndex){
-						case 1:
-							break;
-						default:
-							$("#title").animateOnce('fadeOutUpBig', true, "block");
-							$("#title-logo").animateOnce('bounceInDown', true);
-							break;
-					}
-					break;
-				default:
-				break;
-			}
 		},
 		afterRender: function(){
 			//console.log("afterRender");
@@ -134,7 +76,6 @@ function fullpage_init() {
 	});
 //});
 }
-
 
 function toggleBigImage(index) {
 	if (!isPlaying) {
