@@ -56,6 +56,7 @@ function fullpage_init() {
 		anchors: ['aboutus', 'edesign', 'vfx', 'videogames', 'contact'],
 		recordHistory: false,
 		menu: '#menu',
+    scrollingSpeed: 2000,
 		onLeave: function(index, nextIndex, direction){
 			//console.log("onLeave--" + "index: " + index + " nextIndex: " + nextIndex + " direction: " +  direction);
 			hideBigImage();
@@ -127,7 +128,7 @@ function fullpage_init() {
 		afterLoad: function(anchorLink, index){
 			//console.log("afterLoad--" + "anchorLink: " + anchorLink + " index: " + index );
 			if (isLoaded) {
-				TriggerAnim(index);
+				TriggerAnim(1);
 			}
 		}
 	});
