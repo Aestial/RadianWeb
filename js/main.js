@@ -3,6 +3,7 @@ var debug = true;
 // TODO: Fix this temporal globals
 // Interface with jQueryExtents (Animation)
 var isPlaying = false;
+var isStart = true;
 // Script globals
 var imageActive = false;
 var imageNames = ["French.jpg","Dog.jpg","Chilaquil.jpg","Pug.jpg"];
@@ -75,6 +76,7 @@ function onWindowLoaded() {
   fullpage_init();
   init();
   pixi_init();
+  startBigImage(isStart);
 }
 // ON LOADED (Jquery ready method)
 //$(document).ready(function() {
@@ -88,21 +90,36 @@ function toggleBigImage(index) {
     if (imageActive) hideBigImage();
     else showBigImage(index);
   }
+  if (isStart)
+  {
+    isStart = false;
+    startBigImage(isStart);
+  }
 }
 function showBigImage(index) {
   if (!imageActive) {
     var imageName = imageNames[index];
-    $('#bigImage').css({
-      "background-image": "url('images/"+imageName+"')"
-    }).animateOnce('fadeInRight');
-    $( '.bigImage_toggle' ).text( "Close project" );
+    var bigImage = $('#bigImage');
+    //bigImage.css({"background-image": "url('images/"+imageName+"')"});
+    bigImage.animateOnce('fadeInRight');
+    $( '.bigImage_toggle' ).text( "Cerrar" );
     imageActive = true;
   }
 }
 function hideBigImage() {
   if (imageActive) {
     $('#bigImage').animateOnce('fadeOutRight');
-    $( '.bigImage_toggle' ).text( "View project" );
+    $( '.bigImage_toggle' ).text( "Ver más" );
     imageActive = false;
+  }
+}
+function startBigImage(isStart) {
+  var bigImage = $('#bigImage');
+  if (isStart)
+  {
+    bigImage.addClass('start');
+  } else
+  {
+    bigImage.removeClass('start');
   }
 }

@@ -14,20 +14,22 @@
 .glitch::before {
   /* ... anything needed to make it identical */
   /* variation */
-  left: 0px;
+  left: -10px;
   transform: scaleX(1.5);
-  clip: rect(2px,120px,13px,10px);
+  clip: rect(2px,120px,7px,0px);
   /*text-shadow: -1px 0 red;*/
   /* important: opaque background masks the original */
-  /*background: black;*/
+  background: black;
   /*animation: 2s infinite linear alternate-reverse;*/
 }
 .glitch::after {
   /* ... anything needed to make it identical */
   /* variation */
-  /*left: 10px;*/
+  left: 20px;
+  transform: scaleX(1.5);
+  clip: rect(10px,120px,15px,0px);
   /*text-shadow: -1px 0 blue;*/
   /* important: opaque background masks the original */
-  /*background: black;*/
+  background: black;
   /*animation: 2s infinite linear alternate-reverse;*/
 }

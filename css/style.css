@@ -198,19 +198,32 @@ Aqui comienza para el menu
 }
 #bigImage{
 	position: absolute;
-	left: 16%;
+	right: 0%;
 	height: 100%;
-	width: 100%;
+	width: 70%;
+	z-index: 15;
+	background-color: rgba(0,0,0,0.8);
 	background-repeat: no-repeat;
 	background-size: cover;
-	-webkit-filter: grayscale(100%) brightness(60%);
-	filter: grayscale(100%) brightness(60%);
+	/* -webkit-filter: grayscale(100%) brightness(60%);
+	filter: grayscale(100%) brightness(60%); */
+}
+.start{
+	transform:translate3d(100%,0,0);
+}
+#vimeo {
+	position: absolute;
+  height: 100%;
+  width: 95%;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 10px;
 }
 #logo{
 	/*-webkit-filter: grayscale(100%) brightness(60%);
 	filter: grayscale(100%) brightness(60%);*/
 	animation-duration: 1s;
-  	animation-delay: 3s;
+	animation-delay: 3s;
 }
 #logo:hover{
 	-webkit-filter: grayscale(0%) brightness(200%);
@@ -246,7 +259,7 @@ Aqui comienza para el menu
 .bigImage_toggle:hover{
 	color:#fff;
 }
-#outer{
+#help{
 	position: absolute;
 	bottom: 10px;
 }
