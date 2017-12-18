@@ -9,17 +9,19 @@
 	<meta name="Resource-type" content="Document" />
 	<!--LIBRARIES-->
 	<link rel="stylesheet" type="text/css" href="css/animate.min.css">
-	<link rel="stylesheet" type="text/css" href="css/jquery.fullPage.css" />
-	<link rel="stylesheet" type="text/css" href="css/fullPage_fading.css" />
-	<link rel="stylesheet" type="text/css" href="css/loading-bar.css"/>
+	<link rel="stylesheet" type="text/css" href="css/jquery.fullPage.css">
+	<link rel="stylesheet" type="text/css" href="css/fullPage_fading.css">
+	<link rel="stylesheet" type="text/css" href="css/loading-bar.css">
 	<!--APP-->
-	<link rel="stylesheet" type="text/css" href="css/fonts.css" />
-	<link rel="stylesheet" type="text/css" href="css/reset.css" />
-	<link rel="stylesheet" type="text/css" href="css/style.css" />
-	<link rel="stylesheet" type="text/css" href="css/effects.css" />
+	<link rel="stylesheet" type="text/css" href="css/fonts.css">
+	<link rel="stylesheet" type="text/css" href="css/reset.css">
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+	<link rel="stylesheet" type="text/css" href="css/effects.css">
+	<link rel="stylesheet" type="text/css" href="css/popup.css">
 	<!--LIBRARIES-->
 	<script type="text/javascript" src="js/libraries/jquery-3.2.1.min.js"></script>
 	<script type="text/javascript" src="js/libraries/jquery.fullPage.js"></script>
+	<script type="text/javascript" src="js/utils/jQueryExtents.js"></script>
 	<script type="text/javascript" src="js/libraries/bowser.js"></script>
 	<script type="text/javascript" src="js/libraries/loading-bar.js"></script>
 	<script type="text/javascript" src="js/libraries/dat.gui.min.js"></script>
@@ -29,13 +31,15 @@
 	<script type="text/javascript" src="js/libraries/three-extras/Detector.js"></script>
 	<script type="text/javascript" src="js/libraries/three-extras/ShaderLoader.js"></script>
 	<!--APP-->
+	<script type="text/javascript" src="js/browser.js"></script>
+	<script type="text/javascript" src="js/contact.js"></script>
+	<script type="text/javascript" src="js/loader.js"></script>
+	<script type="text/javascript" src="js/popup.js"></script>
+	<script type="text/javascript" src="js/fullpage.js"></script>
 	<script type="text/javascript" src="js/app3d.js"></script>
 	<script type="text/javascript" src="js/app2d.js"></script>
-	<!-- <script type="text/javascript" src="js/browser.js"></script> -->
-	<script type="text/javascript" src="js/contact.js"></script>
 	<script type="text/javascript" src="js/main.js"></script>
 	<!--UTILS-->
-	<script type="text/javascript" src="js/utils/jQueryExtents.js"></script>
 	<script data-src="shaders/smoke/fragment.js"
 	data-name="smoke" type="x-shader/x-fragment"></script>
 	<script data-src="shaders/ortho/vertex.js"
@@ -50,6 +54,20 @@
 	data-name="emissive" type="x-shader/x-fragment"></script>
 </head>
 <body>
+	<div id="loadScreen" style="width:100%; height:100%;">
+		<div id="logoCont">
+			<img id="logo" src="svg/logo_kata.svg"></img>
+		</div>
+		<div id="loadBarCont">
+			<div id="loadBar" class="ldBar label-center"
+			data-stroke="white"
+			data-stroke-width="4"
+			data-stroke-trail="gray"
+			data-stroke-trail-width="2"
+			data-value="0">
+		</div>
+	</div>
+</div>
 <ul id="menu">
 	<li class="title-logo glitch"><img id="title-logo" src="svg/logo_kata.svg"></img></li>
 	<li class="title glitch" data-text="RADIAN" id="title">RADIAN</li>
@@ -60,7 +78,7 @@
 	<li data-menuanchor="contact"><a href="#contact">CONTACTO</a></li>
 </ul>
 
-<div id="bigImage">
+<div id="popup">
 	<iframe id='vimeo' src="https://player.vimeo.com/video/97131273?color=ff5555&byline=0&portrait=0" width="640" height="360" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
 </div>
 
@@ -75,7 +93,7 @@
 		<div class="info project">
 			<h1>ELECTRÓNICA APLICADA</h1>
 			<p>"Diseñamos sistemas electrónicos para hacer experiencias más tangibles y enriquecedoras":</p>
-			<p><a class="bigImage_toggle" onclick = "toggleBigImage(0);">Ver más</a></p>
+			<p><a class="popup_toggle" onclick = "popup.toggle();">Ver más</a></p>
 			<img src="images/French.jpg" class="dummy" alt=""/>
 		</div>
 	</div>
@@ -83,7 +101,7 @@
 		<div class="info project">
 			<h1>DISEÑO Y EFECTOS VISUALES</h1>
 			<p>"Somos detallistas y generamos una identidad visual única en cada proyecto que desarrollamos":</p>
-			<p><a class="bigImage_toggle" onclick = "toggleBigImage(1);">Ver más</a></p>
+			<p><a class="popup_toggle" onclick = "popup.toggle();">Ver más</a></p>
 			<img src="images/Dog.jpg" class="dummy" alt=""/>
 		</div>
 	</div>
@@ -91,7 +109,7 @@
 		<div class="info project">
 			<h1>VIDEOJUEGOS E INTERACTIVOS</h1>
 			<p>"Los videojuegos son nuestra principal influencia, hacemos videojuegos por el placer de usarlos"</p>
-			<p><a class="bigImage_toggle" onclick = "toggleBigImage(2);">Ver más</a></p>
+			<p><a class="popup_toggle" onclick = "popup.toggle();">Ver más</a></p>
 			<img src="images/Chilaquil.jpg" class="dummy" alt=""/>
 		</div>
 	</div>
@@ -102,53 +120,38 @@
 			<div id="form-messages"></div>
 			<form id="ajax-contact" method="post" action="php/mailer.php">
 				<div class="field">
-		      	  	<input type="text" id="name" name="name" placeholder="NAME" required>
+					<input type="text" id="name" name="name" placeholder="NAME" required>
 				</div>
 				<div class="field">
-			        <input type="email" id="email" name="email" placeholder="MAIL" required>
-			    </div>
-			    <div class="field">
-			        <textarea id="message" name="message" placeholder="MESSAGE" required></textarea>
-			    </div>
-			    <div class="field">
-			        <button type="submit">Send</button>
-			        <button type="reset">Clear</button>
-			    </div>
+					<input type="email" id="email" name="email" placeholder="MAIL" required>
+				</div>
+				<div class="field">
+					<textarea id="message" name="message" placeholder="MESSAGE" required></textarea>
+				</div>
+				<div class="field">
+					<button type="submit">Send</button>
+					<button type="reset">Clear</button>
+				</div>
 			</form>
 		</div>
 	</div>
 </div>
 
 <div id="contactMenu">
-    <ul>
-        <li><a href="https://www.facebook.com/RadianDevStudio" target="_blank">Facebook</a></li>
-        <li><a href="https://twitter.com/Radian_DevS" target="_blank">Twitter</a></li>
-        <li><a href="https://www.instagram.com/radian_ds" target="_blank">Instagram</a></li>
-    </ul>
+	<ul>
+		<li><a href="https://www.facebook.com/RadianDevStudio" target="_blank">Facebook</a></li>
+		<li><a href="https://twitter.com/Radian_DevS" target="_blank">Twitter</a></li>
+		<li><a href="https://www.instagram.com/radian_ds" target="_blank">Instagram</a></li>
+	</ul>
 </div>
 
 <div id="outer" style="width:100%">
 	<div id="scrollImg"></div>
 </div>
 
-<div id="loadScreen" style="width:100%; height:100%;">
-	<div id="logoCont">
-		<img id="logo" src="svg/logo_kata.svg"></img>
-	</div>
-	<div id="loadBarCont">
-		<div id="loadBar" class="ldBar label-center"
-			data-stroke="white"
-   			data-stroke-width="4"
-   			data-stroke-trail="gray"
-   			data-stroke-trail-width="2"
-   			data-value="0">
-   		</div>
-	</div>
-</div>
-
 <video id="video" autoplay loop muted webkit-playsinline>
 	<source src="textures/log.mp4" type='video/mp4'>
-	<!--source src="textures/sintel.ogv" type='video/ogg; codecs="theora, vorbis"'-->
-</video>
+		<!--source src="textures/sintel.ogv" type='video/ogg; codecs="theora, vorbis"'-->
+	</video>
 </body>
 </html>

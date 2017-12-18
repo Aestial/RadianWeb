@@ -196,18 +196,6 @@ Aqui comienza para el menu
 .dummy{
 	display: none;
 }
-#bigImage{
-	position: absolute;
-	right: 0%;
-	height: 100%;
-	width: 70%;
-	z-index: 15;
-	background-color: rgba(0,0,0,0.8);
-	background-repeat: no-repeat;
-	background-size: cover;
-	/* -webkit-filter: grayscale(100%) brightness(60%);
-	filter: grayscale(100%) brightness(60%); */
-}
 .start{
 	transform:translate3d(100%,0,0);
 }
@@ -252,12 +240,6 @@ Aqui comienza para el menu
 }
 .ldBar-label{
 	visibility: hidden;
-}
-.bigImage_toggle{
-	color:#aaa;
-}
-.bigImage_toggle:hover{
-	color:#fff;
 }
 #help{
 	position: absolute;
