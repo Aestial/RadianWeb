@@ -1,4 +1,5 @@
 var popup = (function(){
+  var verbose = true; // CONSOLE
   var STATES = Object.freeze({Start:-1, Show:0, Hide:1});
   var ANIM_CMD = ['fadeInRight','fadeOutRight'];
   var BTN_TEXT = ['Cerrar','Ver más'];
@@ -7,7 +8,7 @@ var popup = (function(){
   var state;
   var playing;
   // Private methods
-  var _animate = function (state) {
+  var _play_anim = function (state) {
     var command = ANIM_CMD[state];
     dom.animateOnce(command);
   };
@@ -15,20 +16,34 @@ var popup = (function(){
     var text = BTN_TEXT[state];
     button.text(text);
   };
-  var _update = function () {
-    _animate(state);
+  var _set_content = function (state) {
+    if (verbose) console.log("POPUP: Content reset");
+    switch (state) {
+      case STATES.Hide:
+        if (verbose) console.log("POPUP: Content reset");
+        // TODO: FUCK DEPENDENCIES:
+        vimeo.reset();
+        break;
+      default:
+      break;
+    }
+  };
+  var _update = function (state) {
+    _play_anim(state);
     _set_text(state);
+    _set_content(state);
   };
   // Public methods
   var init = function () {
-    console.log("INIT: popup");
+    if (verbose) console.log("INIT: popup");
     dom = $('#popup');
     button = $('.popup_toggle');
-    state = STATES.Start;
+    set(STATES.Hide);
   };
   var set = function (newState) {
     if (newState != state) {
       state = newState;
+      if (verbose) console.log("POPUP: Toggling to: " + state);
       _update(state);
     }
   };
@@ -49,7 +64,7 @@ var popup = (function(){
     set : set,
     toggle : toggle,
     play : play,
-    stop : stop
+    stop : stop,
+    states : STATES
   };
 })();
-//dom.css({"background-image": "url('images/"+imageName+"')"});

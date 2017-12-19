@@ -1,53 +1,52 @@
 (function() {
+	var verbose = false; // CONSOLE
 	// ENUM
-	var CSSAnimType = Object.freeze({Entrance:1, Exit:2, Fixed:3});
-	var _checkAnimType = function(animationName) {
-		if (animationName.includes("In")){
-			return CSSAnimType.Entrance;
-		} else if (animationName.includes("Out")){
-			return CSSAnimType.Exit;
+	var TYPE = Object.freeze({Entrance:1, Exit:2, Fixed:3});
+	var end_str = 'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend';
+	var _check_type = function(name) {
+		if (name.includes("In")){
+			return TYPE.Entrance;
+		} else if (name.includes("Out")){
+			return TYPE.Exit;
 		} else {
-			return CSSAnimType.Fixed;
-		}
-		return 0;
+			return TYPE.Fixed;
+		}	return 0;
 	};
 	$.fn.extend({
-		animateOnce: function (animationName, display=false, displayValue="initial") {
-			var animationEnd = 'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend';
-			var type = _checkAnimType(animationName);
+		animateOnce: function (name, display=false, display_val="initial") {
+			var type = _check_type(name);
+			// TODO: Remove this dependency
 			popup.play();
 			switch (type) {
-				case CSSAnimType.Entrance:
-				this.addClass('animated ' + animationName).one(animationEnd, function() {
+			case TYPE.Entrance:
+				this.addClass('animated ' + name).one(end_str, function() {
+					// TODO: Remove this dependency
 					popup.stop();
-					//console.log("CSS Animation finished. (Entrance)");
-					$(this).removeClass('animated ' + animationName);
-				}).css( (display)?
-				{"display":displayValue}:
-				{"visibility":"visible"}
+					if (verbose) console.log("CSS Animation finished. (Entrance)");
+					$(this).removeClass('animated ' + name);
+				}).css( (display)?{"display":display_val}:{"visibility":"visible"}
 			);
 			break;
-			case CSSAnimType.Exit:
-			this.addClass('animated ' + animationName).one(animationEnd, function() {
+			case TYPE.Exit:
+			this.addClass('animated ' + name).one(end_str, function() {
+				// TODO: Remove this dependency
 				popup.stop();
-				//console.log("CSS Animation finished. (Exit)");
-				$(this).removeClass('animated ' + animationName)
-				.css( (display)?
-				{"display":"none"}:
-				{"visibility":"hidden"}
-			);
-		});
-		break;
-		case CSSAnimType.Fixed:
-		this.addClass('animated ' + animationName).one(animationEnd, function() {
-			popup.stop();
-			//console.log("CSS Animation finished. (Fixed)");
-			$(this).removeClass('animated ' + animationName);
-		});
-		break;
-		default:
-		break;
+				if (verbose) console.log("CSS Animation finished. (Exit)");
+				$(this).removeClass('animated ' + name)
+				.css( (display)?{"display":"none"}:{"visibility":"hidden"});
+			});
+			break;
+			case TYPE.Fixed:
+			this.addClass('animated ' + name).one(end_str, function() {
+				// TODO: Remove this dependency
+				popup.stop();
+				if (verbose) console.log("CSS Animation finished. (Fixed)");
+				$(this).removeClass('animated ' + name);
+			});
+			break;
+			default:
+			break;
+		}
 	}
-}
 });
 })();

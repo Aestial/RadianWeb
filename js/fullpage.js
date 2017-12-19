@@ -1,14 +1,13 @@
 var fullpage = (function(){
-  // TODO: Check important order
+  var verbose = false; // CONSOLE
   var on_leave = function(index, nextIndex, direction) {
     //console.log("fullPage: onLeave--" + "index: " + index + " nextIndex: " + nextIndex + " direction: " +  direction);
-    // TODO: REMOVE THIS DEPENDENCY!!
-    popup.set(1);
-    if (loader.get_loaded()){
-      console.log(loader.get_manager());
-        //triggerAnim(1);
+    // ++ TODO: REMOVE THIS DEPENDENCIES!!!:
+    if (loader.get_entered()){
+      popup.set(popup.states.Hide);
+      three.trigger_anim(1);
     }
-
+    // ++
   };
   var after_render = function() {
     //console.log("fullPage: afterRender");
@@ -32,9 +31,9 @@ var fullpage = (function(){
   };
   // Public methods
   var init = function () {
-    console.log("INIT: fullpage");
-    var dom = $('#fullpage');
-    dom.fullpage(params);
+    if (verbose) console.log("INIT: fullpage");
+    $('#fullpage').fullpage(params);
+    $.fn.fullpage.setAllowScrolling(false);
   };
   return {
     init : init

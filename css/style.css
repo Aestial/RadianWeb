@@ -67,6 +67,7 @@ p,.field, #form-messages{
 }
 .pixi{
 	z-index: -1;
+	opacity: 0.999;
 }
 .info {
 	margin-left: 250px;
@@ -255,7 +256,4 @@ Aqui comienza para el menu
 	height: 80px;
 	background-repeat: no-repeat;
 	background-size: contain;
-}
-#app2d_cont{
-	opacity: 0.999;
 }

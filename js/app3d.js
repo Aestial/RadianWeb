@@ -1,10 +1,11 @@
 var three = (function(){
+  var verbose = false; // CONSOLE
   // Enums
   var Clips = Object.freeze({Test:0});
   // Utils
   if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
   var clock = new THREE.Clock();
-  var renderer, container, stats, loader;
+  var renderer, container, stats, obj_loader;
   // Scene objects
   var camera, scene, parent, glowSocket;
   var object, oclObject;
@@ -40,6 +41,8 @@ var three = (function(){
   // DEBUG. GUI
   var gui;
 
+  var trigger_anim;
+
   var initGUI = function () {
     gui = new dat.GUI({
       height : 40 - 1
@@ -54,8 +57,8 @@ var three = (function(){
     white.add(whiteMat, 'metalness').min(0.0).max(1.0).step(0.001).name("Metalness");
     white.add(whiteMat, 'envMapIntensity').min(0.0).max(12.0).step(0.001).name("Reflect intensity");
     var glow = gui.addFolder('Glow Effect');
-    glow.add(compositeShader.uniforms[ 'glowStrength' ], 'value').min(0.0).max(0.9).step(0.005).name("Glow strength");
-    glow.add(zoomBlurShader.uniforms[ 'strength' ], 'value').min(0.0).max(1.25).step(0.005).name("Blur strength");
+    glow.add(compositeShader.uniforms.glowStrength, 'value').min(0.0).max(0.9).step(0.005).name("Glow strength");
+    glow.add(zoomBlurShader.uniforms.strength, 'value').min(0.0).max(1.25).step(0.005).name("Blur strength");
   };
 
   var init = function () {
@@ -80,7 +83,6 @@ var three = (function(){
 
     // Arcade texture
     var arcadeMap = new THREE.TextureLoader(loader.get_manager()).load( 'textures/arcade.png' );
-
     // Arcade materials
     arcadeMaterial = new THREE.SpriteMaterial({ map: arcadeMap, color: 0xffffff });
     videoMaterial = new THREE.SpriteMaterial({ map: vText });
@@ -176,11 +178,13 @@ var three = (function(){
         depthWrite: false
       } );
       orthoScene = new THREE.Scene();
-      orthoCamera = new THREE.OrthographicCamera( 1 / - 2, 1 / 2, 1 / 2, 1 / - 2, .00001, 1000 );
+      orthoCamera = new THREE.OrthographicCamera( 1 / - 2, 1 / 2, 1 / 2, 1 / - 2, 0.00001, 1000.0 );
       orthoQuad = new THREE.Mesh( new THREE.PlaneGeometry( 1, 1 ), zoomBlurShader );
       orthoScene.add( orthoQuad );
       if (debug) initGUI();
-      OnShadersLoaded2D(data);
+      // TODO: REMOVE THIS DEPENDENCY
+      two.on_loaded(data);
+      //OnShadersLoaded2D(data);
     }
     SHADER_LOADER.load(OnShadersLoaded);
 
@@ -225,8 +229,8 @@ var three = (function(){
     */
     objMaterials.push(obj2Mats);
 
-    loader = new THREE.ObjectLoader(loader.get_manager());
-    loader.load( "obj/botanim.json", OnBotLoaded);
+    obj_loader = new THREE.ObjectLoader(loader.get_manager());
+    obj_loader.load( "obj/botanim.json", OnBotLoaded);
     function OnBotLoaded (obj)
     {
       oclObject = obj.clone( true );
@@ -239,7 +243,7 @@ var three = (function(){
         oclObject.children[i].material = oclMaterial;
         switch (obj.children[i].name){
           case "WhiteSphere":
-          console.log("Socket added!");
+          if (verbose) console.log("Socket added!");
           //obj.children[i].add(glowMesh_DEBUG);
           obj.children[i].add(glowSocket);
           oclObject.children[i].material = [oclMaterial, emissiveMat];
@@ -266,8 +270,8 @@ var three = (function(){
 
       mixer = new THREE.AnimationMixer( object );
       var numAnim = object.animations.length;
-      console.log("Total animations: " + numAnim);
-      for(var i = 0; i < numAnim; i++) {
+      if (verbose) console.log("Total animations: " + numAnim);
+      for(i = 0; i < numAnim; i++) {
         var newAction = mixer.clipAction(object.animations[i]);
         newAction.setLoop(THREE.LoopOnce);
         //newAction.timeScale = 1;
@@ -304,17 +308,16 @@ var three = (function(){
     }, 1000 / 30 );
   };
 
-  function triggerAnim (index) {
+  trigger_anim = function (index, delay) {
     var i = index -1;
-    console.log(currentAction);
-    console.log("Animation index: " + i);
+    if (verbose) console.log("Animation index: " + i);
     if (currentAction)
     {
-      console.log(currentAction._clip.name);
+      if (verbose) console.log(currentAction._clip.name);
       actions[i].reset();
       actions[i].weight = 1;
       currentAction.crossFadeTo(actions[i], 1);
-      console.log("Has current action");
+      if (verbose) console.log("Has current action");
     }
     else
     {
@@ -322,11 +325,11 @@ var three = (function(){
       //actions[i].play();
       actions[i].weight = 1;
       actions[i].reset();
-      actions[i].play();
-      console.log("First action");
+      actions[i].startAt(mixer.time + delay).play();
+      if (verbose) console.log("First action");
     }
     currentAction = actions[i];
-  }
+  };
   // EVENT HANDLERS
   function onWindowResize( event )
   {
@@ -338,7 +341,7 @@ var three = (function(){
     renderer.setSize( SCREEN_WIDTH, SCREEN_HEIGHT );
     camera.aspect = SCREEN_WIDTH / SCREEN_HEIGHT;
     camera.updateProjectionMatrix();
-    zoomBlurShader.uniforms[ 'resolution' ].value = new THREE.Vector2( SCREEN_WIDTH, SCREEN_HEIGHT );
+    zoomBlurShader.uniforms.resolution.value = new THREE.Vector2( SCREEN_WIDTH, SCREEN_HEIGHT );
 
     baseTexture.setSize( SCREEN_WIDTH, SCREEN_HEIGHT );
     glowTexture.setSize( SCREEN_WIDTH/2, SCREEN_HEIGHT/2 );
@@ -426,20 +429,21 @@ var three = (function(){
     if (typeof zoomBlurShader != "undefined")
     {
       orthoQuad.material = zoomBlurShader;
-      orthoQuad.material.uniforms[ 'tDiffuse' ].value = glowTexture.texture;
-      orthoQuad.material.uniforms[ 'center' ].value = zoomCenter;
+      orthoQuad.material.uniforms.tDiffuse.value = glowTexture.texture;
+      orthoQuad.material.uniforms.center.value = zoomCenter;
       renderer.render( orthoScene, orthoCamera, blurTexture, false );
       //renderer.render( orthoScene, orthoCamera );
     }
     if (typeof zoomBlurShader != "undefined")
     {
       orthoQuad.material = compositeShader;
-      orthoQuad.material.uniforms[ 'tBase' ].value = baseTexture.texture;
-      orthoQuad.material.uniforms[ 'tGlow' ].value = blurTexture.texture;
+      orthoQuad.material.uniforms.tBase.value = baseTexture.texture;
+      orthoQuad.material.uniforms.tGlow.value = blurTexture.texture;
       renderer.render( orthoScene, orthoCamera );
     }
   }
   return{
-    init : init
+    init : init,
+    trigger_anim : trigger_anim
   };
 })();
