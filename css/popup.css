@@ -2,9 +2,9 @@
 	position: absolute;
 	right: 0%;
 	height: 100%;
-	width: 70%;
+	width: 74%;
 	z-index: 15;
-	background-color: rgba(0,0,0,0.8);
+	background-color: rgba(0,0,0,0.88);
 	background-repeat: no-repeat;
 	background-size: cover;
 }
@@ -14,7 +14,9 @@
 .popup_toggle:hover{
 	color:#fff;
 }
-
+.dummy{
+	display: none;
+}
 .bw{
   -webkit-filter: grayscale(100%) brightness(60%);
   filter: grayscale(100%) brightness(60%);

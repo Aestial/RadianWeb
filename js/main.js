@@ -1,5 +1,5 @@
 // GLOBAL CONTROL
-var debug = true;
+var debug = false;
 // Methods
 var init = function () {
   // browser.init();

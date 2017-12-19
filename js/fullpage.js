@@ -5,7 +5,7 @@ var fullpage = (function(){
     // ++ TODO: REMOVE THIS DEPENDENCIES!!!:
     if (loader.get_entered()){
       popup.set(popup.states.Hide);
-      three.trigger_anim(1);
+      vimeo.pause();
     }
     // ++
   };
@@ -17,6 +17,11 @@ var fullpage = (function(){
   };
   var after_load = function(anchorLink, index) {
     //console.log("fullPage: afterLoad--" + "anchorLink: " + anchorLink + " index: " + index );
+    // ++ TODO: REMOVE THIS DEPENDENCIES!!!:
+    if (loader.get_entered()){
+      three.trigger_anim(1);
+    }
+    // ++
   };
   var params = {
     sectionsColor: ['rgba(0,0,0,0)'],

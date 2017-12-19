@@ -1,5 +1,5 @@
 var popup = (function(){
-  var verbose = true; // CONSOLE
+  var verbose = false; // CONSOLE
   var STATES = Object.freeze({Start:-1, Show:0, Hide:1});
   var ANIM_CMD = ['fadeInRight','fadeOutRight'];
   var BTN_TEXT = ['Cerrar','Ver más'];
@@ -16,22 +16,9 @@ var popup = (function(){
     var text = BTN_TEXT[state];
     button.text(text);
   };
-  var _set_content = function (state) {
-    if (verbose) console.log("POPUP: Content reset");
-    switch (state) {
-      case STATES.Hide:
-        if (verbose) console.log("POPUP: Content reset");
-        // TODO: FUCK DEPENDENCIES:
-        vimeo.reset();
-        break;
-      default:
-      break;
-    }
-  };
   var _update = function (state) {
     _play_anim(state);
     _set_text(state);
-    _set_content(state);
   };
   // Public methods
   var init = function () {
@@ -51,6 +38,7 @@ var popup = (function(){
     if (!playing) {
       newState = (state + 1) % 2;
       set(newState);
+      return !newState;
     }
   };
   var play = function () {
