@@ -55,7 +55,7 @@ export default class BotObject {
       color: 0x00ff00
     });
     this.materials.vfx = new THREE.MeshBasicMaterial({
-      color: 0xff00ff
+      color: 0xff0000
     });
     this.materials.arcade = new THREE.MeshBasicMaterial({
       map: this.textures.arcade
