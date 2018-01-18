@@ -1,0 +1,42 @@
+{
+  "name": "radianweb",
+  "version": "1.0.0",
+  "description": "radian design studio website",
+  "main": "src/js/app.js",
+  "scripts": {
+    "build": "webpack",
+    "start:dev": "webpack-dev-server --entry ./src/js/app.js --output-filename ./dist/bundle.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Aestial/RadianWeb.git"
+  },
+  "keywords": [
+    "Three.js",
+    "pixi.js"
+  ],
+  "author": "Jaime Hernandez",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Aestial/RadianWeb/issues"
+  },
+  "homepage": "https://github.com/Aestial/RadianWeb#readme",
+  "dependencies": {
+    "@vimeo/player": "^2.2.1",
+    "animate.css": "^3.5.2",
+    "bowser": "^1.9.1",
+    "fullpage.js": "^2.9.5",
+    "jquery": "^3.2.1",
+    "pixi.js": "^3.0.11",
+    "three": "^0.89.0"
+  },
+  "devDependencies": {
+    "css-loader": "^0.28.8",
+    "file-loader": "^1.1.6",
+    "style-loader": "^0.19.1",
+    "url-loader": "^0.6.2",
+    "webpack": "^3.10.0",
+    "webpack-dev-server": "^2.10.1"
+  }
+}

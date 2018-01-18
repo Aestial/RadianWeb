@@ -1,0 +1,126 @@
+/* Custom CSS
+* --------------------------------------- */
+
+body {
+  font-family: Roboto-Thin, helvetica;
+  color: #fff;
+  background-color: rgba(0, 0, 0, 1);
+}
+
+h1 {
+  font-size: 2.2em;
+  letter-spacing: 15px;
+  padding: 20px 0px;
+}
+
+/* fullpage: */
+
+.info {
+  margin-left: 250px;
+  /*padding-left: 55%;*/
+}
+
+.project h1 {
+  width: 350px;
+  font-size: 1.15em;
+  letter-spacing: 10px;
+  padding: 10px 0px;
+  padding-top: 150px;
+}
+
+.project p {
+  width: 350px;
+  font-size: 0.95em;
+  padding: 10px 0px;
+}
+
+.contact h1 {
+  font-family: Renogare, helvetica;
+  width: 350px;
+  font-size: 1.7em;
+  letter-spacing: 5px;
+}
+
+.contact p {
+  width: 350px;
+  font-size: 1.3em;
+  padding: 20px 0px;
+  letter-spacing: 5px;
+}
+
+.contact .field {
+  width: 400px;
+  font-size: 1.3em;
+  padding: 10px 0px;
+  letter-spacing: 5px;
+}
+
+/*
+Aqui comienza para el menu
+*/
+
+.title {
+  font-family: Renogare, helvetica;
+  font-size: 1.3em;
+  display: block;
+}
+
+.title-logo {
+  width: 68%;
+}
+
+#menu {
+  font-family: Roboto-Light, helvetica;
+  position: absolute;
+  top: 25px;
+  left: 40px;
+  z-index: 10;
+}
+
+#menu li {
+  letter-spacing: 3px;
+  color: #fff;
+}
+
+#menu li.active {
+  color: #ddd;
+}
+
+#menu li a {
+  font-size: 0.85em;
+  display: block;
+  width: 150px;
+  text-decoration: none;
+  color: #777;
+  padding: 6px 10px;
+}
+
+#menu li a:hover {
+  color: #aaa;
+}
+
+#menu li.active a {
+  color: #fff;
+}
+
+#menu li.active a:hover {
+  color: #fff;
+}
+
+#help {
+  bottom: 10px;
+  position: absolute;
+  width: 100%;
+}
+
+#scroll_img {
+  display: table;
+  margin: auto;
+  background-image: url("../../images/ScrollDown.png");
+  z-index: 7;
+  bottom: 10px;
+  width: 80px;
+  height: 80px;
+  background-repeat: no-repeat;
+  background-size: contain;
+}

@@ -1,77 +1,41 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
+
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<title>RADIAN</title>
 	<meta name="author" content="Jaime Hernandez" />
 	<meta name="description" content="Radian: E-Design VFX Videogames" />
-	<meta name="keywords"  content="e-design vfx videogames" />
+	<meta name="keywords" content="e-design vfx videogames" />
 	<meta name="Resource-type" content="Document" />
 	<!--LIBRARIES-->
-	<link rel="stylesheet" type="text/css" href="css/libraries/animate.min.css">
-	<link rel="stylesheet" type="text/css" href="css/libraries/jquery.fullPage.css">
-	<link rel="stylesheet" type="text/css" href="css/libraries/fullPage_fading.css">
-	<link rel="stylesheet" type="text/css" href="css/libraries/loading-bar.css">
+	<script type="text/javascript" src="src/js/libraries/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript" src="src/js/libraries/dat.gui.min.js"></script>
+	<script type="text/javascript" src="src/js/libraries/ShaderLoader.js"></script>
 	<!--APP-->
-	<link rel="stylesheet" type="text/css" href="css/fonts.css">
-	<link rel="stylesheet" type="text/css" href="css/reset.css">
-	<link rel="stylesheet" type="text/css" href="css/style.css">
-	<link rel="stylesheet" type="text/css" href="css/contact.css">
-	<link rel="stylesheet" type="text/css" href="css/effects.css">
-	<link rel="stylesheet" type="text/css" href="css/loader.css">
-	<link rel="stylesheet" type="text/css" href="css/popup.css">
-	<link rel="stylesheet" type="text/css" href="css/two.css">
-	<link rel="stylesheet" type="text/css" href="css/three.css">
-	<link rel="stylesheet" type="text/css" href="css/vimeo.css">
-	<!--LIBRARIES-->
-	<script src="https://player.vimeo.com/api/player.js"></script>
-	<script type="text/javascript" src="js/libraries/jquery-3.2.1.min.js"></script>
-	<script type="text/javascript" src="js/libraries/jquery.fullPage.js"></script>
-	<script type="text/javascript" src="js/utils/jQueryExtents.js"></script>
-	<script type="text/javascript" src="js/libraries/bowser.js"></script>
-	<script type="text/javascript" src="js/libraries/loading-bar.js"></script>
-	<script type="text/javascript" src="js/libraries/dat.gui.min.js"></script>
-	<script type="text/javascript" src="js/libraries/pixi_v3.js"></script>
-	<script type="text/javascript" src="js/libraries/stats.min.js"></script>
-	<script type="text/javascript" src="js/libraries/three.min.js"></script>
-	<script type="text/javascript" src="js/libraries/three-extras/Detector.js"></script>
-	<script type="text/javascript" src="js/libraries/three-extras/ShaderLoader.js"></script>
-	<!--APP-->
-	<script type="text/javascript" src="js/browser.js"></script>
-	<script type="text/javascript" src="js/loader.js"></script>
-	<script type="text/javascript" src="js/fullpage.js"></script>
-	<script type="text/javascript" src="js/contact.js"></script>
-	<script type="text/javascript" src="js/popup.js"></script>
-	<script type="text/javascript" src="js/vimeo.js"></script>
-	<script type="text/javascript" src="js/three.js"></script>
-	<script type="text/javascript" src="js/two.js"></script>
-	<script type="text/javascript" src="js/main.js"></script>
-	<!--UTILS-->
-	<script data-src="shaders/smoke/fragment.js"
-	data-name="smoke" type="x-shader/x-fragment"></script>
-	<script data-src="shaders/ortho/vertex.js"
-	data-name="ortho" type="x-shader/x-vertex"></script>
-	<script data-src="shaders/composite/fragment.js"
-	data-name="composite" type="x-shader/x-fragment"></script>
-	<script data-src="shaders/zoom_blur/fragment.js"
-	data-name="zoom_blur" type="x-shader/x-fragment"></script>
-	<script data-src="shaders/emissive/vertex.js"
-	data-name="emissive" type="x-shader/x-vertex"></script>
-	<script data-src="shaders/emissive/fragment.js"
-	data-name="emissive" type="x-shader/x-fragment"></script>
+	<script type="text/javascript" src="dist/bundle.js"></script>
+	<!--SHADERS-->
+	<script data-src="src/shaders/smoke/fragment.js" data-name="smoke" type="x-shader/x-fragment"></script>
+	<script data-src="src/shaders/ortho/vertex.js" data-name="ortho" type="x-shader/x-vertex"></script>
+	<script data-src="src/shaders/composite/fragment.js" data-name="composite" type="x-shader/x-fragment"></script>
+	<script data-src="src/shaders/zoom_blur/fragment.js" data-name="zoom_blur" type="x-shader/x-fragment"></script>
+	<script data-src="src/shaders/emissive/vertex.js" data-name="emissive" type="x-shader/x-vertex"></script>
+	<script data-src="src/shaders/emissive/fragment.js" data-name="emissive" type="x-shader/x-fragment"></script>
 </head>
+
 <body>
 	<div id="loadScreen" style="width:100%; height:100%;">
 		<div id="logoCont">
 			<img id="logo" src="svg/logo_kata.svg"></img>
 		</div>
 		<div id="loadBarCont">
-			<div id="loadBar" class="ldBar label-center" data-stroke="white" data-stroke-width="4" data-stroke-trail="gray"	data-stroke-trail-width="2" data-value="0">
+			<div id="loadBar" class="ldBar label-center" data-stroke="white" data-stroke-width="4" data-stroke-trail="gray" data-stroke-trail-width="2" data-value="0">
 			</div>
 		</div>
 	</div>
 	<ul id="menu">
-		<li class="title-logo glitch"><img id="title-logo" src="svg/logo_kata.svg"></img></li>
+		<li class="title-logo glitch"><img id="title-logo" src="svg/logo_kata.svg"></img>
+		</li>
 		<li class="title glitch" data-text="RADIAN" id="title">RADIAN</li>
 		<li data-menuanchor="aboutus"><a href="#aboutus">ACERCA DE</a></li>
 		<li data-menuanchor="edesign"><a href="#edesign">ELECTRÓNICA APLICADA</a></li>
@@ -86,39 +50,39 @@
 		<div class="section" id="section0">
 			<div class="info" id="about">
 				<h1>ACERCA DE</h1>
-				<p>Radian es un estudio de desarrollo dedicado a la innovación  de experiencias interactivas usando tecnologías de todo tipo.</p>
+				<p>Radian es un estudio de desarrollo dedicado a la innovación de experiencias interactivas usando tecnologías de todo tipo.</p>
 			</div>
 		</div>
 		<div class="section" id="section1">
 			<div class="info project">
 				<h1>ELECTRÓNICA APLICADA</h1>
 				<p>"Diseñamos sistemas electrónicos para hacer experiencias más tangibles y enriquecedoras":</p>
-				<p><a class="popup_toggle" onclick = "if(popup.toggle()){vimeo.set(97131273);} else{vimeo.pause();}">Ver más</a></p>
-				<img src="images/French.jpg" class="dummy" alt=""/>
+				<p><a class="popup_toggle" onclick="if(popup.toggle()){vimeo.set(97131273);} else{vimeo.pause();}">Ver más</a></p>
+				<img src="images/French.jpg" class="dummy" alt="" />
 			</div>
 		</div>
 		<div class="section" id="section2">
 			<div class="info project">
 				<h1>DISEÑO Y EFECTOS VISUALES</h1>
 				<p>"Somos detallistas y generamos una identidad visual única en cada proyecto que desarrollamos":</p>
-				<p><a class="popup_toggle" onclick = "if(popup.toggle()){vimeo.set(136279975);} else{vimeo.pause();}">Ver más</a></p>
-				<img src="images/Dog.jpg" class="dummy" alt=""/>
+				<p><a class="popup_toggle" onclick="if(popup.toggle()){vimeo.set(136279975);} else{vimeo.pause();}">Ver más</a></p>
+				<img src="images/Dog.jpg" class="dummy" alt="" />
 			</div>
 		</div>
 		<div class="section" id="section3">
 			<div class="info project">
 				<h1>VIDEOJUEGOS E INTERACTIVOS</h1>
 				<p>"Los videojuegos son nuestra principal influencia, hacemos videojuegos por el placer de usarlos"</p>
-				<p><a class="popup_toggle" onclick = "if(popup.toggle()){vimeo.set(158526068);} else{vimeo.pause();}">Ver más</a></p>
-				<img src="images/Chilaquil.jpg" class="dummy" alt=""/>
+				<p><a class="popup_toggle" onclick="if(popup.toggle()){vimeo.set(158526068);} else{vimeo.pause();}">Ver más</a></p>
+				<img src="images/Chilaquil.jpg" class="dummy" alt="" />
 			</div>
 		</div>
 		<div class="section" id="section4">
-			<div id="app2d_cont"></div>
+			<div id="pixi_cont"></div>
 			<div class="info contact">
 				<h1>CONTACTO</h1>
 				<div id="form-messages"></div>
-				<form id="ajax-contact" method="post" action="php/mailer.php">
+				<form id="ajax-contact" method="post" action="src/php/mailer.php">
 					<div class="field">
 						<input type="text" id="name" name="name" placeholder="NAME" required>
 					</div>
@@ -146,10 +110,10 @@
 	<div id="help">
 		<div id="scroll_img"></div>
 	</div>
-	<video id="video" autoplay loop muted webkit-playsinline>
+	<video id="arcadeVideo" autoplay loop muted webkit-playsinline>
 		<source src="textures/log.mp4" type='video/mp4'>
 			<!--source src="textures/sintel.ogv" type='video/ogg; codecs="theora, vorbis"'-->
 		</video>
-	</body>
 </body>
+
 </html>

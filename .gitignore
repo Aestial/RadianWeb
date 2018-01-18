@@ -1,5 +1,12 @@
 /[Rr]aw/
 
+// NPM
+node_modules/
+npm-debug.log
+
+// Atom Js hint config
+.jshintrc
+
 *.DS_Store
 .AppleDouble
 .LSOverride
