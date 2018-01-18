@@ -11,7 +11,7 @@ import $ from 'jquery';
 import reset from '../css/reset.css';
 import style from '../css/style.css';
 import fonts from '../css/fonts.css';
-import effects from '../css/effects.css';
+// import effects from '../css/effects.css';
 
 require('./Libraries/loading-bar.js');
 require('./Libraries/jquery-extents.js');
@@ -44,11 +44,11 @@ var init = function() {
   var fullPage = new FullPageController({
     verbose: debug
   });
-  // var pixi = new PixiController(pixi_container, {
-  //   className: "pixi",
-  //   verbose: debug
-  // });
-  // window.pixi = pixi;
+  var pixi = new PixiController(pixi_container, {
+    className: "pixi",
+    verbose: debug
+  });
+  window.pixi = pixi;
   var vimeo = new VimeoController({
     verbose: debug
   });

@@ -104,7 +104,6 @@ export default class BotObject {
       newAction.weight = 0;
       this.actions.push(newAction);
     }
-    console.log("Object Total animations: " + numAnim);
   }
   playAnimation(index) {
     this.actions[index].weight = 1;

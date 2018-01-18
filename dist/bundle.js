@@ -78,14 +78,14 @@
  * @namespace PIXI
  */
 // export core and const. We assign core to const so that the non-reference types in const remain in-tact
-var core = module.exports = Object.assign(__webpack_require__(1), __webpack_require__(6), {
+var core = module.exports = Object.assign(__webpack_require__(1), __webpack_require__(4), {
     // utils
     utils: __webpack_require__(3),
     ticker: __webpack_require__(100),
 
     // display
     DisplayObject:          __webpack_require__(38),
-    Container:              __webpack_require__(15),
+    Container:              __webpack_require__(16),
 
     // sprites
     Sprite:                 __webpack_require__(42),
@@ -102,30 +102,30 @@ var core = module.exports = Object.assign(__webpack_require__(1), __webpack_requ
     GraphicsRenderer:       __webpack_require__(114),
 
     // textures
-    Texture:                __webpack_require__(11),
-    BaseTexture:            __webpack_require__(13),
-    RenderTexture:          __webpack_require__(25),
+    Texture:                __webpack_require__(12),
+    BaseTexture:            __webpack_require__(14),
+    RenderTexture:          __webpack_require__(26),
     VideoBaseTexture:       __webpack_require__(39),
     TextureUvs:             __webpack_require__(40),
 
     // renderers - canvas
     CanvasRenderer:         __webpack_require__(117),
-    CanvasGraphics:         __webpack_require__(28),
-    CanvasBuffer:           __webpack_require__(26),
+    CanvasGraphics:         __webpack_require__(29),
+    CanvasBuffer:           __webpack_require__(27),
 
     // renderers - webgl
-    WebGLRenderer:          __webpack_require__(16),
+    WebGLRenderer:          __webpack_require__(17),
     WebGLManager:           __webpack_require__(8),
     ShaderManager:          __webpack_require__(45),
-    Shader:                 __webpack_require__(18),
-    TextureShader:          __webpack_require__(17),
+    Shader:                 __webpack_require__(19),
+    TextureShader:          __webpack_require__(18),
     PrimitiveShader:        __webpack_require__(47),
     ComplexPrimitiveShader: __webpack_require__(46),
-    ObjectRenderer:         __webpack_require__(12),
-    RenderTarget:           __webpack_require__(14),
+    ObjectRenderer:         __webpack_require__(13),
+    RenderTarget:           __webpack_require__(15),
 
     // filters - webgl
-    AbstractFilter:         __webpack_require__(27),
+    AbstractFilter:         __webpack_require__(28),
     FXAAFilter:             __webpack_require__(49),
     SpriteMaskFilter:       __webpack_require__(48),
 
@@ -679,6 +679,33 @@ var utils = module.exports = {
 
 /***/ }),
 /* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Math classes and utilities mixed into PIXI namespace.
+ *
+ * @lends PIXI
+ */
+module.exports = {
+    // These will be mixed to be made publicly available,
+    // while this module is used internally in core
+    // to avoid circular dependencies and cut down on
+    // internal module requires.
+
+    Point:      __webpack_require__(23),
+    Matrix:     __webpack_require__(34),
+    GroupD8:    __webpack_require__(35),
+
+    Circle:     __webpack_require__(94),
+    Ellipse:    __webpack_require__(95),
+    Polygon:    __webpack_require__(96),
+    Rectangle:  __webpack_require__(24),
+    RoundedRectangle: __webpack_require__(97)
+};
+
+
+/***/ }),
+/* 5 */
 /***/ (function(module, exports) {
 
 /*
@@ -760,7 +787,7 @@ function toComment(sourceMap) {
 
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -1129,33 +1156,6 @@ function updateLink (link, options, obj) {
 
 	if(oldSrc) URL.revokeObjectURL(oldSrc);
 }
-
-
-/***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Math classes and utilities mixed into PIXI namespace.
- *
- * @lends PIXI
- */
-module.exports = {
-    // These will be mixed to be made publicly available,
-    // while this module is used internally in core
-    // to avoid circular dependencies and cut down on
-    // internal module requires.
-
-    Point:      __webpack_require__(22),
-    Matrix:     __webpack_require__(34),
-    GroupD8:    __webpack_require__(35),
-
-    Circle:     __webpack_require__(94),
-    Ellipse:    __webpack_require__(95),
-    Polygon:    __webpack_require__(96),
-    Rectangle:  __webpack_require__(23),
-    RoundedRectangle: __webpack_require__(97)
-};
 
 
 /***/ }),
@@ -11761,6317 +11761,21 @@ if (true) {
 
 /***/ }),
 /* 10 */
-/***/ (function(module, exports) {
-
-var g;
-
-// This works in non-strict mode
-g = (function() {
-	return this;
-})();
-
-try {
-	// This works if eval is allowed (see CSP)
-	g = g || Function("return this")() || (1,eval)("this");
-} catch(e) {
-	// This works if the window reference is available
-	if(typeof window === "object")
-		g = window;
-}
-
-// g can still be undefined, but nothing to do about it...
-// We return undefined, instead of nothing here, so it's
-// easier to handle this case. if(!global) { ...}
-
-module.exports = g;
-
-
-/***/ }),
-/* 11 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var BaseTexture = __webpack_require__(13),
-    VideoBaseTexture = __webpack_require__(39),
-    TextureUvs = __webpack_require__(40),
-    EventEmitter = __webpack_require__(9),
-    math = __webpack_require__(6),
-    utils = __webpack_require__(3);
-
-/**
- * A texture stores the information that represents an image or part of an image. It cannot be added
- * to the display list directly. Instead use it as the texture for a Sprite. If no frame is provided then the whole image is used.
- *
- * You can directly create a texture from an image and then reuse it multiple times like this :
- *
- * ```js
- * var texture = PIXI.Texture.fromImage('assets/image.png');
- * var sprite1 = new PIXI.Sprite(texture);
- * var sprite2 = new PIXI.Sprite(texture);
- * ```
- *
- * @class
- * @memberof PIXI
- * @param baseTexture {PIXI.BaseTexture} The base texture source to create the texture from
- * @param [frame] {PIXI.Rectangle} The rectangle frame of the texture to show
- * @param [crop] {PIXI.Rectangle} The area of original texture
- * @param [trim] {PIXI.Rectangle} Trimmed texture rectangle
- * @param [rotate] {number} indicates how the texture was rotated by texture packer. See {@link PIXI.GroupD8}
- */
-function Texture(baseTexture, frame, crop, trim, rotate)
-{
-    EventEmitter.call(this);
-
-    /**
-     * Does this Texture have any frame data assigned to it?
-     *
-     * @member {boolean}
-     */
-    this.noFrame = false;
-
-    if (!frame)
-    {
-        this.noFrame = true;
-        frame = new math.Rectangle(0, 0, 1, 1);
-    }
-
-    if (baseTexture instanceof Texture)
-    {
-        baseTexture = baseTexture.baseTexture;
-    }
-
-    /**
-     * The base texture that this texture uses.
-     *
-     * @member {PIXI.BaseTexture}
-     */
-    this.baseTexture = baseTexture;
-
-    /**
-     * The frame specifies the region of the base texture that this texture uses
-     *
-     * @member {PIXI.Rectangle}
-     * @private
-     */
-    this._frame = frame;
-
-    /**
-     * The texture trim data.
-     *
-     * @member {PIXI.Rectangle}
-     */
-    this.trim = trim;
-
-    /**
-     * This will let the renderer know if the texture is valid. If it's not then it cannot be rendered.
-     *
-     * @member {boolean}
-     */
-    this.valid = false;
-
-    /**
-     * This will let a renderer know that a texture has been updated (used mainly for webGL uv updates)
-     *
-     * @member {boolean}
-     */
-    this.requiresUpdate = false;
-
-    /**
-     * The WebGL UV data cache.
-     *
-     * @member {PIXI.TextureUvs}
-     * @private
-     */
-    this._uvs = null;
-
-    /**
-     * The width of the Texture in pixels.
-     *
-     * @member {number}
-     */
-    this.width = 0;
-
-    /**
-     * The height of the Texture in pixels.
-     *
-     * @member {number}
-     */
-    this.height = 0;
-
-    /**
-     * This is the area of the BaseTexture image to actually copy to the Canvas / WebGL when rendering,
-     * irrespective of the actual frame size or placement (which can be influenced by trimmed texture atlases)
-     *
-     * @member {PIXI.Rectangle}
-     */
-    this.crop = crop || frame;//new math.Rectangle(0, 0, 1, 1);
-
-    this._rotate = +(rotate || 0);
-
-    if (rotate === true) {
-        // this is old texturepacker legacy, some games/libraries are passing "true" for rotated textures
-        this._rotate = 2;
-    } else {
-        if (this._rotate % 2 !== 0) {
-            throw 'attempt to use diamond-shaped UVs. If you are sure, set rotation manually';
-        }
-    }
-
-    if (baseTexture.hasLoaded)
-    {
-        if (this.noFrame)
-        {
-            frame = new math.Rectangle(0, 0, baseTexture.width, baseTexture.height);
-
-            // if there is no frame we should monitor for any base texture changes..
-            baseTexture.on('update', this.onBaseTextureUpdated, this);
-        }
-        this.frame = frame;
-    }
-    else
-    {
-        baseTexture.once('loaded', this.onBaseTextureLoaded, this);
-    }
-
-    /**
-     * Fired when the texture is updated. This happens if the frame or the baseTexture is updated.
-     *
-     * @event update
-     * @memberof PIXI.Texture#
-     * @protected
-     */
-}
-
-Texture.prototype = Object.create(EventEmitter.prototype);
-Texture.prototype.constructor = Texture;
-module.exports = Texture;
-
-Object.defineProperties(Texture.prototype, {
-    /**
-     * The frame specifies the region of the base texture that this texture uses.
-     *
-     * @member {PIXI.Rectangle}
-     * @memberof PIXI.Texture#
-     */
-    frame: {
-        get: function ()
-        {
-            return this._frame;
-        },
-        set: function (frame)
-        {
-            this._frame = frame;
-
-            this.noFrame = false;
-
-            this.width = frame.width;
-            this.height = frame.height;
-
-            if (!this.trim && !this.rotate && (frame.x + frame.width > this.baseTexture.width || frame.y + frame.height > this.baseTexture.height))
-            {
-                throw new Error('Texture Error: frame does not fit inside the base Texture dimensions ' + this);
-            }
-
-            //this.valid = frame && frame.width && frame.height && this.baseTexture.source && this.baseTexture.hasLoaded;
-            this.valid = frame && frame.width && frame.height && this.baseTexture.hasLoaded;
-
-            if (this.trim)
-            {
-                this.width = this.trim.width;
-                this.height = this.trim.height;
-                this._frame.width = this.trim.width;
-                this._frame.height = this.trim.height;
-            }
-            else
-            {
-                this.crop = frame;
-            }
-
-            if (this.valid)
-            {
-                this._updateUvs();
-            }
-        }
-    },
-    /**
-     * Indicates whether the texture is rotated inside the atlas
-     * set to 2 to compensate for texture packer rotation
-     * set to 6 to compensate for spine packer rotation
-     * can be used to rotate or mirror sprites
-     * See {@link PIXI.GroupD8} for explanation
-     *
-     * @member {number}
-     */
-    rotate: {
-        get: function ()
-        {
-            return this._rotate;
-        },
-        set: function (rotate)
-        {
-            this._rotate = rotate;
-            if (this.valid)
-            {
-                this._updateUvs();
-            }
-        }
-    }
-});
-
-/**
- * Updates this texture on the gpu.
- *
- */
-Texture.prototype.update = function ()
-{
-    this.baseTexture.update();
-};
-
-/**
- * Called when the base texture is loaded
- *
- * @private
- */
-Texture.prototype.onBaseTextureLoaded = function (baseTexture)
-{
-    // TODO this code looks confusing.. boo to abusing getters and setterss!
-    if (this.noFrame)
-    {
-        this.frame = new math.Rectangle(0, 0, baseTexture.width, baseTexture.height);
-    }
-    else
-    {
-        this.frame = this._frame;
-    }
-
-    this.emit('update', this);
-};
-
-/**
- * Called when the base texture is updated
- *
- * @private
- */
-Texture.prototype.onBaseTextureUpdated = function (baseTexture)
-{
-    this._frame.width = baseTexture.width;
-    this._frame.height = baseTexture.height;
-
-    this.emit('update', this);
-};
-
-/**
- * Destroys this texture
- *
- * @param [destroyBase=false] {boolean} Whether to destroy the base texture as well
- */
-Texture.prototype.destroy = function (destroyBase)
-{
-    if (this.baseTexture)
-    {
-        if (destroyBase)
-        {
-            this.baseTexture.destroy();
-        }
-
-        this.baseTexture.off('update', this.onBaseTextureUpdated, this);
-        this.baseTexture.off('loaded', this.onBaseTextureLoaded, this);
-
-        this.baseTexture = null;
-    }
-
-    this._frame = null;
-    this._uvs = null;
-    this.trim = null;
-    this.crop = null;
-
-    this.valid = false;
-
-    this.off('dispose', this.dispose, this);
-    this.off('update', this.update, this);
-};
-
-/**
- * Creates a new texture object that acts the same as this one.
- *
- * @return {PIXI.Texture}
- */
-Texture.prototype.clone = function ()
-{
-    return new Texture(this.baseTexture, this.frame, this.crop, this.trim, this.rotate);
-};
-
-/**
- * Updates the internal WebGL UV cache.
- *
- * @private
- */
-Texture.prototype._updateUvs = function ()
-{
-    if (!this._uvs)
-    {
-        this._uvs = new TextureUvs();
-    }
-
-    this._uvs.set(this.crop, this.baseTexture, this.rotate);
-};
-
-/**
- * Helper function that creates a Texture object from the given image url.
- * If the image is not in the texture cache it will be  created and loaded.
- *
- * @static
- * @param imageUrl {string} The image url of the texture
- * @param crossorigin {boolean} Whether requests should be treated as crossorigin
- * @param scaleMode {number} See {@link PIXI.SCALE_MODES} for possible values
- * @return {PIXI.Texture} The newly created texture
- */
-Texture.fromImage = function (imageUrl, crossorigin, scaleMode)
-{
-    var texture = utils.TextureCache[imageUrl];
-
-    if (!texture)
-    {
-        texture = new Texture(BaseTexture.fromImage(imageUrl, crossorigin, scaleMode));
-        utils.TextureCache[imageUrl] = texture;
-    }
-
-    return texture;
-};
-
-/**
- * Helper function that creates a sprite that will contain a texture from the TextureCache based on the frameId
- * The frame ids are created when a Texture packer file has been loaded
- *
- * @static
- * @param frameId {string} The frame Id of the texture in the cache
- * @return {PIXI.Texture} The newly created texture
- */
-Texture.fromFrame = function (frameId)
-{
-    var texture = utils.TextureCache[frameId];
-
-    if (!texture)
-    {
-        throw new Error('The frameId "' + frameId + '" does not exist in the texture cache');
-    }
-
-    return texture;
-};
-
-/**
- * Helper function that creates a new Texture based on the given canvas element.
- *
- * @static
- * @param canvas {Canvas} The canvas element source of the texture
- * @param scaleMode {number} See {@link PIXI.SCALE_MODES} for possible values
- * @return {PIXI.Texture}
- */
-Texture.fromCanvas = function (canvas, scaleMode)
-{
-    return new Texture(BaseTexture.fromCanvas(canvas, scaleMode));
-};
-
-/**
- * Helper function that creates a new Texture based on the given video element.
- *
- * @static
- * @param video {HTMLVideoElement}
- * @param scaleMode {number} See {@link PIXI.SCALE_MODES} for possible values
- * @return {PIXI.Texture} A Texture
- */
-Texture.fromVideo = function (video, scaleMode)
-{
-    if (typeof video === 'string')
-    {
-        return Texture.fromVideoUrl(video, scaleMode);
-    }
-    else
-    {
-        return new Texture(VideoBaseTexture.fromVideo(video, scaleMode));
-    }
-};
-
-/**
- * Helper function that creates a new Texture based on the video url.
- *
- * @static
- * @param videoUrl {string}
- * @param scaleMode {number} See {@link PIXI.SCALE_MODES} for possible values
- * @return {PIXI.Texture} A Texture
- */
-Texture.fromVideoUrl = function (videoUrl, scaleMode)
-{
-    return new Texture(VideoBaseTexture.fromUrl(videoUrl, scaleMode));
-};
-
-/**
- * Adds a texture to the global utils.TextureCache. This cache is shared across the whole PIXI object.
- *
- * @static
- * @param texture {PIXI.Texture} The Texture to add to the cache.
- * @param id {string} The id that the texture will be stored against.
- */
-Texture.addTextureToCache = function (texture, id)
-{
-    utils.TextureCache[id] = texture;
-};
-
-/**
- * Remove a texture from the global utils.TextureCache.
- *
- * @static
- * @param id {string} The id of the texture to be removed
- * @return {PIXI.Texture} The texture that was removed
- */
-Texture.removeTextureFromCache = function (id)
-{
-    var texture = utils.TextureCache[id];
-
-    delete utils.TextureCache[id];
-    delete utils.BaseTextureCache[id];
-
-    return texture;
-};
-
-/**
- * An empty texture, used often to not have to create multiple empty textures.
- *
- * @static
- * @constant
- */
-Texture.EMPTY = new Texture(new BaseTexture());
-
-
-/***/ }),
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var WebGLManager = __webpack_require__(8);
-
-/**
- * Base for a common object renderer that can be used as a system renderer plugin.
- *
- * @class
- * @extends PIXI.WebGLManager
- * @memberof PIXI
- * @param renderer {PIXI.WebGLRenderer} The renderer this object renderer works for.
- */
-function ObjectRenderer(renderer)
-{
-    WebGLManager.call(this, renderer);
-}
-
-
-ObjectRenderer.prototype = Object.create(WebGLManager.prototype);
-ObjectRenderer.prototype.constructor = ObjectRenderer;
-module.exports = ObjectRenderer;
-
-/**
- * Starts the renderer and sets the shader
- *
- */
-ObjectRenderer.prototype.start = function ()
-{
-    // set the shader..
-};
-
-/**
- * Stops the renderer
- *
- */
-ObjectRenderer.prototype.stop = function ()
-{
-    this.flush();
-};
-
-/**
- * flushes
- *
- */
-ObjectRenderer.prototype.flush = function ()
-{
-    // flush!
-};
-
-/**
- * Renders an object
- *
- * @param object {PIXI.DisplayObject} The object to render.
- */
-ObjectRenderer.prototype.render = function (object) // jshint unused:false
-{
-    // render the object
-};
-
-
-/***/ }),
-/* 13 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var utils = __webpack_require__(3),
-    CONST = __webpack_require__(1),
-    EventEmitter = __webpack_require__(9);
-
-/**
- * A texture stores the information that represents an image. All textures have a base texture.
- *
- * @class
- * @memberof PIXI
- * @param source {Image|Canvas} the source object of the texture.
- * @param [scaleMode=PIXI.SCALE_MODES.DEFAULT] {number} See {@link PIXI.SCALE_MODES} for possible values
- * @param resolution {number} the resolution of the texture for devices with different pixel ratios
- */
-function BaseTexture(source, scaleMode, resolution)
-{
-    EventEmitter.call(this);
-
-    this.uid = utils.uid();
-
-    /**
-     * The Resolution of the texture.
-     *
-     * @member {number}
-     */
-    this.resolution = resolution || 1;
-
-    /**
-     * The width of the base texture set when the image has loaded
-     *
-     * @member {number}
-     * @readOnly
-     */
-    this.width = 100;
-
-    /**
-     * The height of the base texture set when the image has loaded
-     *
-     * @member {number}
-     * @readOnly
-     */
-    this.height = 100;
-
-    // TODO docs
-    // used to store the actual dimensions of the source
-    /**
-     * Used to store the actual width of the source of this texture
-     *
-     * @member {number}
-     * @readOnly
-     */
-    this.realWidth = 100;
-    /**
-     * Used to store the actual height of the source of this texture
-     *
-     * @member {number}
-     * @readOnly
-     */
-    this.realHeight = 100;
-
-    /**
-     * The scale mode to apply when scaling this texture
-     *
-     * @member {number}
-     * @default PIXI.SCALE_MODES.LINEAR
-     * @see PIXI.SCALE_MODES
-     */
-    this.scaleMode = scaleMode || CONST.SCALE_MODES.DEFAULT;
-
-    /**
-     * Set to true once the base texture has successfully loaded.
-     *
-     * This is never true if the underlying source fails to load or has no texture data.
-     *
-     * @member {boolean}
-     * @readOnly
-     */
-    this.hasLoaded = false;
-
-    /**
-     * Set to true if the source is currently loading.
-     *
-     * If an Image source is loading the 'loaded' or 'error' event will be
-     * dispatched when the operation ends. An underyling source that is
-     * immediately-available bypasses loading entirely.
-     *
-     * @member {boolean}
-     * @readonly
-     */
-    this.isLoading = false;
-
-    /**
-     * The image source that is used to create the texture.
-     *
-     * TODO: Make this a setter that calls loadSource();
-     *
-     * @member {Image|Canvas}
-     * @readonly
-     */
-    this.source = null; // set in loadSource, if at all
-
-    /**
-     * Controls if RGB channels should be pre-multiplied by Alpha  (WebGL only)
-     * All blend modes, and shaders written for default value. Change it on your own risk.
-     *
-     * @member {boolean}
-     * @default true
-     */
-    this.premultipliedAlpha = true;
-
-    /**
-     * @member {string}
-     */
-    this.imageUrl = null;
-
-    /**
-     * Wether or not the texture is a power of two, try to use power of two textures as much as you can
-     * @member {boolean}
-     * @private
-     */
-    this.isPowerOfTwo = false;
-
-    // used for webGL
-
-    /**
-     *
-     * Set this to true if a mipmap of this texture needs to be generated. This value needs to be set before the texture is used
-     * Also the texture must be a power of two size to work
-     *
-     * @member {boolean}
-     */
-    this.mipmap = false;
-
-    /**
-     * A map of renderer IDs to webgl textures
-     *
-     * @member {object<number, WebGLTexture>}
-     * @private
-     */
-    this._glTextures = {};
-
-    // if no source passed don't try to load
-    if (source)
-    {
-        this.loadSource(source);
-    }
-
-    /**
-     * Fired when a not-immediately-available source finishes loading.
-     *
-     * @event loaded
-     * @memberof PIXI.BaseTexture#
-     * @protected
-     */
-
-    /**
-     * Fired when a not-immediately-available source fails to load.
-     *
-     * @event error
-     * @memberof PIXI.BaseTexture#
-     * @protected
-     */
-}
-
-BaseTexture.prototype = Object.create(EventEmitter.prototype);
-BaseTexture.prototype.constructor = BaseTexture;
-module.exports = BaseTexture;
-
-/**
- * Updates the texture on all the webgl renderers, this also assumes the src has changed.
- *
- * @fires update
- */
-BaseTexture.prototype.update = function ()
-{
-    this.realWidth = this.source.naturalWidth || this.source.width;
-    this.realHeight = this.source.naturalHeight || this.source.height;
-
-    this.width = this.realWidth / this.resolution;
-    this.height = this.realHeight / this.resolution;
-
-    this.isPowerOfTwo = utils.isPowerOfTwo(this.realWidth, this.realHeight);
-
-    this.emit('update', this);
-};
-
-/**
- * Load a source.
- *
- * If the source is not-immediately-available, such as an image that needs to be
- * downloaded, then the 'loaded' or 'error' event will be dispatched in the future
- * and `hasLoaded` will remain false after this call.
- *
- * The logic state after calling `loadSource` directly or indirectly (eg. `fromImage`, `new BaseTexture`) is:
- *
- *     if (texture.hasLoaded)
- {
- *        // texture ready for use
- *     } else if (texture.isLoading)
- {
- *        // listen to 'loaded' and/or 'error' events on texture
- *     } else {
- *        // not loading, not going to load UNLESS the source is reloaded
- *        // (it may still make sense to listen to the events)
- *     }
- *
- * @protected
- * @param source {Image|Canvas} the source object of the texture.
- */
-BaseTexture.prototype.loadSource = function (source)
-{
-    var wasLoading = this.isLoading;
-    this.hasLoaded = false;
-    this.isLoading = false;
-
-    if (wasLoading && this.source)
-    {
-        this.source.onload = null;
-        this.source.onerror = null;
-    }
-
-    this.source = source;
-
-    // Apply source if loaded. Otherwise setup appropriate loading monitors.
-    if ((this.source.complete || this.source.getContext) && this.source.width && this.source.height)
-    {
-        this._sourceLoaded();
-    }
-    else if (!source.getContext)
-    {
-
-        // Image fail / not ready
-        this.isLoading = true;
-
-        var scope = this;
-
-        source.onload = function ()
-        {
-            source.onload = null;
-            source.onerror = null;
-
-            if (!scope.isLoading)
-            {
-                return;
-            }
-
-            scope.isLoading = false;
-            scope._sourceLoaded();
-
-            scope.emit('loaded', scope);
-        };
-
-        source.onerror = function ()
-        {
-            source.onload = null;
-            source.onerror = null;
-
-            if (!scope.isLoading)
-            {
-                return;
-            }
-
-            scope.isLoading = false;
-            scope.emit('error', scope);
-        };
-
-        // Per http://www.w3.org/TR/html5/embedded-content-0.html#the-img-element
-        //   "The value of `complete` can thus change while a script is executing."
-        // So complete needs to be re-checked after the callbacks have been added..
-        // NOTE: complete will be true if the image has no src so best to check if the src is set.
-        if (source.complete && source.src)
-        {
-            this.isLoading = false;
-
-            // ..and if we're complete now, no need for callbacks
-            source.onload = null;
-            source.onerror = null;
-
-            if (source.width && source.height)
-            {
-                this._sourceLoaded();
-
-                // If any previous subscribers possible
-                if (wasLoading)
-                {
-                    this.emit('loaded', this);
-                }
-            }
-            else
-            {
-                // If any previous subscribers possible
-                if (wasLoading)
-                {
-                    this.emit('error', this);
-                }
-            }
-        }
-    }
-};
-
-/**
- * Used internally to update the width, height, and some other tracking vars once
- * a source has successfully loaded.
- *
- * @private
- */
-BaseTexture.prototype._sourceLoaded = function ()
-{
-    this.hasLoaded = true;
-    this.update();
-};
-
-/**
- * Destroys this base texture
- *
- */
-BaseTexture.prototype.destroy = function ()
-{
-    if (this.imageUrl)
-    {
-        delete utils.BaseTextureCache[this.imageUrl];
-        delete utils.TextureCache[this.imageUrl];
-
-        this.imageUrl = null;
-
-        if (!navigator.isCocoonJS)
-        {
-            this.source.src = '';
-        }
-    }
-    else if (this.source && this.source._pixiId)
-    {
-        delete utils.BaseTextureCache[this.source._pixiId];
-    }
-
-    this.source = null;
-
-    this.dispose();
-};
-
-/**
- * Frees the texture from WebGL memory without destroying this texture object.
- * This means you can still use the texture later which will upload it to GPU
- * memory again.
- *
- */
-BaseTexture.prototype.dispose = function ()
-{
-    this.emit('dispose', this);
-
-    // this should no longer be needed, the renderers should cleanup all the gl textures.
-    // this._glTextures = {};
-};
-
-/**
- * Changes the source image of the texture.
- * The original source must be an Image element.
- *
- * @param newSrc {string} the path of the image
- */
-BaseTexture.prototype.updateSourceImage = function (newSrc)
-{
-    this.source.src = newSrc;
-
-    this.loadSource(this.source);
-};
-
-/**
- * Helper function that creates a base texture from the given image url.
- * If the image is not in the base texture cache it will be created and loaded.
- *
- * @static
- * @param imageUrl {string} The image url of the texture
- * @param [crossorigin=(auto)] {boolean} Should use anonymous CORS? Defaults to true if the URL is not a data-URI.
- * @param [scaleMode=PIXI.SCALE_MODES.DEFAULT] {number} See {@link PIXI.SCALE_MODES} for possible values
- * @return PIXI.BaseTexture
- */
-BaseTexture.fromImage = function (imageUrl, crossorigin, scaleMode)
-{
-    var baseTexture = utils.BaseTextureCache[imageUrl];
-
-    if (crossorigin === undefined && imageUrl.indexOf('data:') !== 0)
-    {
-        crossorigin = true;
-    }
-
-    if (!baseTexture)
-    {
-        // new Image() breaks tex loading in some versions of Chrome.
-        // See https://code.google.com/p/chromium/issues/detail?id=238071
-        var image = new Image();//document.createElement('img');
-        if (crossorigin)
-        {
-            image.crossOrigin = '';
-        }
-
-        baseTexture = new BaseTexture(image, scaleMode);
-        baseTexture.imageUrl = imageUrl;
-
-        image.src = imageUrl;
-
-        utils.BaseTextureCache[imageUrl] = baseTexture;
-
-        // if there is an @2x at the end of the url we are going to assume its a highres image
-        baseTexture.resolution = utils.getResolutionOfUrl(imageUrl);
-    }
-
-    return baseTexture;
-};
-
-/**
- * Helper function that creates a base texture from the given canvas element.
- *
- * @static
- * @param canvas {Canvas} The canvas element source of the texture
- * @param scaleMode {number} See {@link PIXI.SCALE_MODES} for possible values
- * @return PIXI.BaseTexture
- */
-BaseTexture.fromCanvas = function (canvas, scaleMode)
-{
-    if (!canvas._pixiId)
-    {
-        canvas._pixiId = 'canvas_' + utils.uid();
-    }
-
-    var baseTexture = utils.BaseTextureCache[canvas._pixiId];
-
-    if (!baseTexture)
-    {
-        baseTexture = new BaseTexture(canvas, scaleMode);
-        utils.BaseTextureCache[canvas._pixiId] = baseTexture;
-    }
-
-    return baseTexture;
-};
-
-
-/***/ }),
-/* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var math = __webpack_require__(6),
-    utils = __webpack_require__(3),
-    CONST = __webpack_require__(1),
-    //StencilManager = require('../managers/StencilManager'),
-    StencilMaskStack = __webpack_require__(102);
-
-/**
- * @author Mat Groves http://matgroves.com/ @Doormat23
- */
-
-/**
- * @class
- * @memberof PIXI
- * @param gl {WebGLRenderingContext} the current WebGL drawing context
- * @param width {number} the horizontal range of the filter
- * @param height {number} the vertical range of the filter
- * @param scaleMode {number} See {@link PIXI.SCALE_MODES} for possible values
- * @param resolution {number} the current resolution
- * @param root {boolean} Whether this object is the root element or not
- */
-var RenderTarget = function(gl, width, height, scaleMode, resolution, root)
-{
-    //TODO Resolution could go here ( eg low res blurs )
-
-    /**
-     * The current WebGL drawing context.
-     *
-     * @member {WebGLRenderingContext}
-     */
-    this.gl = gl;
-
-    // next time to create a frame buffer and texture
-
-    /**
-     * A frame buffer
-     *
-     * @member {WebGLFrameBuffer}
-     */
-    this.frameBuffer = null;
-
-    /**
-     * The texture
-     *
-     * @member {PIXI.Texture}
-     */
-    this.texture = null;
-
-    /**
-     * The size of the object as a rectangle
-     *
-     * @member {PIXI.Rectangle}
-     */
-    this.size = new math.Rectangle(0, 0, 1, 1);
-
-    /**
-     * The current resolution
-     *
-     * @member {number}
-     */
-    this.resolution = resolution || CONST.RESOLUTION;
-
-    /**
-     * The projection matrix
-     *
-     * @member {PIXI.Matrix}
-     */
-    this.projectionMatrix = new math.Matrix();
-
-    /**
-     * The object's transform
-     *
-     * @member {PIXI.Matrix}
-     */
-    this.transform = null;
-
-    /**
-     * The frame.
-     *
-     * @member {PIXI.Rectangle}
-     */
-    this.frame = null;
-
-    /**
-     * The stencil buffer stores masking data for the render target
-     *
-     * @member {WebGLRenderBuffer}
-     */
-    this.stencilBuffer = null;
-
-    /**
-     * The data structure for the stencil masks
-     *
-     * @member {PIXI.StencilMaskStack}
-     */
-    this.stencilMaskStack = new StencilMaskStack();
-
-    /**
-     * Stores filter data for the render target
-     *
-     * @member {object[]}
-     */
-    this.filterStack = [
-        {
-            renderTarget:this,
-            filter:[],
-            bounds:this.size
-        }
-    ];
-
-
-    /**
-     * The scale mode.
-     *
-     * @member {number}
-     * @default PIXI.SCALE_MODES.DEFAULT
-     * @see PIXI.SCALE_MODES
-     */
-    this.scaleMode = scaleMode || CONST.SCALE_MODES.DEFAULT;
-
-    /**
-     * Whether this object is the root element or not
-     *
-     * @member {boolean}
-     */
-    this.root = root;
-
-    if (!this.root)
-    {
-       // this.flipY = true;
-        this.frameBuffer = gl.createFramebuffer();
-
-        /*
-            A frame buffer needs a target to render to..
-            create a texture and bind it attach it to the framebuffer..
-         */
-
-        this.texture = gl.createTexture();
-
-        gl.bindTexture(gl.TEXTURE_2D,  this.texture);
-
-        // set the scale properties of the texture..
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, scaleMode === CONST.SCALE_MODES.LINEAR ? gl.LINEAR : gl.NEAREST);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, scaleMode === CONST.SCALE_MODES.LINEAR ? gl.LINEAR : gl.NEAREST);
-
-        // check to see if the texture is a power of two!
-        var isPowerOfTwo = utils.isPowerOfTwo(width, height);
-
-        //TODO for 99% of use cases if a texture is power of two we should tile the texture...
-         if (!isPowerOfTwo)
-        {
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        }
-        else
-        {
-
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
-        }
-
-        gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer );
-        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.texture, 0);
-    }
-
-    this.resize(width, height);
-};
-
-RenderTarget.prototype.constructor = RenderTarget;
-module.exports = RenderTarget;
-
-/**
- * Clears the filter texture.
- *
- * @param [bind=false] {boolean} Should we bind our framebuffer before clearing?
- */
-RenderTarget.prototype.clear = function(bind)
-{
-    var gl = this.gl;
-    if(bind)
-    {
-        gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer);
-    }
-
-    gl.clearColor(0,0,0,0);
-    gl.clear(gl.COLOR_BUFFER_BIT);
-};
-
-/**
- * Binds the stencil buffer.
- *
- */
-RenderTarget.prototype.attachStencilBuffer = function()
-{
-
-    if (this.stencilBuffer)
-    {
-        return;
-    }
-
-    /**
-     * The stencil buffer is used for masking in pixi
-     * lets create one and then add attach it to the framebuffer..
-     */
-    if (!this.root)
-    {
-        var gl = this.gl;
-
-        this.stencilBuffer = gl.createRenderbuffer();
-        gl.bindRenderbuffer(gl.RENDERBUFFER, this.stencilBuffer);
-        gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_STENCIL_ATTACHMENT, gl.RENDERBUFFER, this.stencilBuffer);
-        gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_STENCIL,  this.size.width * this.resolution  , this.size.height * this.resolution );
-    }
-};
-
-/**
- * Binds the buffers and initialises the viewport.
- *
- */
-RenderTarget.prototype.activate = function()
-{
-    //TOOD refactor usage of frame..
-    var gl = this.gl;
-
-    gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer);
-
-    var projectionFrame = this.frame || this.size;
-
-    // TODO add a dirty flag to this of a setter for the frame?
-    this.calculateProjection( projectionFrame );
-
-    if(this.transform)
-    {
-        this.projectionMatrix.append(this.transform);
-    }
-
-    gl.viewport(0,0, projectionFrame.width * this.resolution, projectionFrame.height * this.resolution);
-};
-
-/**
- * Updates the projection matrix based on a projection frame (which is a rectangle)
- *
- */
-RenderTarget.prototype.calculateProjection = function (projectionFrame)
-{
-    var pm = this.projectionMatrix;
-
-    pm.identity();
-
-    if (!this.root)
-    {
-        pm.a = 1 / projectionFrame.width*2;
-        pm.d = 1 / projectionFrame.height*2;
-
-        pm.tx = -1 - projectionFrame.x * pm.a;
-        pm.ty = -1 - projectionFrame.y * pm.d;
-    }
-    else
-    {
-        pm.a = 1 / projectionFrame.width*2;
-        pm.d = -1 / projectionFrame.height*2;
-
-        pm.tx = -1 - projectionFrame.x * pm.a;
-        pm.ty = 1 - projectionFrame.y * pm.d;
-    }
-};
-
-
-/**
- * Resizes the texture to the specified width and height
- *
- * @param width {Number} the new width of the texture
- * @param height {Number} the new height of the texture
- */
-RenderTarget.prototype.resize = function (width, height)
-{
-    width = width | 0;
-    height = height | 0;
-
-    if (this.size.width === width && this.size.height === height) {
-        return;
-    }
-
-    this.size.width = width;
-    this.size.height = height;
-
-    if (!this.root)
-    {
-        var gl = this.gl;
-
-        gl.bindTexture(gl.TEXTURE_2D,  this.texture);
-
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA,  width * this.resolution, height * this.resolution , 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-
-        if (this.stencilBuffer )
-        {
-            // update the stencil buffer width and height
-            gl.bindRenderbuffer(gl.RENDERBUFFER, this.stencilBuffer);
-            gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_STENCIL,  width * this.resolution, height * this.resolution );
-        }
-    }
-
-    var projectionFrame = this.frame || this.size;
-
-    this.calculateProjection( projectionFrame );
-};
-
-/**
- * Destroys the render target.
- *
- */
-RenderTarget.prototype.destroy = function ()
-{
-    var gl = this.gl;
-    gl.deleteRenderbuffer( this.stencilBuffer );
-    gl.deleteFramebuffer( this.frameBuffer );
-    gl.deleteTexture( this.texture );
-
-    this.frameBuffer = null;
-    this.texture = null;
-};
-
-
-/***/ }),
-/* 15 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var math = __webpack_require__(6),
-    utils = __webpack_require__(3),
-    DisplayObject = __webpack_require__(38),
-    RenderTexture = __webpack_require__(25),
-    _tempMatrix = new math.Matrix();
-
-/**
- * A Container represents a collection of display objects.
- * It is the base class of all display objects that act as a container for other objects.
- *
- *```js
- * var container = new PIXI.Container();
- * container.addChild(sprite);
- * ```
- * @class
- * @extends PIXI.DisplayObject
- * @memberof PIXI
- */
-function Container()
-{
-    DisplayObject.call(this);
-
-    /**
-     * The array of children of this container.
-     *
-     * @member {PIXI.DisplayObject[]}
-     * @readonly
-     */
-    this.children = [];
-}
-
-// constructor
-Container.prototype = Object.create(DisplayObject.prototype);
-Container.prototype.constructor = Container;
-module.exports = Container;
-
-Object.defineProperties(Container.prototype, {
-    /**
-     * The width of the Container, setting this will actually modify the scale to achieve the value set
-     *
-     * @member {number}
-     * @memberof PIXI.Container#
-     */
-    width: {
-        get: function ()
-        {
-            return this.scale.x * this.getLocalBounds().width;
-        },
-        set: function (value)
-        {
-
-            var width = this.getLocalBounds().width;
-
-            if (width !== 0)
-            {
-                this.scale.x = value / width;
-            }
-            else
-            {
-                this.scale.x = 1;
-            }
-
-
-            this._width = value;
-        }
-    },
-
-    /**
-     * The height of the Container, setting this will actually modify the scale to achieve the value set
-     *
-     * @member {number}
-     * @memberof PIXI.Container#
-     */
-    height: {
-        get: function ()
-        {
-            return  this.scale.y * this.getLocalBounds().height;
-        },
-        set: function (value)
-        {
-
-            var height = this.getLocalBounds().height;
-
-            if (height !== 0)
-            {
-                this.scale.y = value / height ;
-            }
-            else
-            {
-                this.scale.y = 1;
-            }
-
-            this._height = value;
-        }
-    }
-});
-
-/**
- * Overridable method that can be used by Container subclasses whenever the children array is modified
- *
- * @private
- */
-Container.prototype.onChildrenChange = function () {};
-
-/**
- * Adds a child to the container.
- * 
- * You can also add multple items like so: myContainer.addChild(thinkOne, thingTwo, thingThree)
- * @param child {PIXI.DisplayObject} The DisplayObject to add to the container
- * @return {PIXI.DisplayObject} The child that was added.
- */
-Container.prototype.addChild = function (child)
-{ 
-    var argumentsLength = arguments.length;
-
-    // if there is only one argument we can bypass looping through the them
-    if(argumentsLength > 1)
-    {
-        // loop through the arguments property and add all children
-        // use it the right way (.length and [i]) so that this function can still be optimised by JS runtimes
-        for (var i = 0; i < argumentsLength; i++)
-        {
-            this.addChild( arguments[i] );
-        }
-    }     
-    else
-    {
-        // if the child has a parent then lets remove it as Pixi objects can only exist in one place
-        if (child.parent)
-        {
-            child.parent.removeChild(child);
-        }
-
-        child.parent = this;
-        
-        this.children.push(child);
-
-        // TODO - lets either do all callbacks or all events.. not both!
-        this.onChildrenChange(this.children.length-1);
-        child.emit('added', this);
-    }
-
-    return child;
-};
-
-/**
- * Adds a child to the container at a specified index. If the index is out of bounds an error will be thrown
- *
- * @param child {PIXI.DisplayObject} The child to add
- * @param index {number} The index to place the child in
- * @return {PIXI.DisplayObject} The child that was added.
- */
-Container.prototype.addChildAt = function (child, index)
-{
-    if (index >= 0 && index <= this.children.length)
-    {
-        if (child.parent)
-        {
-            child.parent.removeChild(child);
-        }
-
-        child.parent = this;
-
-        this.children.splice(index, 0, child);
-
-        // TODO - lets either do all callbacks or all events.. not both!
-        this.onChildrenChange(index);
-        child.emit('added', this);
-
-        return child;
-    }
-    else
-    {
-        throw new Error(child + 'addChildAt: The index '+ index +' supplied is out of bounds ' + this.children.length);
-    }
-};
-
-/**
- * Swaps the position of 2 Display Objects within this container.
- *
- * @param child {PIXI.DisplayObject}
- * @param child2 {PIXI.DisplayObject}
- */
-Container.prototype.swapChildren = function (child, child2)
-{
-    if (child === child2)
-    {
-        return;
-    }
-
-    var index1 = this.getChildIndex(child);
-    var index2 = this.getChildIndex(child2);
-
-    if (index1 < 0 || index2 < 0)
-    {
-        throw new Error('swapChildren: Both the supplied DisplayObjects must be children of the caller.');
-    }
-
-    this.children[index1] = child2;
-    this.children[index2] = child;
-    this.onChildrenChange(index1 < index2 ? index1 : index2);
-};
-
-/**
- * Returns the index position of a child DisplayObject instance
- *
- * @param child {PIXI.DisplayObject} The DisplayObject instance to identify
- * @return {number} The index position of the child display object to identify
- */
-Container.prototype.getChildIndex = function (child)
-{
-    var index = this.children.indexOf(child);
-
-    if (index === -1)
-    {
-        throw new Error('The supplied DisplayObject must be a child of the caller');
-    }
-
-    return index;
-};
-
-/**
- * Changes the position of an existing child in the display object container
- *
- * @param child {PIXI.DisplayObject} The child DisplayObject instance for which you want to change the index number
- * @param index {number} The resulting index number for the child display object
- */
-Container.prototype.setChildIndex = function (child, index)
-{
-    if (index < 0 || index >= this.children.length)
-    {
-        throw new Error('The supplied index is out of bounds');
-    }
-
-    var currentIndex = this.getChildIndex(child);
-
-    utils.removeItems(this.children, currentIndex, 1); // remove from old position
-    this.children.splice(index, 0, child); //add at new position
-    this.onChildrenChange(index);
-};
-
-/**
- * Returns the child at the specified index
- *
- * @param index {number} The index to get the child at
- * @return {PIXI.DisplayObject} The child at the given index, if any.
- */
-Container.prototype.getChildAt = function (index)
-{
-    if (index < 0 || index >= this.children.length)
-    {
-        throw new Error('getChildAt: Supplied index ' + index + ' does not exist in the child list, or the supplied DisplayObject is not a child of the caller');
-    }
-
-    return this.children[index];
-};
-
-/**
- * Removes a child from the container.
- *
- * @param child {PIXI.DisplayObject} The DisplayObject to remove
- * @return {PIXI.DisplayObject} The child that was removed.
- */
-Container.prototype.removeChild = function (child)
-{
-    var argumentsLength = arguments.length;
-
-    // if there is only one argument we can bypass looping through the them
-    if(argumentsLength > 1)
-    {
-        // loop through the arguments property and add all children
-        // use it the right way (.length and [i]) so that this function can still be optimised by JS runtimes
-        for (var i = 0; i < argumentsLength; i++)
-        {
-            this.removeChild( arguments[i] );
-        }
-    }     
-    else
-    {   
-        var index = this.children.indexOf(child);
-
-        if (index === -1)
-        {
-            return;
-        }
-
-        child.parent = null;
-        utils.removeItems(this.children, index, 1);
-
-        // TODO - lets either do all callbacks or all events.. not both!
-        this.onChildrenChange(index);
-        child.emit('removed', this);
-    }
-
-    return child;
-};
-
-/**
- * Removes a child from the specified index position.
- *
- * @param index {number} The index to get the child from
- * @return {PIXI.DisplayObject} The child that was removed.
- */
-Container.prototype.removeChildAt = function (index)
-{
-    var child = this.getChildAt(index);
-
-    child.parent = null;
-    utils.removeItems(this.children, index, 1);
-
-    // TODO - lets either do all callbacks or all events.. not both!
-    this.onChildrenChange(index);
-    child.emit('removed', this);
-
-    return child;
-};
-
-/**
- * Removes all children from this container that are within the begin and end indexes.
- *
- * @param beginIndex {number} The beginning position. Default value is 0.
- * @param endIndex {number} The ending position. Default value is size of the container.
- */
-Container.prototype.removeChildren = function (beginIndex, endIndex)
-{
-    var begin = beginIndex || 0;
-    var end = typeof endIndex === 'number' ? endIndex : this.children.length;
-    var range = end - begin;
-    var removed, i;
-
-    if (range > 0 && range <= end)
-    {
-        removed = this.children.splice(begin, range);
-
-        for (i = 0; i < removed.length; ++i)
-        {
-            removed[i].parent = null;
-        }
-
-        this.onChildrenChange(beginIndex);
-
-        for (i = 0; i < removed.length; ++i)
-        {
-            removed[i].emit('removed', this);
-        }
-
-        return removed;
-    }
-    else if (range === 0 && this.children.length === 0)
-    {
-        return [];
-    }
-    else
-    {
-        throw new RangeError('removeChildren: numeric values are outside the acceptable range.');
-    }
-};
-
-/**
- * Useful function that returns a texture of the display object that can then be used to create sprites
- * This can be quite useful if your displayObject is static / complicated and needs to be reused multiple times.
- *
- * @param renderer {PIXI.CanvasRenderer|PIXI.WebGLRenderer} The renderer used to generate the texture.
- * @param resolution {number} The resolution of the texture being generated
- * @param scaleMode {number} See {@link PIXI.SCALE_MODES} for possible values
- * @return {PIXI.Texture} a texture of the display object
- */
-Container.prototype.generateTexture = function (renderer, resolution, scaleMode)
-{
-    var bounds = this.getLocalBounds();
-
-    var renderTexture = new RenderTexture(renderer, bounds.width | 0, bounds.height | 0, scaleMode, resolution);
-
-    _tempMatrix.tx = -bounds.x;
-    _tempMatrix.ty = -bounds.y;
-
-    renderTexture.render(this, _tempMatrix);
-
-    return renderTexture;
-};
-
-/*
- * Updates the transform on all children of this container for rendering
- *
- * @private
- */
-Container.prototype.updateTransform = function ()
-{
-    if (!this.visible)
-    {
-        return;
-    }
-
-    this.displayObjectUpdateTransform();
-
-    for (var i = 0, j = this.children.length; i < j; ++i)
-    {
-        this.children[i].updateTransform();
-    }
-};
-
-// performance increase to avoid using call.. (10x faster)
-Container.prototype.containerUpdateTransform = Container.prototype.updateTransform;
-
-/**
- * Retrieves the bounds of the Container as a rectangle. The bounds calculation takes all visible children into consideration.
- *
- * @return {PIXI.Rectangle} The rectangular bounding area
- */
-Container.prototype.getBounds = function ()
-{
-    if(!this._currentBounds)
-    {
-
-        if (this.children.length === 0)
-        {
-            return math.Rectangle.EMPTY;
-        }
-
-        // TODO the bounds have already been calculated this render session so return what we have
-
-        var minX = Infinity;
-        var minY = Infinity;
-
-        var maxX = -Infinity;
-        var maxY = -Infinity;
-
-        var childBounds;
-        var childMaxX;
-        var childMaxY;
-
-        var childVisible = false;
-
-        for (var i = 0, j = this.children.length; i < j; ++i)
-        {
-            var child = this.children[i];
-
-            if (!child.visible)
-            {
-                continue;
-            }
-
-            childVisible = true;
-
-            childBounds = this.children[i].getBounds();
-
-            minX = minX < childBounds.x ? minX : childBounds.x;
-            minY = minY < childBounds.y ? minY : childBounds.y;
-
-            childMaxX = childBounds.width + childBounds.x;
-            childMaxY = childBounds.height + childBounds.y;
-
-            maxX = maxX > childMaxX ? maxX : childMaxX;
-            maxY = maxY > childMaxY ? maxY : childMaxY;
-        }
-
-        if (!childVisible)
-        {
-            return math.Rectangle.EMPTY;
-        }
-
-        var bounds = this._bounds;
-
-        bounds.x = minX;
-        bounds.y = minY;
-        bounds.width = maxX - minX;
-        bounds.height = maxY - minY;
-
-        this._currentBounds = bounds;
-    }
-
-    return this._currentBounds;
-};
-
-Container.prototype.containerGetBounds = Container.prototype.getBounds;
-
-/**
- * Retrieves the non-global local bounds of the Container as a rectangle.
- * The calculation takes all visible children into consideration.
- *
- * @return {PIXI.Rectangle} The rectangular bounding area
- */
-Container.prototype.getLocalBounds = function ()
-{
-    var matrixCache = this.worldTransform;
-
-    this.worldTransform = math.Matrix.IDENTITY;
-
-    for (var i = 0, j = this.children.length; i < j; ++i)
-    {
-        this.children[i].updateTransform();
-    }
-
-    this.worldTransform = matrixCache;
-
-    this._currentBounds = null;
-
-    return this.getBounds( math.Matrix.IDENTITY );
-};
-
-/**
- * Renders the object using the WebGL renderer
- *
- * @param renderer {PIXI.WebGLRenderer} The renderer
- */
-Container.prototype.renderWebGL = function (renderer)
-{
-
-    // if the object is not visible or the alpha is 0 then no need to render this element
-    if (!this.visible || this.worldAlpha <= 0 || !this.renderable)
-    {
-        return;
-    }
-
-    var i, j;
-
-    // do a quick check to see if this element has a mask or a filter.
-    if (this._mask || this._filters)
-    {
-        renderer.currentRenderer.flush();
-
-        // push filter first as we need to ensure the stencil buffer is correct for any masking
-        if (this._filters && this._filters.length)
-        {
-            renderer.filterManager.pushFilter(this, this._filters);
-        }
-
-        if (this._mask)
-        {
-            renderer.maskManager.pushMask(this, this._mask);
-        }
-
-        renderer.currentRenderer.start();
-
-        // add this object to the batch, only rendered if it has a texture.
-        this._renderWebGL(renderer);
-
-        // now loop through the children and make sure they get rendered
-        for (i = 0, j = this.children.length; i < j; i++)
-        {
-            this.children[i].renderWebGL(renderer);
-        }
-
-        renderer.currentRenderer.flush();
-
-        if (this._mask)
-        {
-            renderer.maskManager.popMask(this, this._mask);
-        }
-
-        if (this._filters)
-        {
-            renderer.filterManager.popFilter();
-
-        }
-        renderer.currentRenderer.start();
-    }
-    else
-    {
-        this._renderWebGL(renderer);
-
-        // simple render children!
-        for (i = 0, j = this.children.length; i < j; ++i)
-        {
-            this.children[i].renderWebGL(renderer);
-        }
-    }
-};
-
-/**
- * To be overridden by the subclass
- *
- * @param renderer {PIXI.WebGLRenderer} The renderer
- * @private
- */
-Container.prototype._renderWebGL = function (renderer) // jshint unused:false
-{
-    // this is where content itself gets rendered...
-};
-
-/**
- * To be overridden by the subclass
- *
- * @param renderer {PIXI.CanvasRenderer} The renderer
- * @private
- */
-Container.prototype._renderCanvas = function (renderer) // jshint unused:false
-{
-    // this is where content itself gets rendered...
-};
-
-
-/**
- * Renders the object using the Canvas renderer
- *
- * @param renderer {PIXI.CanvasRenderer} The renderer
- */
-Container.prototype.renderCanvas = function (renderer)
-{
-    // if not visible or the alpha is 0 then no need to render this
-    if (!this.visible || this.alpha <= 0 || !this.renderable)
-    {
-        return;
-    }
-
-    if (this._mask)
-    {
-        renderer.maskManager.pushMask(this._mask, renderer);
-    }
-
-    this._renderCanvas(renderer);
-    for (var i = 0, j = this.children.length; i < j; ++i)
-    {
-        this.children[i].renderCanvas(renderer);
-    }
-
-    if (this._mask)
-    {
-        renderer.maskManager.popMask(renderer);
-    }
-};
-
-/**
- * Destroys the container
- * @param [destroyChildren=false] {boolean} if set to true, all the children will have their destroy method called as well
- */
-Container.prototype.destroy = function (destroyChildren)
-{
-    DisplayObject.prototype.destroy.call(this);
-
-    if (destroyChildren)
-    {
-        for (var i = 0, j = this.children.length; i < j; ++i)
-        {
-            this.children[i].destroy(destroyChildren);
-        }
-    }
-
-    this.removeChildren();
-
-    this.children = null;
-};
-
-
-/***/ }),
-/* 16 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var SystemRenderer = __webpack_require__(44),
-    ShaderManager = __webpack_require__(45),
-    MaskManager = __webpack_require__(106),
-    StencilManager = __webpack_require__(107),
-    FilterManager = __webpack_require__(41),
-    BlendModeManager = __webpack_require__(108),
-    RenderTarget = __webpack_require__(14),
-    ObjectRenderer = __webpack_require__(12),
-    FXAAFilter = __webpack_require__(49),
-    utils = __webpack_require__(3),
-    CONST = __webpack_require__(1);
-
-/**
- * The WebGLRenderer draws the scene and all its content onto a webGL enabled canvas. This renderer
- * should be used for browsers that support webGL. This Render works by automatically managing webGLBatchs.
- * So no need for Sprite Batches or Sprite Clouds.
- * Don't forget to add the view to your DOM or you will not see anything :)
- *
- * @class
- * @memberof PIXI
- * @extends PIXI.SystemRenderer
- * @param [width=0] {number} the width of the canvas view
- * @param [height=0] {number} the height of the canvas view
- * @param [options] {object} The optional renderer parameters
- * @param [options.view] {HTMLCanvasElement} the canvas to use as a view, optional
- * @param [options.transparent=false] {boolean} If the render view is transparent, default false
- * @param [options.autoResize=false] {boolean} If the render view is automatically resized, default false
- * @param [options.antialias=false] {boolean} sets antialias. If not available natively then FXAA antialiasing is used
- * @param [options.forceFXAA=false] {boolean} forces FXAA antialiasing to be used over native. FXAA is faster, but may not always look as great
- * @param [options.resolution=1] {number} the resolution of the renderer retina would be 2
- * @param [options.clearBeforeRender=true] {boolean} This sets if the CanvasRenderer will clear the canvas or
- *      not before the new render pass. If you wish to set this to false, you *must* set preserveDrawingBuffer to `true`.
- * @param [options.preserveDrawingBuffer=false] {boolean} enables drawing buffer preservation, enable this if
- *      you need to call toDataUrl on the webgl context.
- * @param [options.roundPixels=false] {boolean} If true Pixi will Math.floor() x/y values when rendering, stopping pixel interpolation.
- */
-function WebGLRenderer(width, height, options)
-{
-    options = options || {};
-
-    SystemRenderer.call(this, 'WebGL', width, height, options);
-
-    /**
-     * The type of this renderer as a standardised const
-     *
-     * @member {number}
-     *
-     */
-    this.type = CONST.RENDERER_TYPE.WEBGL;
-
-    this.handleContextLost = this.handleContextLost.bind(this);
-    this.handleContextRestored = this.handleContextRestored.bind(this);
-
-    this.view.addEventListener('webglcontextlost', this.handleContextLost, false);
-    this.view.addEventListener('webglcontextrestored', this.handleContextRestored, false);
-
-    //TODO possibility to force FXAA as it may offer better performance?
-    /**
-     * Does it use FXAA ?
-     *
-     * @member {boolean}
-     * @private
-     */
-    this._useFXAA = !!options.forceFXAA && options.antialias;
-
-    /**
-     * The fxaa filter
-     *
-     * @member {PIXI.FXAAFilter}
-     * @private
-     */
-    this._FXAAFilter = null;
-
-    /**
-     * The options passed in to create a new webgl context.
-     *
-     * @member {object}
-     * @private
-     */
-    this._contextOptions = {
-        alpha: this.transparent,
-        antialias: options.antialias,
-        premultipliedAlpha: this.transparent && this.transparent !== 'notMultiplied',
-        stencil: true,
-        preserveDrawingBuffer: options.preserveDrawingBuffer
-    };
-
-    /**
-     * Counter for the number of draws made each frame
-     *
-     * @member {number}
-     */
-    this.drawCount = 0;
-
-    /**
-     * Deals with managing the shader programs and their attribs.
-     *
-     * @member {PIXI.ShaderManager}
-     */
-    this.shaderManager = new ShaderManager(this);
-
-    /**
-     * Manages the masks using the stencil buffer.
-     *
-     * @member {PIXI.MaskManager}
-     */
-    this.maskManager = new MaskManager(this);
-
-    /**
-     * Manages the stencil buffer.
-     *
-     * @member {PIXI.StencilManager}
-     */
-    this.stencilManager = new StencilManager(this);
-
-    /**
-     * Manages the filters.
-     *
-     * @member {PIXI.FilterManager}
-     */
-    this.filterManager = new FilterManager(this);
-
-
-    /**
-     * Manages the blendModes
-     *
-     * @member {PIXI.BlendModeManager}
-     */
-    this.blendModeManager = new BlendModeManager(this);
-
-    /**
-     * Holds the current render target
-     *
-     * @member {PIXI.RenderTarget}
-     */
-    this.currentRenderTarget = null;
-
-    /**
-     * The currently active ObjectRenderer.
-     *
-     * @member {PIXI.ObjectRenderer}
-     */
-    this.currentRenderer = new ObjectRenderer(this);
-
-    this.initPlugins();
-
-    // initialize the context so it is ready for the managers.
-    this._createContext();
-    this._initContext();
-
-    // map some webGL blend modes..
-    this._mapGlModes();
-
-    // track textures in the renderer so we can no longer listen to them on destruction.
-    this._managedTextures = [];
-
-    /**
-     * An array of render targets
-     * @member {PIXI.RenderTarget[]}
-     * @private
-     */
-    this._renderTargetStack = [];
-}
-
-// constructor
-WebGLRenderer.prototype = Object.create(SystemRenderer.prototype);
-WebGLRenderer.prototype.constructor = WebGLRenderer;
-module.exports = WebGLRenderer;
-utils.pluginTarget.mixin(WebGLRenderer);
-
-WebGLRenderer.glContextId = 0;
-
-/**
- * Creates the gl context.
- *
- * @private
- */
-WebGLRenderer.prototype._createContext = function () {
-    var gl = this.view.getContext('webgl', this._contextOptions) || this.view.getContext('experimental-webgl', this._contextOptions);
-    this.gl = gl;
-
-    if (!gl)
-    {
-        // fail, not able to get a context
-        throw new Error('This browser does not support webGL. Try using the canvas renderer');
-    }
-
-    this.glContextId = WebGLRenderer.glContextId++;
-    gl.id = this.glContextId;
-    gl.renderer = this;
-};
-
-/**
- * Creates the WebGL context
- *
- * @private
- */
-WebGLRenderer.prototype._initContext = function ()
-{
-    var gl = this.gl;
-
-    // set up the default pixi settings..
-    gl.disable(gl.DEPTH_TEST);
-    gl.disable(gl.CULL_FACE);
-    gl.enable(gl.BLEND);
-
-    this.renderTarget = new RenderTarget(gl, this.width, this.height, null, this.resolution, true);
-
-    this.setRenderTarget(this.renderTarget);
-
-    this.emit('context', gl);
-
-    // setup the width/height properties and gl viewport
-    this.resize(this.width, this.height);
-
-    if(!this._useFXAA)
-    {
-        this._useFXAA = (this._contextOptions.antialias && ! gl.getContextAttributes().antialias);
-    }
-
-
-    if(this._useFXAA)
-    {
-        window.console.warn('FXAA antialiasing being used instead of native antialiasing');
-        this._FXAAFilter = [new FXAAFilter()];
-    }
-};
-
-/**
- * Renders the object to its webGL view
- *
- * @param object {PIXI.DisplayObject} the object to be rendered
- */
-WebGLRenderer.prototype.render = function (object)
-{
-
-    this.emit('prerender');
-
-    // no point rendering if our context has been blown up!
-    if (this.gl.isContextLost())
-    {
-        return;
-    }
-
-    this.drawCount = 0;
-
-    this._lastObjectRendered = object;
-
-    if(this._useFXAA)
-    {
-        this._FXAAFilter[0].uniforms.resolution.value.x = this.width;
-        this._FXAAFilter[0].uniforms.resolution.value.y = this.height;
-        object.filterArea = this.renderTarget.size;
-        object.filters = this._FXAAFilter;
-    }
-
-    var cacheParent = object.parent;
-    object.parent = this._tempDisplayObjectParent;
-
-    // update the scene graph
-    object.updateTransform();
-
-    object.parent = cacheParent;
-
-    var gl = this.gl;
-
-    // make sure we are bound to the main frame buffer
-    this.setRenderTarget(this.renderTarget);
-
-    if (this.clearBeforeRender)
-    {
-        if (this.transparent)
-        {
-            gl.clearColor(0, 0, 0, 0);
-        }
-        else
-        {
-            gl.clearColor(this._backgroundColorRgb[0], this._backgroundColorRgb[1], this._backgroundColorRgb[2], 1);
-        }
-
-        gl.clear(gl.COLOR_BUFFER_BIT);
-    }
-
-    this.renderDisplayObject(object, this.renderTarget);//this.projection);
-
-    this.emit('postrender');
-};
-
-/**
- * Renders a Display Object.
- *
- * @param displayObject {PIXI.DisplayObject} The DisplayObject to render
- * @param renderTarget {PIXI.RenderTarget} The render target to use to render this display object
- *
- */
-WebGLRenderer.prototype.renderDisplayObject = function (displayObject, renderTarget, clear)//projection, buffer)
-{
-    // TODO is this needed...
-    //this.blendModeManager.setBlendMode(CONST.BLEND_MODES.NORMAL);
-    this.setRenderTarget(renderTarget);
-
-    if(clear)
-    {
-        renderTarget.clear();
-    }
-
-    // start the filter manager
-    this.filterManager.setFilterStack( renderTarget.filterStack );
-
-    // render the scene!
-    displayObject.renderWebGL(this);
-
-    // finish the current renderer..
-    this.currentRenderer.flush();
-};
-
-/**
- * Changes the current renderer to the one given in parameter
- *
- * @param objectRenderer {PIXI.ObjectRenderer} The object renderer to use.
- */
-WebGLRenderer.prototype.setObjectRenderer = function (objectRenderer)
-{
-    if (this.currentRenderer === objectRenderer)
-    {
-        return;
-    }
-
-    this.currentRenderer.stop();
-    this.currentRenderer = objectRenderer;
-    this.currentRenderer.start();
-};
-
-/**
- * Changes the current render target to the one given in parameter
- *
- * @param renderTarget {PIXI.RenderTarget} the new render target
- */
-WebGLRenderer.prototype.setRenderTarget = function (renderTarget)
-{
-    if( this.currentRenderTarget === renderTarget)
-    {
-        return;
-    }
-    // TODO - maybe down the line this should be a push pos thing? Leaving for now though.
-    this.currentRenderTarget = renderTarget;
-    this.currentRenderTarget.activate();
-    this.stencilManager.setMaskStack( renderTarget.stencilMaskStack );
-};
-
-
-/**
- * Resizes the webGL view to the specified width and height.
- *
- * @param width {number} the new width of the webGL view
- * @param height {number} the new height of the webGL view
- */
-WebGLRenderer.prototype.resize = function (width, height)
-{
-    SystemRenderer.prototype.resize.call(this, width, height);
-
-    this.filterManager.resize(width, height);
-    this.renderTarget.resize(width, height);
-
-    if(this.currentRenderTarget === this.renderTarget)
-    {
-        this.renderTarget.activate();
-        this.gl.viewport(0, 0, this.width, this.height);
-    }
-};
-
-/**
- * Updates and/or Creates a WebGL texture for the renderer's context.
- *
- * @param texture {PIXI.BaseTexture|PIXI.Texture} the texture to update
- */
-WebGLRenderer.prototype.updateTexture = function (texture)
-{
-    texture = texture.baseTexture || texture;
-
-    if (!texture.hasLoaded)
-    {
-        return;
-    }
-
-    var gl = this.gl;
-
-    if (!texture._glTextures[gl.id])
-    {
-        texture._glTextures[gl.id] = gl.createTexture();
-        texture.on('update', this.updateTexture, this);
-        texture.on('dispose', this.destroyTexture, this);
-        this._managedTextures.push(texture);
-    }
-
-
-    gl.bindTexture(gl.TEXTURE_2D, texture._glTextures[gl.id]);
-
-    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, texture.premultipliedAlpha);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.source);
-
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, texture.scaleMode === CONST.SCALE_MODES.LINEAR ? gl.LINEAR : gl.NEAREST);
-
-
-    if (texture.mipmap && texture.isPowerOfTwo)
-    {
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, texture.scaleMode === CONST.SCALE_MODES.LINEAR ? gl.LINEAR_MIPMAP_LINEAR : gl.NEAREST_MIPMAP_NEAREST);
-        gl.generateMipmap(gl.TEXTURE_2D);
-    }
-    else
-    {
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, texture.scaleMode === CONST.SCALE_MODES.LINEAR ? gl.LINEAR : gl.NEAREST);
-    }
-
-    if (!texture.isPowerOfTwo)
-    {
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    }
-    else
-    {
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
-    }
-
-    return  texture._glTextures[gl.id];
-};
-
-/**
- * Deletes the texture from WebGL
- *
- * @param texture {PIXI.BaseTexture|PIXI.Texture} the texture to destroy
- */
-WebGLRenderer.prototype.destroyTexture = function (texture, _skipRemove)
-{
-    texture = texture.baseTexture || texture;
-
-    if (!texture.hasLoaded)
-    {
-        return;
-    }
-
-    if (texture._glTextures[this.gl.id])
-    {
-        this.gl.deleteTexture(texture._glTextures[this.gl.id]);
-        delete texture._glTextures[this.gl.id];
-
-        if (!_skipRemove)
-        {
-            var i = this._managedTextures.indexOf(texture);
-            if (i !== -1) {
-                utils.removeItems(this._managedTextures, i, 1);
-            }
-        }
-    }
-};
-
-/**
- * Handles a lost webgl context
- *
- * @private
- */
-WebGLRenderer.prototype.handleContextLost = function (event)
-{
-    event.preventDefault();
-};
-
-/**
- * Handles a restored webgl context
- *
- * @private
- */
-WebGLRenderer.prototype.handleContextRestored = function ()
-{
-    this._initContext();
-
-    // empty all the old gl textures as they are useless now
-    for (var i = 0; i < this._managedTextures.length; ++i)
-    {
-        var texture = this._managedTextures[i];
-        if (texture._glTextures[this.gl.id])
-        {
-            delete texture._glTextures[this.gl.id];
-        }
-    }
-};
-
-/**
- * Removes everything from the renderer (event listeners, spritebatch, etc...)
- *
- * @param [removeView=false] {boolean} Removes the Canvas element from the DOM.
- */
-WebGLRenderer.prototype.destroy = function (removeView)
-{
-    this.destroyPlugins();
-
-    // remove listeners
-    this.view.removeEventListener('webglcontextlost', this.handleContextLost);
-    this.view.removeEventListener('webglcontextrestored', this.handleContextRestored);
-
-    // destroy managed textures
-    for (var i = 0; i < this._managedTextures.length; ++i)
-    {
-        var texture = this._managedTextures[i];
-        this.destroyTexture(texture, true);
-        texture.off('update', this.updateTexture, this);
-        texture.off('dispose', this.destroyTexture, this);
-    }
-
-    // call base destroy
-    SystemRenderer.prototype.destroy.call(this, removeView);
-
-    this.uid = 0;
-
-    // destroy the managers
-    this.shaderManager.destroy();
-    this.maskManager.destroy();
-    this.stencilManager.destroy();
-    this.filterManager.destroy();
-    this.blendModeManager.destroy();
-
-    this.shaderManager = null;
-    this.maskManager = null;
-    this.filterManager = null;
-    this.blendModeManager = null;
-    this.currentRenderer = null;
-
-    this.handleContextLost = null;
-    this.handleContextRestored = null;
-
-    this._contextOptions = null;
-
-    this._managedTextures = null;
-
-    this.drawCount = 0;
-
-    this.gl.useProgram(null);
-
-    this.gl.flush();
-
-    this.gl = null;
-};
-
-/**
- * Maps Pixi blend modes to WebGL blend modes. It works only for pre-multiplied textures.
- *
- * @private
- */
-WebGLRenderer.prototype._mapGlModes = function ()
-{
-    var gl = this.gl;
-
-    if (!this.blendModes)
-    {
-        this.blendModes = {};
-
-        this.blendModes[CONST.BLEND_MODES.NORMAL]        = [gl.ONE,       gl.ONE_MINUS_SRC_ALPHA];
-        this.blendModes[CONST.BLEND_MODES.ADD]           = [gl.ONE,       gl.DST_ALPHA];
-        this.blendModes[CONST.BLEND_MODES.MULTIPLY]      = [gl.DST_COLOR, gl.ONE_MINUS_SRC_ALPHA];
-        this.blendModes[CONST.BLEND_MODES.SCREEN]        = [gl.ONE,       gl.ONE_MINUS_SRC_COLOR];
-        this.blendModes[CONST.BLEND_MODES.OVERLAY]       = [gl.ONE,       gl.ONE_MINUS_SRC_ALPHA];
-        this.blendModes[CONST.BLEND_MODES.DARKEN]        = [gl.ONE,       gl.ONE_MINUS_SRC_ALPHA];
-        this.blendModes[CONST.BLEND_MODES.LIGHTEN]       = [gl.ONE,       gl.ONE_MINUS_SRC_ALPHA];
-        this.blendModes[CONST.BLEND_MODES.COLOR_DODGE]   = [gl.ONE,       gl.ONE_MINUS_SRC_ALPHA];
-        this.blendModes[CONST.BLEND_MODES.COLOR_BURN]    = [gl.ONE,       gl.ONE_MINUS_SRC_ALPHA];
-        this.blendModes[CONST.BLEND_MODES.HARD_LIGHT]    = [gl.ONE,       gl.ONE_MINUS_SRC_ALPHA];
-        this.blendModes[CONST.BLEND_MODES.SOFT_LIGHT]    = [gl.ONE,       gl.ONE_MINUS_SRC_ALPHA];
-        this.blendModes[CONST.BLEND_MODES.DIFFERENCE]    = [gl.ONE,       gl.ONE_MINUS_SRC_ALPHA];
-        this.blendModes[CONST.BLEND_MODES.EXCLUSION]     = [gl.ONE,       gl.ONE_MINUS_SRC_ALPHA];
-        this.blendModes[CONST.BLEND_MODES.HUE]           = [gl.ONE,       gl.ONE_MINUS_SRC_ALPHA];
-        this.blendModes[CONST.BLEND_MODES.SATURATION]    = [gl.ONE,       gl.ONE_MINUS_SRC_ALPHA];
-        this.blendModes[CONST.BLEND_MODES.COLOR]         = [gl.ONE,       gl.ONE_MINUS_SRC_ALPHA];
-        this.blendModes[CONST.BLEND_MODES.LUMINOSITY]    = [gl.ONE,       gl.ONE_MINUS_SRC_ALPHA];
-    }
-
-    if (!this.drawModes)
-    {
-        this.drawModes = {};
-
-        this.drawModes[CONST.DRAW_MODES.POINTS]         = gl.POINTS;
-        this.drawModes[CONST.DRAW_MODES.LINES]          = gl.LINES;
-        this.drawModes[CONST.DRAW_MODES.LINE_LOOP]      = gl.LINE_LOOP;
-        this.drawModes[CONST.DRAW_MODES.LINE_STRIP]     = gl.LINE_STRIP;
-        this.drawModes[CONST.DRAW_MODES.TRIANGLES]      = gl.TRIANGLES;
-        this.drawModes[CONST.DRAW_MODES.TRIANGLE_STRIP] = gl.TRIANGLE_STRIP;
-        this.drawModes[CONST.DRAW_MODES.TRIANGLE_FAN]   = gl.TRIANGLE_FAN;
-    }
-};
-
-
-/***/ }),
-/* 17 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var Shader = __webpack_require__(18);
-
-/**
- * @class
- * @memberof PIXI
- * @extends PIXI.Shader
- * @param shaderManager {PIXI.ShaderManager} The webgl shader manager this shader works for.
- * @param [vertexSrc] {string} The source of the vertex shader.
- * @param [fragmentSrc] {string} The source of the fragment shader.
- * @param [customUniforms] {object} Custom uniforms to use to augment the built-in ones.
- * @param [fragmentSrc] {string} The source of the fragment shader.
- */
-function TextureShader(shaderManager, vertexSrc, fragmentSrc, customUniforms, customAttributes)
-{
-    var uniforms = {
-
-        uSampler:           { type: 'sampler2D', value: 0 },
-        projectionMatrix:   { type: 'mat3', value: new Float32Array([1, 0, 0,
-                                                                     0, 1, 0,
-                                                                     0, 0, 1]) }
-    };
-
-    if (customUniforms)
-    {
-        for (var u in customUniforms)
-        {
-            uniforms[u] = customUniforms[u];
-        }
-    }
-
-
-    var attributes = {
-        aVertexPosition:    0,
-        aTextureCoord:      0,
-        aColor:             0
-    };
-
-    if (customAttributes)
-    {
-        for (var a in customAttributes)
-        {
-            attributes[a] = customAttributes[a];
-        }
-    }
-
-    /**
-     * The vertex shader.
-     *
-     * @member {string}
-     */
-    vertexSrc = vertexSrc || TextureShader.defaultVertexSrc;
-
-    /**
-     * The fragment shader.
-     *
-     * @member {string}
-     */
-    fragmentSrc = fragmentSrc || TextureShader.defaultFragmentSrc;
-
-    Shader.call(this, shaderManager, vertexSrc, fragmentSrc, uniforms, attributes);
-}
-
-// constructor
-TextureShader.prototype = Object.create(Shader.prototype);
-TextureShader.prototype.constructor = TextureShader;
-module.exports = TextureShader;
-
-/**
- * The default vertex shader source
- *
- * @static
- * @constant
- */
-TextureShader.defaultVertexSrc = [
-    'precision lowp float;',
-    'attribute vec2 aVertexPosition;',
-    'attribute vec2 aTextureCoord;',
-    'attribute vec4 aColor;',
-
-    'uniform mat3 projectionMatrix;',
-
-    'varying vec2 vTextureCoord;',
-    'varying vec4 vColor;',
-
-    'void main(void){',
-    '   gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);',
-    '   vTextureCoord = aTextureCoord;',
-    '   vColor = vec4(aColor.rgb * aColor.a, aColor.a);',
-    '}'
-].join('\n');
-
-/**
- * The default fragment shader source
- *
- * @static
- * @constant
- */
-TextureShader.defaultFragmentSrc = [
-    'precision lowp float;',
-
-    'varying vec2 vTextureCoord;',
-    'varying vec4 vColor;',
-
-    'uniform sampler2D uSampler;',
-
-    'void main(void){',
-    '   gl_FragColor = texture2D(uSampler, vTextureCoord) * vColor ;',
-    '}'
-].join('\n');
-
-
-/***/ }),
-/* 18 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/*global console */
-var utils = __webpack_require__(3);
-
-/**
- * Base shader class for PIXI managed shaders.
- *
- * @class
- * @memberof PIXI
- * @param shaderManager {PIXI.ShaderManager} The webgl shader manager this shader works for.
- * @param [vertexSrc] {string} The source of the vertex shader.
- * @param [fragmentSrc] {string} The source of the fragment shader.
- * @param [uniforms] {object} Uniforms for this shader.
- * @param [attributes] {object} Attributes for this shader.
- */
-function Shader(shaderManager, vertexSrc, fragmentSrc, uniforms, attributes)
-{
-    if (!vertexSrc || !fragmentSrc)
-    {
-         throw new Error('Pixi.js Error. Shader requires vertexSrc and fragmentSrc');
-    }
-
-    /**
-     * A unique id
-     * @member {number}
-     * @readonly
-     */
-    this.uid = utils.uid();
-
-    /**
-     * The current WebGL drawing context
-     * @member {WebGLRenderingContext}
-     * @readonly
-     */
-    this.gl = shaderManager.renderer.gl;
-
-    //TODO maybe we should pass renderer rather than shader manger?? food for thought..
-    this.shaderManager = shaderManager;
-
-    /**
-     * The WebGL program.
-     *
-     * @member {WebGLProgram}
-     * @readonly
-     */
-    this.program = null;
-
-    /**
-     * The uniforms as an object
-     * @member {object}
-     * @private
-     */
-    this.uniforms = uniforms || {};
-
-    /**
-     * The attributes as an object
-     * @member {object}
-     * @private
-     */
-    this.attributes = attributes || {};
-
-    /**
-     * Internal texture counter
-     * @member {number}
-     * @private
-     */
-    this.textureCount = 1;
-
-    /**
-     * The vertex shader as an array of strings
-     *
-     * @member {string}
-     */
-    this.vertexSrc = vertexSrc;
-
-    /**
-     * The fragment shader as an array of strings
-     *
-     * @member {string}
-     */
-    this.fragmentSrc = fragmentSrc;
-
-    this.init();
-}
-
-Shader.prototype.constructor = Shader;
-module.exports = Shader;
-
-/**
- * Creates the shader and uses it
- *
- */
-Shader.prototype.init = function ()
-{
-    this.compile();
-
-    this.gl.useProgram(this.program);
-
-    this.cacheUniformLocations(Object.keys(this.uniforms));
-    this.cacheAttributeLocations(Object.keys(this.attributes));
-};
-
-/**
- * Caches the locations of the uniform for reuse.
- *
- * @param keys {string} the uniforms to cache
- */
-Shader.prototype.cacheUniformLocations = function (keys)
-{
-    for (var i = 0; i < keys.length; ++i)
-    {
-        this.uniforms[keys[i]]._location = this.gl.getUniformLocation(this.program, keys[i]);
-    }
-};
-
-/**
- * Caches the locations of the attribute for reuse.
- *
- * @param keys {string} the attributes to cache
- */
-Shader.prototype.cacheAttributeLocations = function (keys)
-{
-    for (var i = 0; i < keys.length; ++i)
-    {
-        this.attributes[keys[i]] = this.gl.getAttribLocation(this.program, keys[i]);
-    }
-
-    // TODO: Check if this is needed anymore...
-
-    // Begin worst hack eva //
-
-    // WHY??? ONLY on my chrome pixel the line above returns -1 when using filters?
-    // maybe its something to do with the current state of the gl context.
-    // I'm convinced this is a bug in the chrome browser as there is NO reason why this should be returning -1 especially as it only manifests on my chrome pixel
-    // If theres any webGL people that know why could happen please help :)
-    // if (this.attributes.aColor === -1){
-    //     this.attributes.aColor = 2;
-    // }
-
-    // End worst hack eva //
-};
-
-/**
- * Attaches the shaders and creates the program.
- *
- * @return {WebGLProgram}
- */
-Shader.prototype.compile = function ()
-{
-    var gl = this.gl;
-
-    var glVertShader = this._glCompile(gl.VERTEX_SHADER, this.vertexSrc);
-    var glFragShader = this._glCompile(gl.FRAGMENT_SHADER, this.fragmentSrc);
-
-    var program = gl.createProgram();
-
-    gl.attachShader(program, glVertShader);
-    gl.attachShader(program, glFragShader);
-    gl.linkProgram(program);
-
-    // if linking fails, then log and cleanup
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS))
-    {
-        console.error('Pixi.js Error: Could not initialize shader.');
-        console.error('gl.VALIDATE_STATUS', gl.getProgramParameter(program, gl.VALIDATE_STATUS));
-        console.error('gl.getError()', gl.getError());
-
-        // if there is a program info log, log it
-        if (gl.getProgramInfoLog(program) !== '')
-        {
-            console.warn('Pixi.js Warning: gl.getProgramInfoLog()', gl.getProgramInfoLog(program));
-        }
-
-        gl.deleteProgram(program);
-        program = null;
-    }
-
-    // clean up some shaders
-    gl.deleteShader(glVertShader);
-    gl.deleteShader(glFragShader);
-
-    return (this.program = program);
-};
-
-/*
-Shader.prototype.buildSync = function ()
-{
-   // var str = ""
-
-   // str =  "Shader.prototype.syncUniforms = function()";
-   // str += "{\n";
-
-    for (var key in this.uniforms)
-    {
-        var uniform = this.uniforms[key];
-
-        Object.defineProperty(this, key, {
-
-            get: function ()
-            {
-                return uniform.value
-            },
-            set: function (value)
-            {
-                this.setUniform(uniform, value);
-            }
-        });
-
-        console.log( makePropSetter( key, " bloop", uniform.type )  )
-  //      Object.def
-        //    location = uniform._location,
-          //  value = uniform.value,
-            //i, il;
-
-    //    str += "gl.uniform1i(this.uniforms."+ key +"._location, this.uniforms." + key + ".value );\n"
-
-    }
-
-}*/
-
-/**
-* Adds a new uniform
-*
-* @param uniform {object} the new uniform to attach
-*/
-Shader.prototype.syncUniform = function (uniform)
-{
-    var location = uniform._location,
-        value = uniform.value,
-        gl = this.gl,
-        i, il;
-
-    switch (uniform.type)
-    {
-        case 'b':
-        case 'bool':
-        case 'boolean':
-            gl.uniform1i(location, value ? 1 : 0);
-            break;
-
-        // single int value
-        case 'i':
-        case '1i':
-            gl.uniform1i(location, value);
-            break;
-
-        // single float value
-        case 'f':
-        case '1f':
-            gl.uniform1f(location, value);
-            break;
-
-        // Float32Array(2) or JS Arrray
-        case '2f':
-            gl.uniform2f(location, value[0], value[1]);
-            break;
-
-        // Float32Array(3) or JS Arrray
-        case '3f':
-            gl.uniform3f(location, value[0], value[1], value[2]);
-            break;
-
-        // Float32Array(4) or JS Arrray
-        case '4f':
-            gl.uniform4f(location, value[0], value[1], value[2], value[3]);
-            break;
-
-        // a 2D Point object
-        case 'v2':
-            gl.uniform2f(location, value.x, value.y);
-            break;
-
-        // a 3D Point object
-        case 'v3':
-            gl.uniform3f(location, value.x, value.y, value.z);
-            break;
-
-        // a 4D Point object
-        case 'v4':
-            gl.uniform4f(location, value.x, value.y, value.z, value.w);
-            break;
-
-        // Int32Array or JS Array
-        case '1iv':
-            gl.uniform1iv(location, value);
-            break;
-
-        // Int32Array or JS Array
-        case '2iv':
-            gl.uniform2iv(location, value);
-            break;
-
-        // Int32Array or JS Array
-        case '3iv':
-            gl.uniform3iv(location, value);
-            break;
-
-        // Int32Array or JS Array
-        case '4iv':
-            gl.uniform4iv(location, value);
-            break;
-
-        // Float32Array or JS Array
-        case '1fv':
-            gl.uniform1fv(location, value);
-            break;
-
-        // Float32Array or JS Array
-        case '2fv':
-            gl.uniform2fv(location, value);
-            break;
-
-        // Float32Array or JS Array
-        case '3fv':
-            gl.uniform3fv(location, value);
-            break;
-
-        // Float32Array or JS Array
-        case '4fv':
-            gl.uniform4fv(location, value);
-            break;
-
-        // Float32Array or JS Array
-        case 'm2':
-        case 'mat2':
-        case 'Matrix2fv':
-            gl.uniformMatrix2fv(location, uniform.transpose, value);
-            break;
-
-        // Float32Array or JS Array
-        case 'm3':
-        case 'mat3':
-        case 'Matrix3fv':
-
-            gl.uniformMatrix3fv(location, uniform.transpose, value);
-            break;
-
-        // Float32Array or JS Array
-        case 'm4':
-        case 'mat4':
-        case 'Matrix4fv':
-            gl.uniformMatrix4fv(location, uniform.transpose, value);
-            break;
-
-        // a Color Value
-        case 'c':
-            if (typeof value === 'number')
-            {
-                value = utils.hex2rgb(value);
-            }
-
-            gl.uniform3f(location, value[0], value[1], value[2]);
-            break;
-
-        // flat array of integers (JS or typed array)
-        case 'iv1':
-            gl.uniform1iv(location, value);
-            break;
-
-        // flat array of integers with 3 x N size (JS or typed array)
-        case 'iv':
-            gl.uniform3iv(location, value);
-            break;
-
-        // flat array of floats (JS or typed array)
-        case 'fv1':
-            gl.uniform1fv(location, value);
-            break;
-
-        // flat array of floats with 3 x N size (JS or typed array)
-        case 'fv':
-            gl.uniform3fv(location, value);
-            break;
-
-        // array of 2D Point objects
-        case 'v2v':
-            if (!uniform._array)
-            {
-                uniform._array = new Float32Array(2 * value.length);
-            }
-
-            for (i = 0, il = value.length; i < il; ++i)
-            {
-                uniform._array[i * 2]       = value[i].x;
-                uniform._array[i * 2 + 1]   = value[i].y;
-            }
-
-            gl.uniform2fv(location, uniform._array);
-            break;
-
-        // array of 3D Point objects
-        case 'v3v':
-            if (!uniform._array)
-            {
-                uniform._array = new Float32Array(3 * value.length);
-            }
-
-            for (i = 0, il = value.length; i < il; ++i)
-            {
-                uniform._array[i * 3]       = value[i].x;
-                uniform._array[i * 3 + 1]   = value[i].y;
-                uniform._array[i * 3 + 2]   = value[i].z;
-
-            }
-
-            gl.uniform3fv(location, uniform._array);
-            break;
-
-        // array of 4D Point objects
-        case 'v4v':
-            if (!uniform._array)
-            {
-                uniform._array = new Float32Array(4 * value.length);
-            }
-
-            for (i = 0, il = value.length; i < il; ++i)
-            {
-                uniform._array[i * 4]       = value[i].x;
-                uniform._array[i * 4 + 1]   = value[i].y;
-                uniform._array[i * 4 + 2]   = value[i].z;
-                uniform._array[i * 4 + 3]   = value[i].w;
-
-            }
-
-            gl.uniform4fv(location, uniform._array);
-            break;
-
-        // PIXI.Texture
-        case 't':
-        case 'sampler2D':
-
-            if (!uniform.value || !uniform.value.baseTexture.hasLoaded)
-            {
-                break;
-            }
-
-            // activate this texture
-            gl.activeTexture(gl['TEXTURE' + this.textureCount]);
-
-            var texture = uniform.value.baseTexture._glTextures[gl.id];
-
-            if (!texture)
-            {
-                this.initSampler2D(uniform);
-
-                // set the textur to the newly created one..
-                texture = uniform.value.baseTexture._glTextures[gl.id];
-            }
-
-            // bind the texture
-            gl.bindTexture(gl.TEXTURE_2D, texture);
-
-            // set uniform to texture index
-            gl.uniform1i(uniform._location, this.textureCount);
-
-            // increment next texture id
-            this.textureCount++;
-
-            break;
-
-        default:
-            console.warn('Pixi.js Shader Warning: Unknown uniform type: ' + uniform.type);
-    }
-};
-
-/**
- * Updates the shader uniform values.
- *
- */
-Shader.prototype.syncUniforms = function ()
-{
-    this.textureCount = 1;
-
-    for (var key in this.uniforms)
-    {
-        this.syncUniform(this.uniforms[key]);
-    }
-};
-
-
-/**
- * Initialises a Sampler2D uniform (which may only be available later on after initUniforms once the texture has loaded)
- *
- */
-Shader.prototype.initSampler2D = function (uniform)
-{
-    var gl = this.gl;
-
-    var texture = uniform.value.baseTexture;
-
-    if(!texture.hasLoaded)
-    {
-        return;
-    }
-
-
-
-    if (uniform.textureData)
-    {
-
-        //TODO move this...
-        var data = uniform.textureData;
-
-        texture._glTextures[gl.id] = gl.createTexture();
-
-        gl.bindTexture(gl.TEXTURE_2D, texture._glTextures[gl.id]);
-
-        gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, texture.premultipliedAlpha);
-        // GLTexture = mag linear, min linear_mipmap_linear, wrap repeat + gl.generateMipmap(gl.TEXTURE_2D);
-        // GLTextureLinear = mag/min linear, wrap clamp
-        // GLTextureNearestRepeat = mag/min NEAREST, wrap repeat
-        // GLTextureNearest = mag/min nearest, wrap clamp
-        // AudioTexture = whatever + luminance + width 512, height 2, border 0
-        // KeyTexture = whatever + luminance + width 256, height 2, border 0
-
-        //  magFilter can be: gl.LINEAR, gl.LINEAR_MIPMAP_LINEAR or gl.NEAREST
-        //  wrapS/T can be: gl.CLAMP_TO_EDGE or gl.REPEAT
-
-        gl.texImage2D(gl.TEXTURE_2D, 0, data.luminance ? gl.LUMINANCE : gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.source);
-
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, data.magFilter ? data.magFilter : gl.LINEAR );
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, data.wrapS ? data.wrapS : gl.CLAMP_TO_EDGE );
-
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, data.wrapS ? data.wrapS : gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, data.wrapT ? data.wrapT : gl.CLAMP_TO_EDGE);
-    }
-    else
-    {
-        this.shaderManager.renderer.updateTexture(texture);
-    }
-};
-
-/**
- * Destroys the shader.
- *
- */
-Shader.prototype.destroy = function ()
-{
-    this.gl.deleteProgram(this.program);
-
-    this.gl = null;
-    this.uniforms = null;
-    this.attributes = null;
-
-    this.vertexSrc = null;
-    this.fragmentSrc = null;
-};
-
-Shader.prototype._glCompile = function (type, src)
-{
-    var shader = this.gl.createShader(type);
-
-    this.gl.shaderSource(shader, src);
-    this.gl.compileShader(shader);
-
-    if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS))
-    {
-        console.log(this.gl.getShaderInfoLog(shader));
-        return null;
-    }
-
-    return shader;
-};
-
-
-/***/ }),
-/* 19 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(__dirname) {var core = __webpack_require__(0);
-// @see https://github.com/substack/brfs/issues/25
-var fs = __webpack_require__(2);
-
-/**
- * The BlurXFilter applies a horizontal Gaussian blur to an object.
- *
- * @class
- * @extends PIXI.AbstractFilter
- * @memberof PIXI.filters
- */
-function BlurXFilter()
-{
-    core.AbstractFilter.call(this,
-        // vertex shader
-        fs.readFileSync(__dirname + '/blurX.vert', 'utf8'),
-        // fragment shader
-        fs.readFileSync(__dirname + '/blur.frag', 'utf8'),
-        // set the uniforms
-        {
-            strength: { type: '1f', value: 1 }
-        }
-    );
-
-    /**
-     * Sets the number of passes for blur. More passes means higher quaility bluring.
-     *
-     * @member {number}
-     * @default 1
-     */
-    this.passes = 1;
-
-    this.strength = 4;
-}
-
-BlurXFilter.prototype = Object.create(core.AbstractFilter.prototype);
-BlurXFilter.prototype.constructor = BlurXFilter;
-module.exports = BlurXFilter;
-
-BlurXFilter.prototype.applyFilter = function (renderer, input, output, clear)
-{
-    var shader = this.getShader(renderer);
-
-    this.uniforms.strength.value = this.strength / 4 / this.passes * (input.frame.width / input.size.width);
-
-    if(this.passes === 1)
-    {
-        renderer.filterManager.applyFilter(shader, input, output, clear);
-    }
-    else
-    {
-        var renderTarget = renderer.filterManager.getRenderTarget(true);
-        var flip = input;
-        var flop = renderTarget;
-
-        for(var i = 0; i < this.passes-1; i++)
-        {
-            renderer.filterManager.applyFilter(shader, flip, flop, true);
-
-           var temp = flop;
-           flop = flip;
-           flip = temp;
-        }
-
-        renderer.filterManager.applyFilter(shader, flip, output, clear);
-
-        renderer.filterManager.returnRenderTarget(renderTarget);
-    }
-};
-
-
-Object.defineProperties(BlurXFilter.prototype, {
-    /**
-     * Sets the strength of both the blur.
-     *
-     * @member {number}
-     * @memberof PIXI.filters.BlurXFilter#
-     * @default 2
-     */
-    blur: {
-        get: function ()
-        {
-            return  this.strength;
-        },
-        set: function (value)
-        {
-            this.padding =  Math.abs(value) * 0.5;
-            this.strength = value;
-        }
-    }
-});
-
-/* WEBPACK VAR INJECTION */}.call(exports, "/"))
-
-/***/ }),
-/* 20 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* eslint global-require: 0 */
-
-
-module.exports = __webpack_require__(151);
-module.exports.Resource = __webpack_require__(31);
-module.exports.middleware = {
-    caching: {
-        memory: __webpack_require__(152)
-    },
-    parsing: {
-        blob: __webpack_require__(153)
-    }
-};
-
-module.exports.async = __webpack_require__(58);
-
-
-/***/ }),
-/* 21 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var core = __webpack_require__(0),
-    tempPoint = new core.Point(),
-    tempPolygon = new core.Polygon();
-
-/**
- * Base mesh class
- * @class
- * @extends PIXI.Container
- * @memberof PIXI.mesh
- * @param texture {PIXI.Texture} The texture to use
- * @param [vertices] {Float32Array} if you want to specify the vertices
- * @param [uvs] {Float32Array} if you want to specify the uvs
- * @param [indices] {Uint16Array} if you want to specify the indices
- * @param [drawMode] {number} the drawMode, can be any of the Mesh.DRAW_MODES consts
- */
-function Mesh(texture, vertices, uvs, indices, drawMode)
-{
-    core.Container.call(this);
-
-    /**
-     * The texture of the Mesh
-     *
-     * @member {PIXI.Texture}
-     * @private
-     */
-    this._texture = null;
-
-    /**
-     * The Uvs of the Mesh
-     *
-     * @member {Float32Array}
-     */
-    this.uvs = uvs || new Float32Array([0, 0,
-        1, 0,
-        1, 1,
-        0, 1]);
-
-    /**
-     * An array of vertices
-     *
-     * @member {Float32Array}
-     */
-    this.vertices = vertices || new Float32Array([0, 0,
-        100, 0,
-        100, 100,
-        0, 100]);
-
-    /*
-     * @member {Uint16Array} An array containing the indices of the vertices
-     */
-    //  TODO auto generate this based on draw mode!
-    this.indices = indices || new Uint16Array([0, 1, 3, 2]);
-
-    /**
-     * Whether the Mesh is dirty or not
-     *
-     * @member {boolean}
-     */
-    this.dirty = true;
-
-    /**
-     * The blend mode to be applied to the sprite. Set to `PIXI.BLEND_MODES.NORMAL` to remove any blend mode.
-     *
-     * @member {number}
-     * @default PIXI.BLEND_MODES.NORMAL
-     * @see PIXI.BLEND_MODES
-     */
-    this.blendMode = core.BLEND_MODES.NORMAL;
-
-    /**
-     * Triangles in canvas mode are automatically antialiased, use this value to force triangles to overlap a bit with each other.
-     *
-     * @member {number}
-     */
-    this.canvasPadding = 0;
-
-    /**
-     * The way the Mesh should be drawn, can be any of the {@link PIXI.mesh.Mesh.DRAW_MODES} consts
-     *
-     * @member {number}
-     * @see PIXI.mesh.Mesh.DRAW_MODES
-     */
-    this.drawMode = drawMode || Mesh.DRAW_MODES.TRIANGLE_MESH;
-
-    // run texture setter;
-    this.texture = texture;
-
-     /**
-     * The default shader that is used if a mesh doesn't have a more specific one.
-     *
-     * @member {PIXI.Shader}
-     */
-    this.shader = null;
-}
-
-// constructor
-Mesh.prototype = Object.create(core.Container.prototype);
-Mesh.prototype.constructor = Mesh;
-module.exports = Mesh;
-
-Object.defineProperties(Mesh.prototype, {
-    /**
-     * The texture that the sprite is using
-     *
-     * @member {PIXI.Texture}
-     * @memberof PIXI.mesh.Mesh#
-     */
-    texture: {
-        get: function ()
-        {
-            return  this._texture;
-        },
-        set: function (value)
-        {
-            if (this._texture === value)
-            {
-                return;
-            }
-
-            this._texture = value;
-
-            if (value)
-            {
-                // wait for the texture to load
-                if (value.baseTexture.hasLoaded)
-                {
-                    this._onTextureUpdate();
-                }
-                else
-                {
-                    value.once('update', this._onTextureUpdate, this);
-                }
-            }
-        }
-    }
-});
-
-/**
- * Renders the object using the WebGL renderer
- *
- * @param renderer {PIXI.WebGLRenderer} a reference to the WebGL renderer
- * @private
- */
-Mesh.prototype._renderWebGL = function (renderer)
-{
-    renderer.setObjectRenderer(renderer.plugins.mesh);
-    renderer.plugins.mesh.render(this);
-};
-
-/**
- * Renders the object using the Canvas renderer
- *
- * @param renderer {PIXI.CanvasRenderer}
- * @private
- */
-Mesh.prototype._renderCanvas = function (renderer)
-{
-    var context = renderer.context;
-
-    var transform = this.worldTransform;
-    var res = renderer.resolution;
-
-    if (renderer.roundPixels)
-    {
-        context.setTransform(transform.a * res, transform.b * res, transform.c * res, transform.d * res, (transform.tx * res) | 0, (transform.ty * res) | 0);
-    }
-    else
-    {
-        context.setTransform(transform.a * res, transform.b * res, transform.c * res, transform.d * res, transform.tx * res, transform.ty * res);
-    }
-
-    if (this.drawMode === Mesh.DRAW_MODES.TRIANGLE_MESH)
-    {
-        this._renderCanvasTriangleMesh(context);
-    }
-    else
-    {
-        this._renderCanvasTriangles(context);
-    }
-};
-
-/**
- * Draws the object in Triangle Mesh mode using canvas
- *
- * @param context {CanvasRenderingContext2D} the current drawing context
- * @private
- */
-Mesh.prototype._renderCanvasTriangleMesh = function (context)
-{
-    // draw triangles!!
-    var vertices = this.vertices;
-    var uvs = this.uvs;
-
-    var length = vertices.length / 2;
-    // this.count++;
-
-    for (var i = 0; i < length - 2; i++)
-    {
-        // draw some triangles!
-        var index = i * 2;
-        this._renderCanvasDrawTriangle(context, vertices, uvs, index, (index + 2), (index + 4));
-    }
-};
-
-/**
- * Draws the object in triangle mode using canvas
- *
- * @param context {CanvasRenderingContext2D} the current drawing context
- * @private
- */
-Mesh.prototype._renderCanvasTriangles = function (context)
-{
-    // draw triangles!!
-    var vertices = this.vertices;
-    var uvs = this.uvs;
-    var indices = this.indices;
-
-    var length = indices.length;
-    // this.count++;
-
-    for (var i = 0; i < length; i += 3)
-    {
-        // draw some triangles!
-        var index0 = indices[i] * 2, index1 = indices[i + 1] * 2, index2 = indices[i + 2] * 2;
-        this._renderCanvasDrawTriangle(context, vertices, uvs, index0, index1, index2);
-    }
-};
-
-/**
- * Draws one of the triangles that form this Mesh
- *
- * @param context {CanvasRenderingContext2D} the current drawing context
- * @param vertices {Float32Array} a reference to the vertices of the Mesh
- * @param uvs {Float32Array} a reference to the uvs of the Mesh
- * @param index0 {number} the index of the first vertex
- * @param index1 {number} the index of the second vertex
- * @param index2 {number} the index of the third vertex
- * @private
- */
-Mesh.prototype._renderCanvasDrawTriangle = function (context, vertices, uvs, index0, index1, index2)
-{
-    var base = this._texture.baseTexture;
-    var textureSource = base.source;
-    var textureWidth = base.width;
-    var textureHeight = base.height;
-
-    var x0 = vertices[index0], x1 = vertices[index1], x2 = vertices[index2];
-    var y0 = vertices[index0 + 1], y1 = vertices[index1 + 1], y2 = vertices[index2 + 1];
-
-    var u0 = uvs[index0] * base.width, u1 = uvs[index1] * base.width, u2 = uvs[index2] * base.width;
-    var v0 = uvs[index0 + 1] * base.height, v1 = uvs[index1 + 1] * base.height, v2 = uvs[index2 + 1] * base.height;
-
-    if (this.canvasPadding > 0)
-    {
-        var paddingX = this.canvasPadding / this.worldTransform.a;
-        var paddingY = this.canvasPadding / this.worldTransform.d;
-        var centerX = (x0 + x1 + x2) / 3;
-        var centerY = (y0 + y1 + y2) / 3;
-
-        var normX = x0 - centerX;
-        var normY = y0 - centerY;
-
-        var dist = Math.sqrt(normX * normX + normY * normY);
-        x0 = centerX + (normX / dist) * (dist + paddingX);
-        y0 = centerY + (normY / dist) * (dist + paddingY);
-
-        //
-
-        normX = x1 - centerX;
-        normY = y1 - centerY;
-
-        dist = Math.sqrt(normX * normX + normY * normY);
-        x1 = centerX + (normX / dist) * (dist + paddingX);
-        y1 = centerY + (normY / dist) * (dist + paddingY);
-
-        normX = x2 - centerX;
-        normY = y2 - centerY;
-
-        dist = Math.sqrt(normX * normX + normY * normY);
-        x2 = centerX + (normX / dist) * (dist + paddingX);
-        y2 = centerY + (normY / dist) * (dist + paddingY);
-    }
-
-    context.save();
-    context.beginPath();
-
-
-    context.moveTo(x0, y0);
-    context.lineTo(x1, y1);
-    context.lineTo(x2, y2);
-
-    context.closePath();
-
-    context.clip();
-
-    // Compute matrix transform
-    var delta =  (u0 * v1)      + (v0 * u2)      + (u1 * v2)      - (v1 * u2)      - (v0 * u1)      - (u0 * v2);
-    var deltaA = (x0 * v1)      + (v0 * x2)      + (x1 * v2)      - (v1 * x2)      - (v0 * x1)      - (x0 * v2);
-    var deltaB = (u0 * x1)      + (x0 * u2)      + (u1 * x2)      - (x1 * u2)      - (x0 * u1)      - (u0 * x2);
-    var deltaC = (u0 * v1 * x2) + (v0 * x1 * u2) + (x0 * u1 * v2) - (x0 * v1 * u2) - (v0 * u1 * x2) - (u0 * x1 * v2);
-    var deltaD = (y0 * v1)      + (v0 * y2)      + (y1 * v2)      - (v1 * y2)      - (v0 * y1)      - (y0 * v2);
-    var deltaE = (u0 * y1)      + (y0 * u2)      + (u1 * y2)      - (y1 * u2)      - (y0 * u1)      - (u0 * y2);
-    var deltaF = (u0 * v1 * y2) + (v0 * y1 * u2) + (y0 * u1 * v2) - (y0 * v1 * u2) - (v0 * u1 * y2) - (u0 * y1 * v2);
-
-    context.transform(deltaA / delta, deltaD / delta,
-        deltaB / delta, deltaE / delta,
-        deltaC / delta, deltaF / delta);
-
-    context.drawImage(textureSource, 0, 0, textureWidth * base.resolution, textureHeight * base.resolution, 0, 0, textureWidth, textureHeight);
-    context.restore();
-};
-
-
-
-/**
- * Renders a flat Mesh
- *
- * @param Mesh {PIXI.mesh.Mesh} The Mesh to render
- * @private
- */
-Mesh.prototype.renderMeshFlat = function (Mesh)
-{
-    var context = this.context;
-    var vertices = Mesh.vertices;
-
-    var length = vertices.length/2;
-    // this.count++;
-
-    context.beginPath();
-    for (var i=1; i < length-2; i++)
-    {
-        // draw some triangles!
-        var index = i*2;
-
-        var x0 = vertices[index],   x1 = vertices[index+2], x2 = vertices[index+4];
-        var y0 = vertices[index+1], y1 = vertices[index+3], y2 = vertices[index+5];
-
-        context.moveTo(x0, y0);
-        context.lineTo(x1, y1);
-        context.lineTo(x2, y2);
-    }
-
-    context.fillStyle = '#FF0000';
-    context.fill();
-    context.closePath();
-};
-
-/**
- * When the texture is updated, this event will fire to update the scale and frame
- *
- * @param event
- * @private
- */
-Mesh.prototype._onTextureUpdate = function ()
-{
-    this.updateFrame = true;
-};
-
-/**
- * Returns the bounds of the mesh as a rectangle. The bounds calculation takes the worldTransform into account.
- *
- * @param matrix {PIXI.Matrix} the transformation matrix of the sprite
- * @return {PIXI.Rectangle} the framing rectangle
- */
-Mesh.prototype.getBounds = function (matrix)
-{
-    if (!this._currentBounds) {
-        var worldTransform = matrix || this.worldTransform;
-
-        var a = worldTransform.a;
-        var b = worldTransform.b;
-        var c = worldTransform.c;
-        var d = worldTransform.d;
-        var tx = worldTransform.tx;
-        var ty = worldTransform.ty;
-
-        var maxX = -Infinity;
-        var maxY = -Infinity;
-
-        var minX = Infinity;
-        var minY = Infinity;
-
-        var vertices = this.vertices;
-        for (var i = 0, n = vertices.length; i < n; i += 2) {
-            var rawX = vertices[i], rawY = vertices[i + 1];
-            var x = (a * rawX) + (c * rawY) + tx;
-            var y = (d * rawY) + (b * rawX) + ty;
-
-            minX = x < minX ? x : minX;
-            minY = y < minY ? y : minY;
-
-            maxX = x > maxX ? x : maxX;
-            maxY = y > maxY ? y : maxY;
-        }
-
-        if (minX === -Infinity || maxY === Infinity) {
-            return core.Rectangle.EMPTY;
-        }
-
-        var bounds = this._bounds;
-
-        bounds.x = minX;
-        bounds.width = maxX - minX;
-
-        bounds.y = minY;
-        bounds.height = maxY - minY;
-
-        // store a reference so that if this function gets called again in the render cycle we do not have to recalculate
-        this._currentBounds = bounds;
-    }
-
-    return this._currentBounds;
-};
-
-/**
- * Tests if a point is inside this mesh. Works only for TRIANGLE_MESH
- *
- * @param point {PIXI.Point} the point to test
- * @return {boolean} the result of the test
- */
-Mesh.prototype.containsPoint = function( point ) {
-    if (!this.getBounds().contains(point.x, point.y)) {
-        return false;
-    }
-    this.worldTransform.applyInverse(point,  tempPoint);
-
-    var vertices = this.vertices;
-    var points = tempPolygon.points;
-    var i, len;
-
-    if (this.drawMode === Mesh.DRAW_MODES.TRIANGLES) {
-        var indices = this.indices;
-        len = this.indices.length;
-        //TODO: inline this.
-        for (i=0;i<len;i+=3) {
-            var ind0 = indices[i]*2, ind1 = indices[i+1]*2, ind2 = indices[i+2]*2;
-            points[0] = vertices[ind0];
-            points[1] = vertices[ind0+1];
-            points[2] = vertices[ind1];
-            points[3] = vertices[ind1+1];
-            points[4] = vertices[ind2];
-            points[5] = vertices[ind2+1];
-            if (tempPolygon.contains(tempPoint.x, tempPoint.y)) {
-                return true;
-            }
-        }
-    } else {
-        len = vertices.length;
-        for (i=0;i<len;i+=6) {
-            points[0] = vertices[i];
-            points[1] = vertices[i+1];
-            points[2] = vertices[i+2];
-            points[3] = vertices[i+3];
-            points[4] = vertices[i+4];
-            points[5] = vertices[i+5];
-            if (tempPolygon.contains(tempPoint.x, tempPoint.y)) {
-                return true;
-            }
-        }
-    }
-    return false;
-};
-
-/**
- * Different drawing buffer modes supported
- *
- * @static
- * @constant
- * @property {object} DRAW_MODES
- * @property {number} DRAW_MODES.TRIANGLE_MESH
- * @property {number} DRAW_MODES.TRIANGLES
- */
-Mesh.DRAW_MODES = {
-    TRIANGLE_MESH: 0,
-    TRIANGLES: 1
-};
-
-
-/***/ }),
-/* 22 */
-/***/ (function(module, exports) {
-
-/**
- * The Point object represents a location in a two-dimensional coordinate system, where x represents
- * the horizontal axis and y represents the vertical axis.
- *
- * @class
- * @memberof PIXI
- * @param [x=0] {number} position of the point on the x axis
- * @param [y=0] {number} position of the point on the y axis
- */
-function Point(x, y)
-{
-    /**
-     * @member {number}
-     * @default 0
-     */
-    this.x = x || 0;
-
-    /**
-     * @member {number}
-     * @default 0
-     */
-    this.y = y || 0;
-}
-
-Point.prototype.constructor = Point;
-module.exports = Point;
-
-/**
- * Creates a clone of this point
- *
- * @return {PIXI.Point} a copy of the point
- */
-Point.prototype.clone = function ()
-{
-    return new Point(this.x, this.y);
-};
-
-/**
- * Copies x and y from the given point
- *
- * @param p {PIXI.Point}
- */
-Point.prototype.copy = function (p) {
-    this.set(p.x, p.y);
-};
-
-/**
- * Returns true if the given point is equal to this point
- *
- * @param p {PIXI.Point}
- * @returns {boolean}
- */
-Point.prototype.equals = function (p) {
-    return (p.x === this.x) && (p.y === this.y);
-};
-
-/**
- * Sets the point to a new x and y position.
- * If y is omitted, both x and y will be set to x.
- *
- * @param [x=0] {number} position of the point on the x axis
- * @param [y=0] {number} position of the point on the y axis
- */
-Point.prototype.set = function (x, y)
-{
-    this.x = x || 0;
-    this.y = y || ( (y !== 0) ? this.x : 0 ) ;
-};
-
-
-/***/ }),
-/* 23 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var CONST = __webpack_require__(1);
-
-/**
- * the Rectangle object is an area defined by its position, as indicated by its top-left corner point (x, y) and by its width and its height.
- *
- * @class
- * @memberof PIXI
- * @param x {number} The X coordinate of the upper-left corner of the rectangle
- * @param y {number} The Y coordinate of the upper-left corner of the rectangle
- * @param width {number} The overall width of this rectangle
- * @param height {number} The overall height of this rectangle
- */
-function Rectangle(x, y, width, height)
-{
-    /**
-     * @member {number}
-     * @default 0
-     */
-    this.x = x || 0;
-
-    /**
-     * @member {number}
-     * @default 0
-     */
-    this.y = y || 0;
-
-    /**
-     * @member {number}
-     * @default 0
-     */
-    this.width = width || 0;
-
-    /**
-     * @member {number}
-     * @default 0
-     */
-    this.height = height || 0;
-
-    /**
-     * The type of the object, mainly used to avoid `instanceof` checks
-     *
-     * @member {number}
-     */
-    this.type = CONST.SHAPES.RECT;
-}
-
-Rectangle.prototype.constructor = Rectangle;
-module.exports = Rectangle;
-
-/**
- * A constant empty rectangle.
- *
- * @static
- * @constant
- */
-Rectangle.EMPTY = new Rectangle(0, 0, 0, 0);
-
-
-/**
- * Creates a clone of this Rectangle
- *
- * @return {PIXI.Rectangle} a copy of the rectangle
- */
-Rectangle.prototype.clone = function ()
-{
-    return new Rectangle(this.x, this.y, this.width, this.height);
-};
-
-/**
- * Checks whether the x and y coordinates given are contained within this Rectangle
- *
- * @param x {number} The X coordinate of the point to test
- * @param y {number} The Y coordinate of the point to test
- * @return {boolean} Whether the x/y coordinates are within this Rectangle
- */
-Rectangle.prototype.contains = function (x, y)
-{
-    if (this.width <= 0 || this.height <= 0)
-    {
-        return false;
-    }
-
-    if (x >= this.x && x < this.x + this.width)
-    {
-        if (y >= this.y && y < this.y + this.height)
-        {
-            return true;
-        }
-    }
-
-    return false;
-};
-
-
-/***/ }),
-/* 24 */
-/***/ (function(module, exports) {
-
-// shim for using process in browser
-var process = module.exports = {};
-
-// cached from whatever global is present so that test runners that stub it
-// don't break things.  But we need to wrap it in a try catch in case it is
-// wrapped in strict mode code which doesn't define any globals.  It's inside a
-// function because try/catches deoptimize in certain engines.
-
-var cachedSetTimeout;
-var cachedClearTimeout;
-
-function defaultSetTimout() {
-    throw new Error('setTimeout has not been defined');
-}
-function defaultClearTimeout () {
-    throw new Error('clearTimeout has not been defined');
-}
-(function () {
-    try {
-        if (typeof setTimeout === 'function') {
-            cachedSetTimeout = setTimeout;
-        } else {
-            cachedSetTimeout = defaultSetTimout;
-        }
-    } catch (e) {
-        cachedSetTimeout = defaultSetTimout;
-    }
-    try {
-        if (typeof clearTimeout === 'function') {
-            cachedClearTimeout = clearTimeout;
-        } else {
-            cachedClearTimeout = defaultClearTimeout;
-        }
-    } catch (e) {
-        cachedClearTimeout = defaultClearTimeout;
-    }
-} ())
-function runTimeout(fun) {
-    if (cachedSetTimeout === setTimeout) {
-        //normal enviroments in sane situations
-        return setTimeout(fun, 0);
-    }
-    // if setTimeout wasn't available but was latter defined
-    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
-        cachedSetTimeout = setTimeout;
-        return setTimeout(fun, 0);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedSetTimeout(fun, 0);
-    } catch(e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
-            return cachedSetTimeout.call(null, fun, 0);
-        } catch(e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
-            return cachedSetTimeout.call(this, fun, 0);
-        }
-    }
-
-
-}
-function runClearTimeout(marker) {
-    if (cachedClearTimeout === clearTimeout) {
-        //normal enviroments in sane situations
-        return clearTimeout(marker);
-    }
-    // if clearTimeout wasn't available but was latter defined
-    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
-        cachedClearTimeout = clearTimeout;
-        return clearTimeout(marker);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedClearTimeout(marker);
-    } catch (e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
-            return cachedClearTimeout.call(null, marker);
-        } catch (e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
-            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
-            return cachedClearTimeout.call(this, marker);
-        }
-    }
-
-
-
-}
-var queue = [];
-var draining = false;
-var currentQueue;
-var queueIndex = -1;
-
-function cleanUpNextTick() {
-    if (!draining || !currentQueue) {
-        return;
-    }
-    draining = false;
-    if (currentQueue.length) {
-        queue = currentQueue.concat(queue);
-    } else {
-        queueIndex = -1;
-    }
-    if (queue.length) {
-        drainQueue();
-    }
-}
-
-function drainQueue() {
-    if (draining) {
-        return;
-    }
-    var timeout = runTimeout(cleanUpNextTick);
-    draining = true;
-
-    var len = queue.length;
-    while(len) {
-        currentQueue = queue;
-        queue = [];
-        while (++queueIndex < len) {
-            if (currentQueue) {
-                currentQueue[queueIndex].run();
-            }
-        }
-        queueIndex = -1;
-        len = queue.length;
-    }
-    currentQueue = null;
-    draining = false;
-    runClearTimeout(timeout);
-}
-
-process.nextTick = function (fun) {
-    var args = new Array(arguments.length - 1);
-    if (arguments.length > 1) {
-        for (var i = 1; i < arguments.length; i++) {
-            args[i - 1] = arguments[i];
-        }
-    }
-    queue.push(new Item(fun, args));
-    if (queue.length === 1 && !draining) {
-        runTimeout(drainQueue);
-    }
-};
-
-// v8 likes predictible objects
-function Item(fun, array) {
-    this.fun = fun;
-    this.array = array;
-}
-Item.prototype.run = function () {
-    this.fun.apply(null, this.array);
-};
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-process.version = ''; // empty string to avoid regexp issues
-process.versions = {};
-
-function noop() {}
-
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-process.prependListener = noop;
-process.prependOnceListener = noop;
-
-process.listeners = function (name) { return [] }
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-};
-
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-process.umask = function() { return 0; };
-
-
-/***/ }),
-/* 25 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var BaseTexture = __webpack_require__(13),
-    Texture = __webpack_require__(11),
-    RenderTarget = __webpack_require__(14),
-    FilterManager = __webpack_require__(41),
-    CanvasBuffer = __webpack_require__(26),
-    math = __webpack_require__(6),
-    CONST = __webpack_require__(1),
-    tempMatrix = new math.Matrix();
-
-/**
- * A RenderTexture is a special texture that allows any Pixi display object to be rendered to it.
- *
- * __Hint__: All DisplayObjects (i.e. Sprites) that render to a RenderTexture should be preloaded
- * otherwise black rectangles will be drawn instead.
- *
- * A RenderTexture takes a snapshot of any Display Object given to its render method. The position
- * and rotation of the given Display Objects is ignored. For example:
- *
- * ```js
- * var renderer = PIXI.autoDetectRenderer(1024, 1024, { view: canvas, ratio: 1 });
- * var renderTexture = new PIXI.RenderTexture(renderer, 800, 600);
- * var sprite = PIXI.Sprite.fromImage("spinObj_01.png");
- *
- * sprite.position.x = 800/2;
- * sprite.position.y = 600/2;
- * sprite.anchor.x = 0.5;
- * sprite.anchor.y = 0.5;
- *
- * renderTexture.render(sprite);
- * ```
- *
- * The Sprite in this case will be rendered to a position of 0,0. To render this sprite at its actual
- * position a Container should be used:
- *
- * ```js
- * var doc = new PIXI.Container();
- *
- * doc.addChild(sprite);
- *
- * renderTexture.render(doc);  // Renders to center of renderTexture
- * ```
- *
- * @class
- * @extends PIXI.Texture
- * @memberof PIXI
- * @param renderer {PIXI.CanvasRenderer|PIXI.WebGLRenderer} The renderer used for this RenderTexture
- * @param [width=100] {number} The width of the render texture
- * @param [height=100] {number} The height of the render texture
- * @param [scaleMode] {number} See {@link PIXI.SCALE_MODES} for possible values
- * @param [resolution=1] {number} The resolution of the texture being generated
- */
-function RenderTexture(renderer, width, height, scaleMode, resolution)
-{
-    if (!renderer)
-    {
-        throw new Error('Unable to create RenderTexture, you must pass a renderer into the constructor.');
-    }
-
-    width = width || 100;
-    height = height || 100;
-    resolution = resolution || CONST.RESOLUTION;
-
-    /**
-     * The base texture object that this texture uses
-     *
-     * @member {BaseTexture}
-     */
-    var baseTexture = new BaseTexture();
-    baseTexture.width = width;
-    baseTexture.height = height;
-    baseTexture.resolution = resolution;
-    baseTexture.scaleMode = scaleMode || CONST.SCALE_MODES.DEFAULT;
-    baseTexture.hasLoaded = true;
-
-
-    Texture.call(this,
-        baseTexture,
-        new math.Rectangle(0, 0, width, height)
-    );
-
-
-    /**
-     * The with of the render texture
-     *
-     * @member {number}
-     */
-    this.width = width;
-
-    /**
-     * The height of the render texture
-     *
-     * @member {number}
-     */
-    this.height = height;
-
-    /**
-     * The Resolution of the texture.
-     *
-     * @member {number}
-     */
-    this.resolution = resolution;
-
-    /**
-     * Draw/render the given DisplayObject onto the texture.
-     *
-     * The displayObject and descendents are transformed during this operation.
-     * If `updateTransform` is true then the transformations will be restored before the
-     * method returns. Otherwise it is up to the calling code to correctly use or reset
-     * the transformed display objects.
-     *
-     * The display object is always rendered with a worldAlpha value of 1.
-     *
-     * @method
-     * @param displayObject {PIXI.DisplayObject} The display object to render this texture on
-     * @param [matrix] {PIXI.Matrix} Optional matrix to apply to the display object before rendering.
-     * @param [clear=false] {boolean} If true the texture will be cleared before the displayObject is drawn
-     * @param [updateTransform=true] {boolean} If true the displayObject's worldTransform/worldAlpha and all children
-     *  transformations will be restored. Not restoring this information will be a little faster.
-     */
-    this.render = null;
-
-    /**
-     * The renderer this RenderTexture uses. A RenderTexture can only belong to one renderer at the moment if its webGL.
-     *
-     * @member {PIXI.CanvasRenderer|PIXI.WebGLRenderer}
-     */
-    this.renderer = renderer;
-
-    if (this.renderer.type === CONST.RENDERER_TYPE.WEBGL)
-    {
-        var gl = this.renderer.gl;
-
-        this.textureBuffer = new RenderTarget(gl, this.width, this.height, baseTexture.scaleMode, this.resolution);//, this.baseTexture.scaleMode);
-        this.baseTexture._glTextures[gl.id] = this.textureBuffer.texture;
-
-        //TODO refactor filter manager.. as really its no longer a manager if we use it here..
-        this.filterManager = new FilterManager(this.renderer);
-        this.filterManager.onContextChange();
-        this.filterManager.resize(width, height);
-        this.render = this.renderWebGL;
-
-        // the creation of a filter manager unbinds the buffers..
-        this.renderer.currentRenderer.start();
-        this.renderer.currentRenderTarget.activate();
-    }
-    else
-    {
-
-        this.render = this.renderCanvas;
-        this.textureBuffer = new CanvasBuffer(this.width* this.resolution, this.height* this.resolution);
-        this.baseTexture.source = this.textureBuffer.canvas;
-    }
-
-    /**
-     * @member {boolean}
-     */
-    this.valid = true;
-
-    this._updateUvs();
-}
-
-RenderTexture.prototype = Object.create(Texture.prototype);
-RenderTexture.prototype.constructor = RenderTexture;
-module.exports = RenderTexture;
-
-/**
- * Resizes the RenderTexture.
- *
- * @param width {number} The width to resize to.
- * @param height {number} The height to resize to.
- * @param updateBase {boolean} Should the baseTexture.width and height values be resized as well?
- */
-RenderTexture.prototype.resize = function (width, height, updateBase)
-{
-    if (width === this.width && height === this.height)
-    {
-        return;
-    }
-
-    this.valid = (width > 0 && height > 0);
-
-    this.width = this._frame.width = this.crop.width = width;
-    this.height =  this._frame.height = this.crop.height = height;
-
-    if (updateBase)
-    {
-        this.baseTexture.width = this.width;
-        this.baseTexture.height = this.height;
-    }
-
-    if (!this.valid)
-    {
-        return;
-    }
-
-    this.textureBuffer.resize(this.width, this.height);
-
-    if(this.filterManager)
-    {
-        this.filterManager.resize(this.width, this.height);
-    }
-};
-
-/**
- * Clears the RenderTexture.
- *
- */
-RenderTexture.prototype.clear = function ()
-{
-    if (!this.valid)
-    {
-        return;
-    }
-
-    if (this.renderer.type === CONST.RENDERER_TYPE.WEBGL)
-    {
-        this.renderer.gl.bindFramebuffer(this.renderer.gl.FRAMEBUFFER, this.textureBuffer.frameBuffer);
-    }
-
-    this.textureBuffer.clear();
-};
-
-/**
- * Internal method assigned to the `render` property if using a CanvasRenderer.
- *
- * @private
- * @param displayObject {PIXI.DisplayObject} The display object to render this texture on
- * @param [matrix] {PIXI.Matrix} Optional matrix to apply to the display object before rendering.
- * @param [clear=false] {boolean} If true the texture will be cleared before the displayObject is drawn
- * @param [updateTransform=true] {boolean} If true the displayObject's worldTransform/worldAlpha and all children
- *  transformations will be restored. Not restoring this information will be a little faster.
- */
-RenderTexture.prototype.renderWebGL = function (displayObject, matrix, clear, updateTransform)
-{
-    if (!this.valid)
-    {
-        return;
-    }
-
-
-    updateTransform = (updateTransform !== undefined) ? updateTransform : true;//!updateTransform;
-
-    this.textureBuffer.transform = matrix;
-
-    //TODO not a fan that this is here... it will move!
-    this.textureBuffer.activate();
-
-    // setWorld Alpha to ensure that the object is renderer at full opacity
-    displayObject.worldAlpha = 1;
-
-    if (updateTransform)
-    {
-
-        // reset the matrix of the displatyObject..
-        displayObject.worldTransform.identity();
-
-        displayObject.currentBounds = null;
-
-        // Time to update all the children of the displayObject with the new matrix..
-        var children = displayObject.children;
-        var i, j;
-
-        for (i = 0, j = children.length; i < j; ++i)
-        {
-            children[i].updateTransform();
-        }
-    }
-
-    //TODO rename textureBuffer to renderTarget..
-    var temp =  this.renderer.filterManager;
-
-    this.renderer.filterManager = this.filterManager;
-    this.renderer.renderDisplayObject(displayObject, this.textureBuffer, clear);
-
-    this.renderer.filterManager = temp;
-};
-
-
-/**
- * Internal method assigned to the `render` property if using a CanvasRenderer.
- *
- * @private
- * @param displayObject {PIXI.DisplayObject} The display object to render this texture on
- * @param [matrix] {PIXI.Matrix} Optional matrix to apply to the display object before rendering.
- * @param [clear] {boolean} If true the texture will be cleared before the displayObject is drawn
- */
-RenderTexture.prototype.renderCanvas = function (displayObject, matrix, clear, updateTransform)
-{
-    if (!this.valid)
-    {
-        return;
-    }
-
-    updateTransform = !!updateTransform;
-
-    var wt = tempMatrix;
-
-    wt.identity();
-
-    if (matrix)
-    {
-        wt.append(matrix);
-    }
-
-    var cachedWt = displayObject.worldTransform;
-    displayObject.worldTransform = wt;
-
-    // setWorld Alpha to ensure that the object is renderer at full opacity
-    displayObject.worldAlpha = 1;
-
-    // Time to update all the children of the displayObject with the new matrix..
-    var children = displayObject.children;
-    var i, j;
-
-    for (i = 0, j = children.length; i < j; ++i)
-    {
-        children[i].updateTransform();
-    }
-
-    if (clear)
-    {
-        this.textureBuffer.clear();
-    }
-
-
-//    this.textureBuffer.
-    var context = this.textureBuffer.context;
-
-    var realResolution = this.renderer.resolution;
-
-    this.renderer.resolution = this.resolution;
-
-    this.renderer.renderDisplayObject(displayObject, context);
-
-    this.renderer.resolution = realResolution;
-
-    if(displayObject.worldTransform === wt)
-    {
-        // fixes cacheAsBitmap Happening during the above..
-        displayObject.worldTransform = cachedWt;
-    }
-
-};
-
-/**
- * Destroys this texture
- *
- * @param destroyBase {boolean} Whether to destroy the base texture as well
- */
-RenderTexture.prototype.destroy = function ()
-{
-    Texture.prototype.destroy.call(this, true);
-
-    this.textureBuffer.destroy();
-
-    // destroy the filtermanager..
-    if(this.filterManager)
-    {
-        this.filterManager.destroy();
-    }
-
-    this.renderer = null;
-};
-
-/**
- * Will return a HTML Image of the texture
- *
- * @return {Image}
- */
-RenderTexture.prototype.getImage = function ()
-{
-    var image = new Image();
-    image.src = this.getBase64();
-    return image;
-};
-
-/**
- * Will return a a base64 encoded string of this texture. It works by calling RenderTexture.getCanvas and then running toDataURL on that.
- *
- * @return {string} A base64 encoded string of the texture.
- */
-RenderTexture.prototype.getBase64 = function ()
-{
-    return this.getCanvas().toDataURL();
-};
-
-/**
- * Creates a Canvas element, renders this RenderTexture to it and then returns it.
- *
- * @return {HTMLCanvasElement} A Canvas element with the texture rendered on.
- */
-RenderTexture.prototype.getCanvas = function ()
-{
-    if (this.renderer.type === CONST.RENDERER_TYPE.WEBGL)
-    {
-        var gl = this.renderer.gl;
-        var width = this.textureBuffer.size.width;
-        var height = this.textureBuffer.size.height;
-
-        var webGLPixels = new Uint8Array(4 * width * height);
-
-        gl.bindFramebuffer(gl.FRAMEBUFFER, this.textureBuffer.frameBuffer);
-        gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, webGLPixels);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-
-        var tempCanvas = new CanvasBuffer(width, height);
-        var canvasData = tempCanvas.context.getImageData(0, 0, width, height);
-        canvasData.data.set(webGLPixels);
-
-        tempCanvas.context.putImageData(canvasData, 0, 0);
-
-        return tempCanvas.canvas;
-    }
-    else
-    {
-        return this.textureBuffer.canvas;
-    }
-};
-
-/**
- * Will return a one-dimensional array containing the pixel data of the entire texture in RGBA order, with integer values between 0 and 255 (included).
- *
- * @return {Uint8ClampedArray}
- */
-RenderTexture.prototype.getPixels = function ()
-{
-    var width, height;
-
-    if (this.renderer.type === CONST.RENDERER_TYPE.WEBGL)
-    {
-        var gl = this.renderer.gl;
-        width = this.textureBuffer.size.width;
-        height = this.textureBuffer.size.height;
-
-        var webGLPixels = new Uint8Array(4 * width * height);
-
-        gl.bindFramebuffer(gl.FRAMEBUFFER, this.textureBuffer.frameBuffer);
-        gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, webGLPixels);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-
-        return webGLPixels;
-    }
-    else
-    {
-        width = this.textureBuffer.canvas.width;
-        height = this.textureBuffer.canvas.height;
-
-        return this.textureBuffer.canvas.getContext('2d').getImageData(0, 0, width, height).data;
-    }
-};
-
-/**
- * Will return a one-dimensional array containing the pixel data of a pixel within the texture in RGBA order, with integer values between 0 and 255 (included).
- *
- * @param x {number} The x coordinate of the pixel to retrieve.
- * @param y {number} The y coordinate of the pixel to retrieve.
- * @return {Uint8ClampedArray}
- */
-RenderTexture.prototype.getPixel = function (x, y)
-{
-    if (this.renderer.type === CONST.RENDERER_TYPE.WEBGL)
-    {
-        var gl = this.renderer.gl;
-
-        var webGLPixels = new Uint8Array(4);
-
-        gl.bindFramebuffer(gl.FRAMEBUFFER, this.textureBuffer.frameBuffer);
-        gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, webGLPixels);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-
-        return webGLPixels;
-    }
-    else
-    {
-        return this.textureBuffer.canvas.getContext('2d').getImageData(x, y, 1, 1).data;
-    }
-};
-
-
-/***/ }),
-/* 26 */
-/***/ (function(module, exports) {
-
-/**
- * Creates a Canvas element of the given size.
- *
- * @class
- * @memberof PIXI
- * @param width {number} the width for the newly created canvas
- * @param height {number} the height for the newly created canvas
- */
-function CanvasBuffer(width, height)
-{
-    /**
-     * The Canvas object that belongs to this CanvasBuffer.
-     *
-     * @member {HTMLCanvasElement}
-     */
-    this.canvas = document.createElement('canvas');
-
-    /**
-     * A CanvasRenderingContext2D object representing a two-dimensional rendering context.
-     *
-     * @member {CanvasRenderingContext2D}
-     */
-    this.context = this.canvas.getContext('2d');
-
-    this.canvas.width = width;
-    this.canvas.height = height;
-}
-
-CanvasBuffer.prototype.constructor = CanvasBuffer;
-module.exports = CanvasBuffer;
-
-Object.defineProperties(CanvasBuffer.prototype, {
-    /**
-     * The width of the canvas buffer in pixels.
-     *
-     * @member {number}
-     * @memberof PIXI.CanvasBuffer#
-     */
-    width: {
-        get: function ()
-        {
-            return this.canvas.width;
-        },
-        set: function (val)
-        {
-            this.canvas.width = val;
-        }
-    },
-    /**
-     * The height of the canvas buffer in pixels.
-     *
-     * @member {number}
-     * @memberof PIXI.CanvasBuffer#
-     */
-    height: {
-        get: function ()
-        {
-            return this.canvas.height;
-        },
-        set: function (val)
-        {
-            this.canvas.height = val;
-        }
-    }
-});
-
-/**
- * Clears the canvas that was created by the CanvasBuffer class.
- *
- * @private
- */
-CanvasBuffer.prototype.clear = function ()
-{
-    this.context.setTransform(1, 0, 0, 1, 0, 0);
-    this.context.clearRect(0,0, this.canvas.width, this.canvas.height);
-};
-
-/**
- * Resizes the canvas to the specified width and height.
- *
- * @param width {number} the new width of the canvas
- * @param height {number} the new height of the canvas
- */
-CanvasBuffer.prototype.resize = function (width, height)
-{
-    this.canvas.width = width;
-    this.canvas.height = height;
-};
-
-/**
- * Destroys this canvas.
- *
- */
-CanvasBuffer.prototype.destroy = function ()
-{
-    this.context = null;
-    this.canvas = null;
-};
-
-
-/***/ }),
-/* 27 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var DefaultShader = __webpack_require__(17);
-
-/**
- * This is the base class for creating a PIXI filter. Currently only WebGL supports filters.
- * If you want to make a custom filter this should be your base class.
- *
- * @class
- * @memberof PIXI
- * @param vertexSrc {string|string[]} The vertex shader source as an array of strings.
- * @param fragmentSrc {string|string[]} The fragment shader source as an array of strings.
- * @param uniforms {object} An object containing the uniforms for this filter.
- */
-function AbstractFilter(vertexSrc, fragmentSrc, uniforms)
-{
-
-    /**
-     * An array of shaders
-     * @member {PIXI.Shader[]}
-     * @private
-     */
-    this.shaders = [];
-
-    /**
-     * The extra padding that the filter might need
-     * @member {number}
-     */
-    this.padding = 0;
-
-    /**
-     * The uniforms as an object
-     * @member {object}
-     */
-    this.uniforms = uniforms || {};
-
-
-    /**
-     * The code of the vertex shader
-     * @member {string[]}
-     * @private
-     */
-    this.vertexSrc = vertexSrc || DefaultShader.defaultVertexSrc;
-
-    /**
-     * The code of the frament shader
-     * @member {string[]}
-     * @private
-     */
-    this.fragmentSrc = fragmentSrc || DefaultShader.defaultFragmentSrc;
-
-    //TODO a reminder - would be cool to have lower res filters as this would give better performance.
-
-    //typeof fragmentSrc === 'string' ? fragmentSrc.split('') : (fragmentSrc || []);
-
-}
-
-AbstractFilter.prototype.constructor = AbstractFilter;
-module.exports = AbstractFilter;
-
-/**
- * Grabs a shader from the current renderer
- *
- * @param renderer {PIXI.WebGLRenderer} The renderer to retrieve the shader from
- */
-AbstractFilter.prototype.getShader = function (renderer)
-{
-    var gl = renderer.gl;
-
-    var shader = this.shaders[gl.id];
-
-    if (!shader)
-    {
-        shader = new DefaultShader(renderer.shaderManager,
-            this.vertexSrc,
-            this.fragmentSrc,
-            this.uniforms,
-            this.attributes
-        );
-
-        this.shaders[gl.id] = shader;
-    }
-
-    return shader;
-};
-
-/**
- * Applies the filter
- *
- * @param renderer {PIXI.WebGLRenderer} The renderer to retrieve the filter from
- * @param input {PIXI.RenderTarget}
- * @param output {PIXI.RenderTarget}
- * @param clear {boolean} Whether or not we want to clear the outputTarget
- */
-AbstractFilter.prototype.applyFilter = function (renderer, input, output, clear)
-{
-    var shader = this.getShader(renderer);
-
-    renderer.filterManager.applyFilter(shader, input, output, clear);
-};
-
-/**
- * Syncs a uniform between the class object and the shaders.
- *
- */
-AbstractFilter.prototype.syncUniform = function (uniform)
-{
-    for (var i = 0, j = this.shaders.length; i < j; ++i)
-    {
-        this.shaders[i].syncUniform(uniform);
-    }
-};
-
-
-/***/ }),
-/* 28 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var CONST = __webpack_require__(1);
-
-/**
- * A set of functions used by the canvas renderer to draw the primitive graphics data.
- * @static
- * @class
- * @memberof PIXI
- */
-var CanvasGraphics = {};
-module.exports = CanvasGraphics;
-
-/*
- * Renders a Graphics object to a canvas.
- *
- * @param graphics {PIXI.Graphics} the actual graphics object to render
- * @param context {CanvasRenderingContext2D} the 2d drawing method of the canvas
- */
-CanvasGraphics.renderGraphics = function (graphics, context)
-{
-    var worldAlpha = graphics.worldAlpha;
-
-    if (graphics.dirty)
-    {
-        this.updateGraphicsTint(graphics);
-        graphics.dirty = false;
-    }
-
-    for (var i = 0; i < graphics.graphicsData.length; i++)
-    {
-        var data = graphics.graphicsData[i];
-        var shape = data.shape;
-
-        var fillColor = data._fillTint;
-        var lineColor = data._lineTint;
-
-        context.lineWidth = data.lineWidth;
-
-        if (data.type === CONST.SHAPES.POLY)
-        {
-            context.beginPath();
-
-            var points = shape.points;
-
-            context.moveTo(points[0], points[1]);
-
-            for (var j=1; j < points.length/2; j++)
-            {
-                context.lineTo(points[j * 2], points[j * 2 + 1]);
-            }
-
-            if (shape.closed)
-            {
-                context.lineTo(points[0], points[1]);
-            }
-
-            // if the first and last point are the same close the path - much neater :)
-            if (points[0] === points[points.length-2] && points[1] === points[points.length-1])
-            {
-                context.closePath();
-            }
-
-            if (data.fill)
-            {
-                context.globalAlpha = data.fillAlpha * worldAlpha;
-                context.fillStyle = '#' + ('00000' + ( fillColor | 0).toString(16)).substr(-6);
-                context.fill();
-            }
-            if (data.lineWidth)
-            {
-                context.globalAlpha = data.lineAlpha * worldAlpha;
-                context.strokeStyle = '#' + ('00000' + ( lineColor | 0).toString(16)).substr(-6);
-                context.stroke();
-            }
-        }
-        else if (data.type === CONST.SHAPES.RECT)
-        {
-
-            if (data.fillColor || data.fillColor === 0)
-            {
-                context.globalAlpha = data.fillAlpha * worldAlpha;
-                context.fillStyle = '#' + ('00000' + ( fillColor | 0).toString(16)).substr(-6);
-                context.fillRect(shape.x, shape.y, shape.width, shape.height);
-
-            }
-            if (data.lineWidth)
-            {
-                context.globalAlpha = data.lineAlpha * worldAlpha;
-                context.strokeStyle = '#' + ('00000' + ( lineColor | 0).toString(16)).substr(-6);
-                context.strokeRect(shape.x, shape.y, shape.width, shape.height);
-            }
-        }
-        else if (data.type === CONST.SHAPES.CIRC)
-        {
-            // TODO - need to be Undefined!
-            context.beginPath();
-            context.arc(shape.x, shape.y, shape.radius,0,2*Math.PI);
-            context.closePath();
-
-            if (data.fill)
-            {
-                context.globalAlpha = data.fillAlpha * worldAlpha;
-                context.fillStyle = '#' + ('00000' + ( fillColor | 0).toString(16)).substr(-6);
-                context.fill();
-            }
-            if (data.lineWidth)
-            {
-                context.globalAlpha = data.lineAlpha * worldAlpha;
-                context.strokeStyle = '#' + ('00000' + ( lineColor | 0).toString(16)).substr(-6);
-                context.stroke();
-            }
-        }
-        else if (data.type === CONST.SHAPES.ELIP)
-        {
-            // ellipse code taken from: http://stackoverflow.com/questions/2172798/how-to-draw-an-oval-in-html5-canvas
-
-            var w = shape.width * 2;
-            var h = shape.height * 2;
-
-            var x = shape.x - w/2;
-            var y = shape.y - h/2;
-
-            context.beginPath();
-
-            var kappa = 0.5522848,
-                ox = (w / 2) * kappa, // control point offset horizontal
-                oy = (h / 2) * kappa, // control point offset vertical
-                xe = x + w,           // x-end
-                ye = y + h,           // y-end
-                xm = x + w / 2,       // x-middle
-                ym = y + h / 2;       // y-middle
-
-            context.moveTo(x, ym);
-            context.bezierCurveTo(x, ym - oy, xm - ox, y, xm, y);
-            context.bezierCurveTo(xm + ox, y, xe, ym - oy, xe, ym);
-            context.bezierCurveTo(xe, ym + oy, xm + ox, ye, xm, ye);
-            context.bezierCurveTo(xm - ox, ye, x, ym + oy, x, ym);
-
-            context.closePath();
-
-            if (data.fill)
-            {
-                context.globalAlpha = data.fillAlpha * worldAlpha;
-                context.fillStyle = '#' + ('00000' + ( fillColor | 0).toString(16)).substr(-6);
-                context.fill();
-            }
-            if (data.lineWidth)
-            {
-                context.globalAlpha = data.lineAlpha * worldAlpha;
-                context.strokeStyle = '#' + ('00000' + ( lineColor | 0).toString(16)).substr(-6);
-                context.stroke();
-            }
-        }
-        else if (data.type === CONST.SHAPES.RREC)
-        {
-            var rx = shape.x;
-            var ry = shape.y;
-            var width = shape.width;
-            var height = shape.height;
-            var radius = shape.radius;
-
-            var maxRadius = Math.min(width, height) / 2 | 0;
-            radius = radius > maxRadius ? maxRadius : radius;
-
-            context.beginPath();
-            context.moveTo(rx, ry + radius);
-            context.lineTo(rx, ry + height - radius);
-            context.quadraticCurveTo(rx, ry + height, rx + radius, ry + height);
-            context.lineTo(rx + width - radius, ry + height);
-            context.quadraticCurveTo(rx + width, ry + height, rx + width, ry + height - radius);
-            context.lineTo(rx + width, ry + radius);
-            context.quadraticCurveTo(rx + width, ry, rx + width - radius, ry);
-            context.lineTo(rx + radius, ry);
-            context.quadraticCurveTo(rx, ry, rx, ry + radius);
-            context.closePath();
-
-            if (data.fillColor || data.fillColor === 0)
-            {
-                context.globalAlpha = data.fillAlpha * worldAlpha;
-                context.fillStyle = '#' + ('00000' + ( fillColor | 0).toString(16)).substr(-6);
-                context.fill();
-
-            }
-            if (data.lineWidth)
-            {
-                context.globalAlpha = data.lineAlpha * worldAlpha;
-                context.strokeStyle = '#' + ('00000' + ( lineColor | 0).toString(16)).substr(-6);
-                context.stroke();
-            }
-        }
-    }
-};
-
-/*
- * Renders a graphics mask
- *
- * @private
- * @param graphics {PIXI.Graphics} the graphics which will be used as a mask
- * @param context {CanvasRenderingContext2D} the context 2d method of the canvas
- */
-CanvasGraphics.renderGraphicsMask = function (graphics, context)
-{
-    var len = graphics.graphicsData.length;
-
-    if (len === 0)
-    {
-        return;
-    }
-
-    context.beginPath();
-
-    for (var i = 0; i < len; i++)
-    {
-        var data = graphics.graphicsData[i];
-        var shape = data.shape;
-
-        if (data.type === CONST.SHAPES.POLY)
-        {
-
-            var points = shape.points;
-
-            context.moveTo(points[0], points[1]);
-
-            for (var j=1; j < points.length/2; j++)
-            {
-                context.lineTo(points[j * 2], points[j * 2 + 1]);
-            }
-
-            // if the first and last point are the same close the path - much neater :)
-            if (points[0] === points[points.length-2] && points[1] === points[points.length-1])
-            {
-                context.closePath();
-            }
-
-        }
-        else if (data.type === CONST.SHAPES.RECT)
-        {
-            context.rect(shape.x, shape.y, shape.width, shape.height);
-            context.closePath();
-        }
-        else if (data.type === CONST.SHAPES.CIRC)
-        {
-            // TODO - need to be Undefined!
-            context.arc(shape.x, shape.y, shape.radius, 0, 2 * Math.PI);
-            context.closePath();
-        }
-        else if (data.type === CONST.SHAPES.ELIP)
-        {
-
-            // ellipse code taken from: http://stackoverflow.com/questions/2172798/how-to-draw-an-oval-in-html5-canvas
-
-            var w = shape.width * 2;
-            var h = shape.height * 2;
-
-            var x = shape.x - w/2;
-            var y = shape.y - h/2;
-
-            var kappa = 0.5522848,
-                ox = (w / 2) * kappa, // control point offset horizontal
-                oy = (h / 2) * kappa, // control point offset vertical
-                xe = x + w,           // x-end
-                ye = y + h,           // y-end
-                xm = x + w / 2,       // x-middle
-                ym = y + h / 2;       // y-middle
-
-            context.moveTo(x, ym);
-            context.bezierCurveTo(x, ym - oy, xm - ox, y, xm, y);
-            context.bezierCurveTo(xm + ox, y, xe, ym - oy, xe, ym);
-            context.bezierCurveTo(xe, ym + oy, xm + ox, ye, xm, ye);
-            context.bezierCurveTo(xm - ox, ye, x, ym + oy, x, ym);
-            context.closePath();
-        }
-        else if (data.type === CONST.SHAPES.RREC)
-        {
-
-            var rx = shape.x;
-            var ry = shape.y;
-            var width = shape.width;
-            var height = shape.height;
-            var radius = shape.radius;
-
-            var maxRadius = Math.min(width, height) / 2 | 0;
-            radius = radius > maxRadius ? maxRadius : radius;
-
-            context.moveTo(rx, ry + radius);
-            context.lineTo(rx, ry + height - radius);
-            context.quadraticCurveTo(rx, ry + height, rx + radius, ry + height);
-            context.lineTo(rx + width - radius, ry + height);
-            context.quadraticCurveTo(rx + width, ry + height, rx + width, ry + height - radius);
-            context.lineTo(rx + width, ry + radius);
-            context.quadraticCurveTo(rx + width, ry, rx + width - radius, ry);
-            context.lineTo(rx + radius, ry);
-            context.quadraticCurveTo(rx, ry, rx, ry + radius);
-            context.closePath();
-        }
-    }
-};
-
-/*
- * Updates the tint of a graphics object
- *
- * @private
- * @param graphics {PIXI.Graphics} the graphics that will have its tint updated
- *
- */
-CanvasGraphics.updateGraphicsTint = function (graphics)
-{
-    if (graphics.tint === 0xFFFFFF && graphics._prevTint === graphics.tint)
-    {
-        return;
-    }
-    graphics._prevTint = graphics.tint;
-
-    var tintR = (graphics.tint >> 16 & 0xFF) / 255;
-    var tintG = (graphics.tint >> 8 & 0xFF) / 255;
-    var tintB = (graphics.tint & 0xFF)/ 255;
-
-    for (var i = 0; i < graphics.graphicsData.length; i++)
-    {
-        var data = graphics.graphicsData[i];
-
-        var fillColor = data.fillColor | 0;
-        var lineColor = data.lineColor | 0;
-
-        /*
-        var colorR = (fillColor >> 16 & 0xFF) / 255;
-        var colorG = (fillColor >> 8 & 0xFF) / 255;
-        var colorB = (fillColor & 0xFF) / 255;
-
-        colorR *= tintR;
-        colorG *= tintG;
-        colorB *= tintB;
-
-        fillColor = ((colorR*255 << 16) + (colorG*255 << 8) + colorB*255);
-
-        colorR = (lineColor >> 16 & 0xFF) / 255;
-        colorG = (lineColor >> 8 & 0xFF) / 255;
-        colorB = (lineColor & 0xFF) / 255;
-
-        colorR *= tintR;
-        colorG *= tintG;
-        colorB *= tintB;
-
-        lineColor = ((colorR*255 << 16) + (colorG*255 << 8) + colorB*255);
-        */
-
-        // super inline cos im an optimization NAZI :)
-        data._fillTint = (((fillColor >> 16 & 0xFF) / 255 * tintR*255 << 16) + ((fillColor >> 8 & 0xFF) / 255 * tintG*255 << 8) +  (fillColor & 0xFF) / 255 * tintB*255);
-        data._lineTint = (((lineColor >> 16 & 0xFF) / 255 * tintR*255 << 16) + ((lineColor >> 8 & 0xFF) / 255 * tintG*255 << 8) +  (lineColor & 0xFF) / 255 * tintB*255);
-
-    }
-};
-
-
-
-/***/ }),
-/* 29 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * @file        Main export of the PIXI extras library
- * @author      Mat Groves <mat@goodboydigital.com>
- * @copyright   2013-2015 GoodBoyDigital
- * @license     {@link https://github.com/pixijs/pixi.js/blob/master/LICENSE|MIT License}
- */
-
-__webpack_require__(119);
-__webpack_require__(120);
-__webpack_require__(121);
-
-/**
- * @namespace PIXI.extras
- */
-module.exports = {
-    MovieClip:      __webpack_require__(122),
-    TilingSprite:   __webpack_require__(123),
-    BitmapText:     __webpack_require__(124)
-};
-
-
-/***/ }),
-/* 30 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(__dirname) {var core = __webpack_require__(0);
-// @see https://github.com/substack/brfs/issues/25
-var fs = __webpack_require__(2);
-
-/**
- * The BlurYFilter applies a horizontal Gaussian blur to an object.
- *
- * @class
- * @extends PIXI.AbstractFilter
- * @memberof PIXI.filters
- */
-function BlurYFilter()
-{
-    core.AbstractFilter.call(this,
-        // vertex shader
-        fs.readFileSync(__dirname + '/blurY.vert', 'utf8'),
-        // fragment shader
-        fs.readFileSync(__dirname + '/blur.frag', 'utf8'),
-        // set the uniforms
-        {
-            strength: { type: '1f', value: 1 }
-        }
-    );
-
-    this.passes = 1;
-    this.strength = 4;
-}
-
-BlurYFilter.prototype = Object.create(core.AbstractFilter.prototype);
-BlurYFilter.prototype.constructor = BlurYFilter;
-module.exports = BlurYFilter;
-
-BlurYFilter.prototype.applyFilter = function (renderer, input, output, clear)
-{
-    var shader = this.getShader(renderer);
-
-    this.uniforms.strength.value = Math.abs(this.strength) / 4 / this.passes * (input.frame.height / input.size.height);
-
-    if(this.passes === 1)
-    {
-        renderer.filterManager.applyFilter(shader, input, output, clear);
-    }
-    else
-    {
-        var renderTarget = renderer.filterManager.getRenderTarget(true);
-        var flip = input;
-        var flop = renderTarget;
-
-        for(var i = 0; i < this.passes-1; i++)
-        {
-            renderer.filterManager.applyFilter(shader, flip, flop, true);
-
-           var temp = flop;
-           flop = flip;
-           flip = temp;
-        }
-
-        renderer.filterManager.applyFilter(shader, flip, output, clear);
-
-        renderer.filterManager.returnRenderTarget(renderTarget);
-    }
-};
-
-
-Object.defineProperties(BlurYFilter.prototype, {
-    /**
-     * Sets the strength of both the blur.
-     *
-     * @member {number}
-     * @memberof PIXI.filters.BlurYFilter#
-     * @default 2
-     */
-    blur: {
-        get: function ()
-        {
-            return  this.strength;
-        },
-        set: function (value)
-        {
-            this.padding = Math.abs(value) * 0.5;
-            this.strength = value;
-        }
-    }
-});
-
-/* WEBPACK VAR INJECTION */}.call(exports, "/"))
-
-/***/ }),
-/* 31 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var EventEmitter    = __webpack_require__(59);
-var parseUri        = __webpack_require__(57);
-
-// tests is CORS is supported in XHR, if not we need to use XDR
-var useXdr = !!(window.XDomainRequest && !('withCredentials' in (new XMLHttpRequest())));
-var tempAnchor = null;
-
-// some status constants
-var STATUS_NONE = 0;
-var STATUS_OK = 200;
-var STATUS_EMPTY = 204;
-
-/**
- * Manages the state and loading of a single resource represented by
- * a single URL.
- *
- * @class
- * @param {string} name - The name of the resource to load.
- * @param {string|string[]} url - The url for this resource, for audio/video loads you can pass an array of sources.
- * @param {object} [options] - The options for the load.
- * @param {string|boolean} [options.crossOrigin] - Is this request cross-origin? Default is to determine automatically.
- * @param {Resource.LOAD_TYPE} [options.loadType=Resource.LOAD_TYPE.XHR] - How should this resource be loaded?
- * @param {Resource.XHR_RESPONSE_TYPE} [options.xhrType=Resource.XHR_RESPONSE_TYPE.DEFAULT] - How should the data being
- *      loaded be interpreted when using XHR?
- * @param {object} [options.metadata] - Extra info for middleware.
- */
-function Resource(name, url, options) {
-    EventEmitter.call(this);
-
-    options = options || {};
-
-    if (typeof name !== 'string' || typeof url !== 'string') {
-        throw new Error('Both name and url are required for constructing a resource.');
-    }
-
-    /**
-     * The name of this resource.
-     *
-     * @member {string}
-     * @readonly
-     */
-    this.name = name;
-
-    /**
-     * The url used to load this resource.
-     *
-     * @member {string}
-     * @readonly
-     */
-    this.url = url;
-
-    /**
-     * Stores whether or not this url is a data url.
-     *
-     * @member {boolean}
-     * @readonly
-     */
-    this.isDataUrl = this.url.indexOf('data:') === 0;
-
-    /**
-     * The data that was loaded by the resource.
-     *
-     * @member {any}
-     */
-    this.data = null;
-
-    /**
-     * Is this request cross-origin? If unset, determined automatically.
-     *
-     * @member {string}
-     */
-    this.crossOrigin = options.crossOrigin === true ? 'anonymous' : options.crossOrigin;
-
-    /**
-     * The method of loading to use for this resource.
-     *
-     * @member {Resource.LOAD_TYPE}
-     */
-    this.loadType = options.loadType || this._determineLoadType();
-
-    /**
-     * The type used to load the resource via XHR. If unset, determined automatically.
-     *
-     * @member {string}
-     */
-    this.xhrType = options.xhrType;
-
-    /**
-     * Extra info for middleware, and controlling specifics about how the resource loads.
-     *
-     * Note that if you pass in a `loadElement`, the Resource class takes ownership of it.
-     * Meaning it will modify it as it sees fit.
-     *
-     * @member {object}
-     * @property {HTMLImageElement|HTMLAudioElement|HTMLVideoElement} [loadElement=null] - The
-     *  element to use for loading, instead of creating one.
-     * @property {boolean} [skipSource=false] - Skips adding source(s) to the load element. This
-     *  is useful if you want to pass in a `loadElement` that you already added load sources
-     *  to.
-     */
-    this.metadata = options.metadata || {};
-
-    /**
-     * The error that occurred while loading (if any).
-     *
-     * @member {Error}
-     * @readonly
-     */
-    this.error = null;
-
-    /**
-     * The XHR object that was used to load this resource. This is only set
-     * when `loadType` is `Resource.LOAD_TYPE.XHR`.
-     *
-     * @member {XMLHttpRequest}
-     */
-    this.xhr = null;
-
-    /**
-     * Describes if this resource was loaded as json. Only valid after the resource
-     * has completely loaded.
-     *
-     * @member {boolean}
-     */
-    this.isJson = false;
-
-    /**
-     * Describes if this resource was loaded as xml. Only valid after the resource
-     * has completely loaded.
-     *
-     * @member {boolean}
-     */
-    this.isXml = false;
-
-    /**
-     * Describes if this resource was loaded as an image tag. Only valid after the resource
-     * has completely loaded.
-     *
-     * @member {boolean}
-     */
-    this.isImage = false;
-
-    /**
-     * Describes if this resource was loaded as an audio tag. Only valid after the resource
-     * has completely loaded.
-     *
-     * @member {boolean}
-     */
-    this.isAudio = false;
-
-    /**
-     * Describes if this resource was loaded as a video tag. Only valid after the resource
-     * has completely loaded.
-     *
-     * @member {boolean}
-     */
-    this.isVideo = false;
-
-    /**
-     * Describes if this resource has finished loading. Is true when the resource has completely
-     * loaded.
-     *
-     * @member {boolean}
-     */
-    this.isComplete = false;
-
-    /**
-     * Describes if this resource is currently loading. Is true when the resource starts loading,
-     * and is false again when complete.
-     *
-     * @member {boolean}
-     */
-    this.isLoading = false;
-
-    /**
-     * The `dequeue` method that will be used a storage place for the async queue dequeue method
-     * used privately by the loader.
-     *
-     * @private
-     * @member {function}
-     */
-    this._dequeue = null;
-
-    /**
-     * The `complete` function bound to this resource's context.
-     *
-     * @private
-     * @member {function}
-     */
-    this._boundComplete = this.complete.bind(this);
-
-    /**
-     * The `_onError` function bound to this resource's context.
-     *
-     * @private
-     * @member {function}
-     */
-    this._boundOnError = this._onError.bind(this);
-
-    /**
-     * The `_onProgress` function bound to this resource's context.
-     *
-     * @private
-     * @member {function}
-     */
-    this._boundOnProgress = this._onProgress.bind(this);
-
-    // xhr callbacks
-    this._boundXhrOnError = this._xhrOnError.bind(this);
-    this._boundXhrOnAbort = this._xhrOnAbort.bind(this);
-    this._boundXhrOnLoad = this._xhrOnLoad.bind(this);
-    this._boundXdrOnTimeout = this._xdrOnTimeout.bind(this);
-
-    /**
-     * Emitted when the resource beings to load.
-     *
-     * @event start
-     * @memberof Resource#
-     */
-
-    /**
-     * Emitted each time progress of this resource load updates.
-     * Not all resources types and loader systems can support this event
-     * so sometimes it may not be available. If the resource
-     * is being loaded on a modern browser, using XHR, and the remote server
-     * properly sets Content-Length headers, then this will be available.
-     *
-     * @event progress
-     * @memberof Resource#
-     */
-
-    /**
-     * Emitted once this resource has loaded, if there was an error it will
-     * be in the `error` property.
-     *
-     * @event complete
-     * @memberof Resource#
-     */
-}
-
-Resource.prototype = Object.create(EventEmitter.prototype);
-Resource.prototype.constructor = Resource;
-module.exports = Resource;
-
-/**
- * Marks the resource as complete.
- *
- * @fires complete
- */
-Resource.prototype.complete = function () {
-    // TODO: Clean this up in a wrapper or something...gross....
-    if (this.data && this.data.removeEventListener) {
-        this.data.removeEventListener('error', this._boundOnError, false);
-        this.data.removeEventListener('load', this._boundComplete, false);
-        this.data.removeEventListener('progress', this._boundOnProgress, false);
-        this.data.removeEventListener('canplaythrough', this._boundComplete, false);
-    }
-
-    if (this.xhr) {
-        if (this.xhr.removeEventListener) {
-            this.xhr.removeEventListener('error', this._boundXhrOnError, false);
-            this.xhr.removeEventListener('abort', this._boundXhrOnAbort, false);
-            this.xhr.removeEventListener('progress', this._boundOnProgress, false);
-            this.xhr.removeEventListener('load', this._boundXhrOnLoad, false);
-        }
-        else {
-            this.xhr.onerror = null;
-            this.xhr.ontimeout = null;
-            this.xhr.onprogress = null;
-            this.xhr.onload = null;
-        }
-    }
-
-    if (this.isComplete) {
-        throw new Error('Complete called again for an already completed resource.');
-    }
-
-    this.isComplete = true;
-    this.isLoading = false;
-
-    this.emit('complete', this);
-};
-
-/**
- * Aborts the loading of this resource, with an optional message.
- *
- * @param {string} message - The message to use for the error
- */
-Resource.prototype.abort = function (message) {
-    // abort can be called multiple times, ignore subsequent calls.
-    if (this.error) {
-        return;
-    }
-
-    // store error
-    this.error = new Error(message);
-
-    // abort the actual loading
-    if (this.xhr) {
-        this.xhr.abort();
-    }
-    else if (this.xdr) {
-        this.xdr.abort();
-    }
-    else if (this.data) {
-        // single source
-        if (typeof this.data.src !== 'undefined') {
-            this.data.src = '';
-        }
-        // multi-source
-        else {
-            while (this.data.firstChild) {
-                this.data.removeChild(this.data.firstChild);
-            }
-        }
-    }
-
-    // done now.
-    this.complete();
-};
-
-/**
- * Kicks off loading of this resource. This method is asynchronous.
- *
- * @fires start
- * @param {function} [cb] - Optional callback to call once the resource is loaded.
- */
-Resource.prototype.load = function (cb) {
-    if (this.isLoading) {
-        return;
-    }
-
-    if (this.isComplete) {
-        if (cb) {
-            var self = this;
-
-            setTimeout(function () {
-                cb(self);
-            }, 1);
-        }
-
-        return;
-    }
-    else if (cb) {
-        this.once('complete', cb);
-    }
-
-    this.isLoading = true;
-
-    this.emit('start', this);
-
-    // if unset, determine the value
-    if (this.crossOrigin === false || typeof this.crossOrigin !== 'string') {
-        this.crossOrigin = this._determineCrossOrigin(this.url);
-    }
-
-    switch (this.loadType) {
-        case Resource.LOAD_TYPE.IMAGE:
-            this._loadElement('image');
-            break;
-
-        case Resource.LOAD_TYPE.AUDIO:
-            this._loadSourceElement('audio');
-            break;
-
-        case Resource.LOAD_TYPE.VIDEO:
-            this._loadSourceElement('video');
-            break;
-
-        case Resource.LOAD_TYPE.XHR:
-            /* falls through */
-        default:
-            if (useXdr && this.crossOrigin) {
-                this._loadXdr();
-            }
-            else {
-                this._loadXhr();
-            }
-            break;
-    }
-};
-
-/**
- * Loads this resources using an element that has a single source,
- * like an HTMLImageElement.
- *
- * @private
- * @param {string} type - The type of element to use.
- */
-Resource.prototype._loadElement = function (type) {
-    if (this.metadata.loadElement) {
-        this.data = this.metadata.loadElement;
-    }
-    else if (type === 'image' && typeof window.Image !== 'undefined') {
-        this.data = new Image();
-    }
-    else {
-        this.data = document.createElement(type);
-    }
-
-    if (this.crossOrigin) {
-        this.data.crossOrigin = this.crossOrigin;
-    }
-
-    if (!this.metadata.skipSource) {
-        this.data.src = this.url;
-    }
-
-    var typeName = 'is' + type[0].toUpperCase() + type.substring(1);
-
-    if (this[typeName] === false) {
-        this[typeName] = true;
-    }
-
-    this.data.addEventListener('error', this._boundOnError, false);
-    this.data.addEventListener('load', this._boundComplete, false);
-    this.data.addEventListener('progress', this._boundOnProgress, false);
-};
-
-/**
- * Loads this resources using an element that has multiple sources,
- * like an HTMLAudioElement or HTMLVideoElement.
- *
- * @private
- * @param {string} type - The type of element to use.
- */
-Resource.prototype._loadSourceElement = function (type) {
-    if (this.metadata.loadElement) {
-        this.data = this.metadata.loadElement;
-    }
-    else if (type === 'audio' && typeof window.Audio !== 'undefined') {
-        this.data = new Audio();
-    }
-    else {
-        this.data = document.createElement(type);
-    }
-
-    if (this.data === null) {
-        this.abort('Unsupported element ' + type);
-
-        return;
-    }
-
-    if (!this.metadata.skipSource) {
-        // support for CocoonJS Canvas+ runtime, lacks document.createElement('source')
-        if (navigator.isCocoonJS) {
-            this.data.src = Array.isArray(this.url) ? this.url[0] : this.url;
-        }
-        else if (Array.isArray(this.url)) {
-            for (var i = 0; i < this.url.length; ++i) {
-                this.data.appendChild(this._createSource(type, this.url[i]));
-            }
-        }
-        else {
-            this.data.appendChild(this._createSource(type, this.url));
-        }
-    }
-
-    this['is' + type[0].toUpperCase() + type.substring(1)] = true;
-
-    this.data.addEventListener('error', this._boundOnError, false);
-    this.data.addEventListener('load', this._boundComplete, false);
-    this.data.addEventListener('progress', this._boundOnProgress, false);
-    this.data.addEventListener('canplaythrough', this._boundComplete, false);
-
-    this.data.load();
-};
-
-/**
- * Loads this resources using an XMLHttpRequest.
- *
- * @private
- */
-Resource.prototype._loadXhr = function () {
-    // if unset, determine the value
-    if (typeof this.xhrType !== 'string') {
-        this.xhrType = this._determineXhrType();
-    }
-
-    var xhr = this.xhr = new XMLHttpRequest();
-
-    // set the request type and url
-    xhr.open('GET', this.url, true);
-
-    // load json as text and parse it ourselves. We do this because some browsers
-    // *cough* safari *cough* can't deal with it.
-    if (this.xhrType === Resource.XHR_RESPONSE_TYPE.JSON || this.xhrType === Resource.XHR_RESPONSE_TYPE.DOCUMENT) {
-        xhr.responseType = Resource.XHR_RESPONSE_TYPE.TEXT;
-    }
-    else {
-        xhr.responseType = this.xhrType;
-    }
-
-    xhr.addEventListener('error', this._boundXhrOnError, false);
-    xhr.addEventListener('abort', this._boundXhrOnAbort, false);
-    xhr.addEventListener('progress', this._boundOnProgress, false);
-    xhr.addEventListener('load', this._boundXhrOnLoad, false);
-
-    xhr.send();
-};
-
-/**
- * Loads this resources using an XDomainRequest. This is here because we need to support IE9 (gross).
- *
- * @private
- */
-Resource.prototype._loadXdr = function () {
-    // if unset, determine the value
-    if (typeof this.xhrType !== 'string') {
-        this.xhrType = this._determineXhrType();
-    }
-
-    var xdr = this.xhr = new XDomainRequest();
-
-    // XDomainRequest has a few quirks. Occasionally it will abort requests
-    // A way to avoid this is to make sure ALL callbacks are set even if not used
-    // More info here: http://stackoverflow.com/questions/15786966/xdomainrequest-aborts-post-on-ie-9
-    xdr.timeout = 5000;
-
-    xdr.onerror = this._boundXhrOnError;
-    xdr.ontimeout = this._boundXdrOnTimeout;
-    xdr.onprogress = this._boundOnProgress;
-    xdr.onload = this._boundXhrOnLoad;
-
-    xdr.open('GET', this.url, true);
-
-    // Note: The xdr.send() call is wrapped in a timeout to prevent an
-    // issue with the interface where some requests are lost if multiple
-    // XDomainRequests are being sent at the same time.
-    // Some info here: https://github.com/photonstorm/phaser/issues/1248
-    setTimeout(function () {
-        xdr.send();
-    }, 0);
-};
-
-/**
- * Creates a source used in loading via an element.
- *
- * @private
- * @param {string} type - The element type (video or audio).
- * @param {string} url - The source URL to load from.
- * @param {string} [mime] - The mime type of the video
- * @return {HTMLSourceElement} The source element.
- */
-Resource.prototype._createSource = function (type, url, mime) {
-    if (!mime) {
-        mime = type + '/' + url.substr(url.lastIndexOf('.') + 1);
-    }
-
-    var source = document.createElement('source');
-
-    source.src = url;
-    source.type = mime;
-
-    return source;
-};
-
-/**
- * Called if a load errors out.
- *
- * @param {Event} event - The error event from the element that emits it.
- * @private
- */
-Resource.prototype._onError = function (event) {
-    this.abort('Failed to load element using ' + event.target.nodeName);
-};
-
-/**
- * Called if a load progress event fires for xhr/xdr.
- *
- * @fires progress
- * @private
- * @param {XMLHttpRequestProgressEvent|Event} event - Progress event.
- */
-Resource.prototype._onProgress = function (event) {
-    if (event && event.lengthComputable) {
-        this.emit('progress', this, event.loaded / event.total);
-    }
-};
-
-/**
- * Called if an error event fires for xhr/xdr.
- *
- * @private
- * @param {XMLHttpRequestErrorEvent|Event} event - Error event.
- */
-Resource.prototype._xhrOnError = function () {
-    var xhr = this.xhr;
-
-    this.abort(reqType(xhr) + ' Request failed. Status: ' + xhr.status + ', text: "' + xhr.statusText + '"');
-};
-
-/**
- * Called if an abort event fires for xhr.
- *
- * @private
- * @param {XMLHttpRequestAbortEvent} event - Abort Event
- */
-Resource.prototype._xhrOnAbort = function () {
-    this.abort(reqType(this.xhr) + ' Request was aborted by the user.');
-};
-
-/**
- * Called if a timeout event fires for xdr.
- *
- * @private
- * @param {Event} event - Timeout event.
- */
-Resource.prototype._xdrOnTimeout = function () {
-    this.abort(reqType(this.xhr) + ' Request timed out.');
-};
-
-/**
- * Called when data successfully loads from an xhr/xdr request.
- *
- * @private
- * @param {XMLHttpRequestLoadEvent|Event} event - Load event
- */
-Resource.prototype._xhrOnLoad = function () {
-    var xhr = this.xhr;
-    var status = typeof xhr.status === 'undefined' ? xhr.status : STATUS_OK; // XDR has no `.status`, assume 200.
-
-    // status can be 0 when using the file:// protocol, also check if a response was found
-    if (status === STATUS_OK || status === STATUS_EMPTY || (status === STATUS_NONE && xhr.responseText.length > 0)) {
-        // if text, just return it
-        if (this.xhrType === Resource.XHR_RESPONSE_TYPE.TEXT) {
-            this.data = xhr.responseText;
-        }
-        // if json, parse into json object
-        else if (this.xhrType === Resource.XHR_RESPONSE_TYPE.JSON) {
-            try {
-                this.data = JSON.parse(xhr.responseText);
-                this.isJson = true;
-            }
-            catch (e) {
-                this.abort('Error trying to parse loaded json:', e);
-
-                return;
-            }
-        }
-        // if xml, parse into an xml document or div element
-        else if (this.xhrType === Resource.XHR_RESPONSE_TYPE.DOCUMENT) {
-            try {
-                if (window.DOMParser) {
-                    var domparser = new DOMParser();
-
-                    this.data = domparser.parseFromString(xhr.responseText, 'text/xml');
-                }
-                else {
-                    var div = document.createElement('div');
-
-                    div.innerHTML = xhr.responseText;
-                    this.data = div;
-                }
-                this.isXml = true;
-            }
-            catch (e) {
-                this.abort('Error trying to parse loaded xml:', e);
-
-                return;
-            }
-        }
-        // other types just return the response
-        else {
-            this.data = xhr.response || xhr.responseText;
-        }
-    }
-    else {
-        this.abort('[' + xhr.status + ']' + xhr.statusText + ':' + xhr.responseURL);
-
-        return;
-    }
-
-    this.complete();
-};
-
-/**
- * Sets the `crossOrigin` property for this resource based on if the url
- * for this resource is cross-origin. If crossOrigin was manually set, this
- * function does nothing.
- *
- * @private
- * @param {string} url - The url to test.
- * @param {object} [loc=window.location] - The location object to test against.
- * @return {string} The crossOrigin value to use (or empty string for none).
- */
-Resource.prototype._determineCrossOrigin = function (url, loc) {
-    // data: and javascript: urls are considered same-origin
-    if (url.indexOf('data:') === 0) {
-        return '';
-    }
-
-    // default is window.location
-    loc = loc || window.location;
-
-    if (!tempAnchor) {
-        tempAnchor = document.createElement('a');
-    }
-
-    // let the browser determine the full href for the url of this resource and then
-    // parse with the node url lib, we can't use the properties of the anchor element
-    // because they don't work in IE9 :(
-    tempAnchor.href = url;
-    url = parseUri(tempAnchor.href, { strictMode: true });
-
-    var samePort = (!url.port && loc.port === '') || (url.port === loc.port);
-    var protocol = url.protocol ? url.protocol + ':' : '';
-
-    // if cross origin
-    if (url.host !== loc.hostname || !samePort || protocol !== loc.protocol) {
-        return 'anonymous';
-    }
-
-    return '';
-};
-
-/**
- * Determines the responseType of an XHR request based on the extension of the
- * resource being loaded.
- *
- * @private
- * @return {Resource.XHR_RESPONSE_TYPE} The responseType to use.
- */
-Resource.prototype._determineXhrType = function () {
-    return Resource._xhrTypeMap[this._getExtension()] || Resource.XHR_RESPONSE_TYPE.TEXT;
-};
-
-Resource.prototype._determineLoadType = function () {
-    return Resource._loadTypeMap[this._getExtension()] || Resource.LOAD_TYPE.XHR;
-};
-
-Resource.prototype._getExtension = function () {
-    var url = this.url;
-    var ext = '';
-
-    if (this.isDataUrl) {
-        var slashIndex = url.indexOf('/');
-
-        ext = url.substring(slashIndex + 1, url.indexOf(';', slashIndex));
-    }
-    else {
-        var queryStart = url.indexOf('?');
-
-        if (queryStart !== -1) {
-            url = url.substring(0, queryStart);
-        }
-
-        ext = url.substring(url.lastIndexOf('.') + 1);
-    }
-
-    return ext.toLowerCase();
-};
-
-/**
- * Determines the mime type of an XHR request based on the responseType of
- * resource being loaded.
- *
- * @private
- * @param {Resource.XHR_RESPONSE_TYPE} type - The type to get a mime type for.
- * @return {string} The mime type to use.
- */
-Resource.prototype._getMimeFromXhrType = function (type) {
-    switch (type) {
-        case Resource.XHR_RESPONSE_TYPE.BUFFER:
-            return 'application/octet-binary';
-
-        case Resource.XHR_RESPONSE_TYPE.BLOB:
-            return 'application/blob';
-
-        case Resource.XHR_RESPONSE_TYPE.DOCUMENT:
-            return 'application/xml';
-
-        case Resource.XHR_RESPONSE_TYPE.JSON:
-            return 'application/json';
-
-        case Resource.XHR_RESPONSE_TYPE.DEFAULT:
-        case Resource.XHR_RESPONSE_TYPE.TEXT:
-            /* falls through */
-        default:
-            return 'text/plain';
-
-    }
-};
-
-/**
- * Quick helper to get string xhr type.
- *
- * @ignore
- * @param {XMLHttpRequest|XDomainRequest} xhr - The request to check.
- * @return {string} The type.
- */
-function reqType(xhr) {
-    return xhr.toString().replace('object ', '');
-}
-
-/**
- * The types of loading a resource can use.
- *
- * @static
- * @readonly
- * @enum {number}
- */
-Resource.LOAD_TYPE = {
-    /** Uses XMLHttpRequest to load the resource. */
-    XHR:    1,
-    /** Uses an `Image` object to load the resource. */
-    IMAGE:  2,
-    /** Uses an `Audio` object to load the resource. */
-    AUDIO:  3,
-    /** Uses a `Video` object to load the resource. */
-    VIDEO:  4
-};
-
-/**
- * The XHR ready states, used internally.
- *
- * @static
- * @readonly
- * @enum {string}
- */
-Resource.XHR_RESPONSE_TYPE = {
-    /** defaults to text */
-    DEFAULT:    'text',
-    /** ArrayBuffer */
-    BUFFER:     'arraybuffer',
-    /** Blob */
-    BLOB:       'blob',
-    /** Document */
-    DOCUMENT:   'document',
-    /** Object */
-    JSON:       'json',
-    /** String */
-    TEXT:       'text'
-};
-
-Resource._loadTypeMap = {
-    gif:      Resource.LOAD_TYPE.IMAGE,
-    png:      Resource.LOAD_TYPE.IMAGE,
-    bmp:      Resource.LOAD_TYPE.IMAGE,
-    jpg:      Resource.LOAD_TYPE.IMAGE,
-    jpeg:     Resource.LOAD_TYPE.IMAGE,
-    tif:      Resource.LOAD_TYPE.IMAGE,
-    tiff:     Resource.LOAD_TYPE.IMAGE,
-    webp:     Resource.LOAD_TYPE.IMAGE,
-    tga:      Resource.LOAD_TYPE.IMAGE,
-    'svg+xml':  Resource.LOAD_TYPE.IMAGE
-};
-
-Resource._xhrTypeMap = {
-    // xml
-    xhtml:    Resource.XHR_RESPONSE_TYPE.DOCUMENT,
-    html:     Resource.XHR_RESPONSE_TYPE.DOCUMENT,
-    htm:      Resource.XHR_RESPONSE_TYPE.DOCUMENT,
-    xml:      Resource.XHR_RESPONSE_TYPE.DOCUMENT,
-    tmx:      Resource.XHR_RESPONSE_TYPE.DOCUMENT,
-    tsx:      Resource.XHR_RESPONSE_TYPE.DOCUMENT,
-    svg:      Resource.XHR_RESPONSE_TYPE.DOCUMENT,
-
-    // images
-    gif:      Resource.XHR_RESPONSE_TYPE.BLOB,
-    png:      Resource.XHR_RESPONSE_TYPE.BLOB,
-    bmp:      Resource.XHR_RESPONSE_TYPE.BLOB,
-    jpg:      Resource.XHR_RESPONSE_TYPE.BLOB,
-    jpeg:     Resource.XHR_RESPONSE_TYPE.BLOB,
-    tif:      Resource.XHR_RESPONSE_TYPE.BLOB,
-    tiff:     Resource.XHR_RESPONSE_TYPE.BLOB,
-    webp:     Resource.XHR_RESPONSE_TYPE.BLOB,
-    tga:      Resource.XHR_RESPONSE_TYPE.BLOB,
-
-    // json
-    json:     Resource.XHR_RESPONSE_TYPE.JSON,
-
-    // text
-    text:     Resource.XHR_RESPONSE_TYPE.TEXT,
-    txt:      Resource.XHR_RESPONSE_TYPE.TEXT
-};
-
-/**
- * Sets the load type to be used for a specific extension.
- *
- * @static
- * @param {string} extname - The extension to set the type for, e.g. "png" or "fnt"
- * @param {Resource.LOAD_TYPE} loadType - The load type to set it to.
- */
-Resource.setExtensionLoadType = function (extname, loadType) {
-    setExtMap(Resource._loadTypeMap, extname, loadType);
-};
-
-/**
- * Sets the load type to be used for a specific extension.
- *
- * @static
- * @param {string} extname - The extension to set the type for, e.g. "png" or "fnt"
- * @param {Resource.XHR_RESPONSE_TYPE} xhrType - The xhr type to set it to.
- */
-Resource.setExtensionXhrType = function (extname, xhrType) {
-    setExtMap(Resource._xhrTypeMap, extname, xhrType);
-};
-
-function setExtMap(map, extname, val) {
-    if (extname && extname.indexOf('.') === 0) {
-        extname = extname.substring(1);
-    }
-
-    if (!extname) {
-        return;
-    }
-
-    map[extname] = val;
-}
-
-
-/***/ }),
-/* 32 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* unused harmony export WebGLRenderTargetCube */
 /* unused harmony export WebGLRenderTarget */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return WebGLRenderer; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "v", function() { return WebGLRenderer; });
 /* unused harmony export ShaderLib */
 /* unused harmony export UniformsLib */
 /* unused harmony export UniformsUtils */
 /* unused harmony export ShaderChunk */
 /* unused harmony export FogExp2 */
 /* unused harmony export Fog */
-/* unused harmony export Scene */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "p", function() { return Scene; });
 /* unused harmony export LensFlare */
-/* unused harmony export Sprite */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "q", function() { return Sprite; });
 /* unused harmony export LOD */
 /* unused harmony export SkinnedMesh */
 /* unused harmony export Skeleton */
@@ -18082,7 +11786,7 @@ function setExtMap(map, extname, val) {
 /* unused harmony export Line */
 /* unused harmony export Points */
 /* unused harmony export Group */
-/* unused harmony export VideoTexture */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "u", function() { return VideoTexture; });
 /* unused harmony export DataTexture */
 /* unused harmony export CompressedTexture */
 /* unused harmony export CubeTexture */
@@ -18091,13 +11795,13 @@ function setExtMap(map, extname, val) {
 /* unused harmony export Texture */
 /* unused harmony export CompressedTextureLoader */
 /* unused harmony export DataTextureLoader */
-/* unused harmony export CubeTextureLoader */
-/* unused harmony export TextureLoader */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return ObjectLoader; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return CubeTextureLoader; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "s", function() { return TextureLoader; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return ObjectLoader; });
 /* unused harmony export MaterialLoader */
 /* unused harmony export BufferGeometryLoader */
 /* unused harmony export DefaultLoadingManager */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return LoadingManager; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return LoadingManager; });
 /* unused harmony export JSONLoader */
 /* unused harmony export ImageLoader */
 /* unused harmony export ImageBitmapLoader */
@@ -18109,16 +11813,16 @@ function setExtMap(map, extname, val) {
 /* unused harmony export AudioLoader */
 /* unused harmony export SpotLightShadow */
 /* unused harmony export SpotLight */
-/* unused harmony export PointLight */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "n", function() { return PointLight; });
 /* unused harmony export RectAreaLight */
-/* unused harmony export HemisphereLight */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return HemisphereLight; });
 /* unused harmony export DirectionalLightShadow */
 /* unused harmony export DirectionalLight */
 /* unused harmony export AmbientLight */
 /* unused harmony export LightShadow */
 /* unused harmony export Light */
 /* unused harmony export StereoCamera */
-/* unused harmony export PerspectiveCamera */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "m", function() { return PerspectiveCamera; });
 /* unused harmony export OrthographicCamera */
 /* unused harmony export CubeCamera */
 /* unused harmony export ArrayCamera */
@@ -18139,7 +11843,7 @@ function setExtMap(map, extname, val) {
 /* unused harmony export KeyframeTrack */
 /* unused harmony export AnimationUtils */
 /* unused harmony export AnimationObjectGroup */
-/* unused harmony export AnimationMixer */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return AnimationMixer; });
 /* unused harmony export AnimationClip */
 /* unused harmony export Uniform */
 /* unused harmony export InstancedBufferGeometry */
@@ -18150,11 +11854,11 @@ function setExtMap(map, extname, val) {
 /* unused harmony export InterleavedBuffer */
 /* unused harmony export InstancedBufferAttribute */
 /* unused harmony export Face3 */
-/* unused harmony export Object3D */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return Object3D; });
 /* unused harmony export Raycaster */
 /* unused harmony export Layers */
 /* unused harmony export EventDispatcher */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Clock; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return Clock; });
 /* unused harmony export QuaternionLinearInterpolant */
 /* unused harmony export LinearInterpolant */
 /* unused harmony export DiscreteInterpolant */
@@ -18175,7 +11879,7 @@ function setExtMap(map, extname, val) {
 /* unused harmony export Line3 */
 /* unused harmony export Euler */
 /* unused harmony export Vector4 */
-/* unused harmony export Vector3 */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "t", function() { return Vector3; });
 /* unused harmony export Vector2 */
 /* unused harmony export Quaternion */
 /* unused harmony export Color */
@@ -18248,19 +11952,19 @@ function setExtMap(map, extname, val) {
 /* unused harmony export BoxGeometry */
 /* unused harmony export BoxBufferGeometry */
 /* unused harmony export ShadowMaterial */
-/* unused harmony export SpriteMaterial */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "r", function() { return SpriteMaterial; });
 /* unused harmony export RawShaderMaterial */
 /* unused harmony export ShaderMaterial */
 /* unused harmony export PointsMaterial */
 /* unused harmony export MeshPhysicalMaterial */
-/* unused harmony export MeshStandardMaterial */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return MeshStandardMaterial; });
 /* unused harmony export MeshPhongMaterial */
 /* unused harmony export MeshToonMaterial */
 /* unused harmony export MeshNormalMaterial */
 /* unused harmony export MeshLambertMaterial */
 /* unused harmony export MeshDepthMaterial */
 /* unused harmony export MeshDistanceMaterial */
-/* unused harmony export MeshBasicMaterial */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return MeshBasicMaterial; });
 /* unused harmony export LineDashedMaterial */
 /* unused harmony export LineBasicMaterial */
 /* unused harmony export Material */
@@ -18297,7 +12001,7 @@ function setExtMap(map, extname, val) {
 /* unused harmony export PCFSoftShadowMap */
 /* unused harmony export FrontSide */
 /* unused harmony export BackSide */
-/* unused harmony export DoubleSide */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return DoubleSide; });
 /* unused harmony export FlatShading */
 /* unused harmony export SmoothShading */
 /* unused harmony export NoColors */
@@ -18355,7 +12059,7 @@ function setExtMap(map, extname, val) {
 /* unused harmony export NearestFilter */
 /* unused harmony export NearestMipMapNearestFilter */
 /* unused harmony export NearestMipMapLinearFilter */
-/* unused harmony export LinearFilter */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return LinearFilter; });
 /* unused harmony export LinearMipMapNearestFilter */
 /* unused harmony export LinearMipMapLinearFilter */
 /* unused harmony export UnsignedByteType */
@@ -18371,7 +12075,7 @@ function setExtMap(map, extname, val) {
 /* unused harmony export UnsignedShort565Type */
 /* unused harmony export UnsignedInt248Type */
 /* unused harmony export AlphaFormat */
-/* unused harmony export RGBFormat */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "o", function() { return RGBFormat; });
 /* unused harmony export RGBAFormat */
 /* unused harmony export LuminanceFormat */
 /* unused harmony export LuminanceAlphaFormat */
@@ -18387,7 +12091,7 @@ function setExtMap(map, extname, val) {
 /* unused harmony export RGBA_PVRTC_4BPPV1_Format */
 /* unused harmony export RGBA_PVRTC_2BPPV1_Format */
 /* unused harmony export RGB_ETC1_Format */
-/* unused harmony export LoopOnce */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return LoopOnce; });
 /* unused harmony export LoopRepeat */
 /* unused harmony export LoopPingPong */
 /* unused harmony export InterpolateDiscrete */
@@ -64037,6 +57741,6302 @@ function CanvasRenderer() {
 
 
 /***/ }),
+/* 11 */
+/***/ (function(module, exports) {
+
+var g;
+
+// This works in non-strict mode
+g = (function() {
+	return this;
+})();
+
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || Function("return this")() || (1,eval)("this");
+} catch(e) {
+	// This works if the window reference is available
+	if(typeof window === "object")
+		g = window;
+}
+
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
+
+module.exports = g;
+
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var BaseTexture = __webpack_require__(14),
+    VideoBaseTexture = __webpack_require__(39),
+    TextureUvs = __webpack_require__(40),
+    EventEmitter = __webpack_require__(9),
+    math = __webpack_require__(4),
+    utils = __webpack_require__(3);
+
+/**
+ * A texture stores the information that represents an image or part of an image. It cannot be added
+ * to the display list directly. Instead use it as the texture for a Sprite. If no frame is provided then the whole image is used.
+ *
+ * You can directly create a texture from an image and then reuse it multiple times like this :
+ *
+ * ```js
+ * var texture = PIXI.Texture.fromImage('assets/image.png');
+ * var sprite1 = new PIXI.Sprite(texture);
+ * var sprite2 = new PIXI.Sprite(texture);
+ * ```
+ *
+ * @class
+ * @memberof PIXI
+ * @param baseTexture {PIXI.BaseTexture} The base texture source to create the texture from
+ * @param [frame] {PIXI.Rectangle} The rectangle frame of the texture to show
+ * @param [crop] {PIXI.Rectangle} The area of original texture
+ * @param [trim] {PIXI.Rectangle} Trimmed texture rectangle
+ * @param [rotate] {number} indicates how the texture was rotated by texture packer. See {@link PIXI.GroupD8}
+ */
+function Texture(baseTexture, frame, crop, trim, rotate)
+{
+    EventEmitter.call(this);
+
+    /**
+     * Does this Texture have any frame data assigned to it?
+     *
+     * @member {boolean}
+     */
+    this.noFrame = false;
+
+    if (!frame)
+    {
+        this.noFrame = true;
+        frame = new math.Rectangle(0, 0, 1, 1);
+    }
+
+    if (baseTexture instanceof Texture)
+    {
+        baseTexture = baseTexture.baseTexture;
+    }
+
+    /**
+     * The base texture that this texture uses.
+     *
+     * @member {PIXI.BaseTexture}
+     */
+    this.baseTexture = baseTexture;
+
+    /**
+     * The frame specifies the region of the base texture that this texture uses
+     *
+     * @member {PIXI.Rectangle}
+     * @private
+     */
+    this._frame = frame;
+
+    /**
+     * The texture trim data.
+     *
+     * @member {PIXI.Rectangle}
+     */
+    this.trim = trim;
+
+    /**
+     * This will let the renderer know if the texture is valid. If it's not then it cannot be rendered.
+     *
+     * @member {boolean}
+     */
+    this.valid = false;
+
+    /**
+     * This will let a renderer know that a texture has been updated (used mainly for webGL uv updates)
+     *
+     * @member {boolean}
+     */
+    this.requiresUpdate = false;
+
+    /**
+     * The WebGL UV data cache.
+     *
+     * @member {PIXI.TextureUvs}
+     * @private
+     */
+    this._uvs = null;
+
+    /**
+     * The width of the Texture in pixels.
+     *
+     * @member {number}
+     */
+    this.width = 0;
+
+    /**
+     * The height of the Texture in pixels.
+     *
+     * @member {number}
+     */
+    this.height = 0;
+
+    /**
+     * This is the area of the BaseTexture image to actually copy to the Canvas / WebGL when rendering,
+     * irrespective of the actual frame size or placement (which can be influenced by trimmed texture atlases)
+     *
+     * @member {PIXI.Rectangle}
+     */
+    this.crop = crop || frame;//new math.Rectangle(0, 0, 1, 1);
+
+    this._rotate = +(rotate || 0);
+
+    if (rotate === true) {
+        // this is old texturepacker legacy, some games/libraries are passing "true" for rotated textures
+        this._rotate = 2;
+    } else {
+        if (this._rotate % 2 !== 0) {
+            throw 'attempt to use diamond-shaped UVs. If you are sure, set rotation manually';
+        }
+    }
+
+    if (baseTexture.hasLoaded)
+    {
+        if (this.noFrame)
+        {
+            frame = new math.Rectangle(0, 0, baseTexture.width, baseTexture.height);
+
+            // if there is no frame we should monitor for any base texture changes..
+            baseTexture.on('update', this.onBaseTextureUpdated, this);
+        }
+        this.frame = frame;
+    }
+    else
+    {
+        baseTexture.once('loaded', this.onBaseTextureLoaded, this);
+    }
+
+    /**
+     * Fired when the texture is updated. This happens if the frame or the baseTexture is updated.
+     *
+     * @event update
+     * @memberof PIXI.Texture#
+     * @protected
+     */
+}
+
+Texture.prototype = Object.create(EventEmitter.prototype);
+Texture.prototype.constructor = Texture;
+module.exports = Texture;
+
+Object.defineProperties(Texture.prototype, {
+    /**
+     * The frame specifies the region of the base texture that this texture uses.
+     *
+     * @member {PIXI.Rectangle}
+     * @memberof PIXI.Texture#
+     */
+    frame: {
+        get: function ()
+        {
+            return this._frame;
+        },
+        set: function (frame)
+        {
+            this._frame = frame;
+
+            this.noFrame = false;
+
+            this.width = frame.width;
+            this.height = frame.height;
+
+            if (!this.trim && !this.rotate && (frame.x + frame.width > this.baseTexture.width || frame.y + frame.height > this.baseTexture.height))
+            {
+                throw new Error('Texture Error: frame does not fit inside the base Texture dimensions ' + this);
+            }
+
+            //this.valid = frame && frame.width && frame.height && this.baseTexture.source && this.baseTexture.hasLoaded;
+            this.valid = frame && frame.width && frame.height && this.baseTexture.hasLoaded;
+
+            if (this.trim)
+            {
+                this.width = this.trim.width;
+                this.height = this.trim.height;
+                this._frame.width = this.trim.width;
+                this._frame.height = this.trim.height;
+            }
+            else
+            {
+                this.crop = frame;
+            }
+
+            if (this.valid)
+            {
+                this._updateUvs();
+            }
+        }
+    },
+    /**
+     * Indicates whether the texture is rotated inside the atlas
+     * set to 2 to compensate for texture packer rotation
+     * set to 6 to compensate for spine packer rotation
+     * can be used to rotate or mirror sprites
+     * See {@link PIXI.GroupD8} for explanation
+     *
+     * @member {number}
+     */
+    rotate: {
+        get: function ()
+        {
+            return this._rotate;
+        },
+        set: function (rotate)
+        {
+            this._rotate = rotate;
+            if (this.valid)
+            {
+                this._updateUvs();
+            }
+        }
+    }
+});
+
+/**
+ * Updates this texture on the gpu.
+ *
+ */
+Texture.prototype.update = function ()
+{
+    this.baseTexture.update();
+};
+
+/**
+ * Called when the base texture is loaded
+ *
+ * @private
+ */
+Texture.prototype.onBaseTextureLoaded = function (baseTexture)
+{
+    // TODO this code looks confusing.. boo to abusing getters and setterss!
+    if (this.noFrame)
+    {
+        this.frame = new math.Rectangle(0, 0, baseTexture.width, baseTexture.height);
+    }
+    else
+    {
+        this.frame = this._frame;
+    }
+
+    this.emit('update', this);
+};
+
+/**
+ * Called when the base texture is updated
+ *
+ * @private
+ */
+Texture.prototype.onBaseTextureUpdated = function (baseTexture)
+{
+    this._frame.width = baseTexture.width;
+    this._frame.height = baseTexture.height;
+
+    this.emit('update', this);
+};
+
+/**
+ * Destroys this texture
+ *
+ * @param [destroyBase=false] {boolean} Whether to destroy the base texture as well
+ */
+Texture.prototype.destroy = function (destroyBase)
+{
+    if (this.baseTexture)
+    {
+        if (destroyBase)
+        {
+            this.baseTexture.destroy();
+        }
+
+        this.baseTexture.off('update', this.onBaseTextureUpdated, this);
+        this.baseTexture.off('loaded', this.onBaseTextureLoaded, this);
+
+        this.baseTexture = null;
+    }
+
+    this._frame = null;
+    this._uvs = null;
+    this.trim = null;
+    this.crop = null;
+
+    this.valid = false;
+
+    this.off('dispose', this.dispose, this);
+    this.off('update', this.update, this);
+};
+
+/**
+ * Creates a new texture object that acts the same as this one.
+ *
+ * @return {PIXI.Texture}
+ */
+Texture.prototype.clone = function ()
+{
+    return new Texture(this.baseTexture, this.frame, this.crop, this.trim, this.rotate);
+};
+
+/**
+ * Updates the internal WebGL UV cache.
+ *
+ * @private
+ */
+Texture.prototype._updateUvs = function ()
+{
+    if (!this._uvs)
+    {
+        this._uvs = new TextureUvs();
+    }
+
+    this._uvs.set(this.crop, this.baseTexture, this.rotate);
+};
+
+/**
+ * Helper function that creates a Texture object from the given image url.
+ * If the image is not in the texture cache it will be  created and loaded.
+ *
+ * @static
+ * @param imageUrl {string} The image url of the texture
+ * @param crossorigin {boolean} Whether requests should be treated as crossorigin
+ * @param scaleMode {number} See {@link PIXI.SCALE_MODES} for possible values
+ * @return {PIXI.Texture} The newly created texture
+ */
+Texture.fromImage = function (imageUrl, crossorigin, scaleMode)
+{
+    var texture = utils.TextureCache[imageUrl];
+
+    if (!texture)
+    {
+        texture = new Texture(BaseTexture.fromImage(imageUrl, crossorigin, scaleMode));
+        utils.TextureCache[imageUrl] = texture;
+    }
+
+    return texture;
+};
+
+/**
+ * Helper function that creates a sprite that will contain a texture from the TextureCache based on the frameId
+ * The frame ids are created when a Texture packer file has been loaded
+ *
+ * @static
+ * @param frameId {string} The frame Id of the texture in the cache
+ * @return {PIXI.Texture} The newly created texture
+ */
+Texture.fromFrame = function (frameId)
+{
+    var texture = utils.TextureCache[frameId];
+
+    if (!texture)
+    {
+        throw new Error('The frameId "' + frameId + '" does not exist in the texture cache');
+    }
+
+    return texture;
+};
+
+/**
+ * Helper function that creates a new Texture based on the given canvas element.
+ *
+ * @static
+ * @param canvas {Canvas} The canvas element source of the texture
+ * @param scaleMode {number} See {@link PIXI.SCALE_MODES} for possible values
+ * @return {PIXI.Texture}
+ */
+Texture.fromCanvas = function (canvas, scaleMode)
+{
+    return new Texture(BaseTexture.fromCanvas(canvas, scaleMode));
+};
+
+/**
+ * Helper function that creates a new Texture based on the given video element.
+ *
+ * @static
+ * @param video {HTMLVideoElement}
+ * @param scaleMode {number} See {@link PIXI.SCALE_MODES} for possible values
+ * @return {PIXI.Texture} A Texture
+ */
+Texture.fromVideo = function (video, scaleMode)
+{
+    if (typeof video === 'string')
+    {
+        return Texture.fromVideoUrl(video, scaleMode);
+    }
+    else
+    {
+        return new Texture(VideoBaseTexture.fromVideo(video, scaleMode));
+    }
+};
+
+/**
+ * Helper function that creates a new Texture based on the video url.
+ *
+ * @static
+ * @param videoUrl {string}
+ * @param scaleMode {number} See {@link PIXI.SCALE_MODES} for possible values
+ * @return {PIXI.Texture} A Texture
+ */
+Texture.fromVideoUrl = function (videoUrl, scaleMode)
+{
+    return new Texture(VideoBaseTexture.fromUrl(videoUrl, scaleMode));
+};
+
+/**
+ * Adds a texture to the global utils.TextureCache. This cache is shared across the whole PIXI object.
+ *
+ * @static
+ * @param texture {PIXI.Texture} The Texture to add to the cache.
+ * @param id {string} The id that the texture will be stored against.
+ */
+Texture.addTextureToCache = function (texture, id)
+{
+    utils.TextureCache[id] = texture;
+};
+
+/**
+ * Remove a texture from the global utils.TextureCache.
+ *
+ * @static
+ * @param id {string} The id of the texture to be removed
+ * @return {PIXI.Texture} The texture that was removed
+ */
+Texture.removeTextureFromCache = function (id)
+{
+    var texture = utils.TextureCache[id];
+
+    delete utils.TextureCache[id];
+    delete utils.BaseTextureCache[id];
+
+    return texture;
+};
+
+/**
+ * An empty texture, used often to not have to create multiple empty textures.
+ *
+ * @static
+ * @constant
+ */
+Texture.EMPTY = new Texture(new BaseTexture());
+
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var WebGLManager = __webpack_require__(8);
+
+/**
+ * Base for a common object renderer that can be used as a system renderer plugin.
+ *
+ * @class
+ * @extends PIXI.WebGLManager
+ * @memberof PIXI
+ * @param renderer {PIXI.WebGLRenderer} The renderer this object renderer works for.
+ */
+function ObjectRenderer(renderer)
+{
+    WebGLManager.call(this, renderer);
+}
+
+
+ObjectRenderer.prototype = Object.create(WebGLManager.prototype);
+ObjectRenderer.prototype.constructor = ObjectRenderer;
+module.exports = ObjectRenderer;
+
+/**
+ * Starts the renderer and sets the shader
+ *
+ */
+ObjectRenderer.prototype.start = function ()
+{
+    // set the shader..
+};
+
+/**
+ * Stops the renderer
+ *
+ */
+ObjectRenderer.prototype.stop = function ()
+{
+    this.flush();
+};
+
+/**
+ * flushes
+ *
+ */
+ObjectRenderer.prototype.flush = function ()
+{
+    // flush!
+};
+
+/**
+ * Renders an object
+ *
+ * @param object {PIXI.DisplayObject} The object to render.
+ */
+ObjectRenderer.prototype.render = function (object) // jshint unused:false
+{
+    // render the object
+};
+
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var utils = __webpack_require__(3),
+    CONST = __webpack_require__(1),
+    EventEmitter = __webpack_require__(9);
+
+/**
+ * A texture stores the information that represents an image. All textures have a base texture.
+ *
+ * @class
+ * @memberof PIXI
+ * @param source {Image|Canvas} the source object of the texture.
+ * @param [scaleMode=PIXI.SCALE_MODES.DEFAULT] {number} See {@link PIXI.SCALE_MODES} for possible values
+ * @param resolution {number} the resolution of the texture for devices with different pixel ratios
+ */
+function BaseTexture(source, scaleMode, resolution)
+{
+    EventEmitter.call(this);
+
+    this.uid = utils.uid();
+
+    /**
+     * The Resolution of the texture.
+     *
+     * @member {number}
+     */
+    this.resolution = resolution || 1;
+
+    /**
+     * The width of the base texture set when the image has loaded
+     *
+     * @member {number}
+     * @readOnly
+     */
+    this.width = 100;
+
+    /**
+     * The height of the base texture set when the image has loaded
+     *
+     * @member {number}
+     * @readOnly
+     */
+    this.height = 100;
+
+    // TODO docs
+    // used to store the actual dimensions of the source
+    /**
+     * Used to store the actual width of the source of this texture
+     *
+     * @member {number}
+     * @readOnly
+     */
+    this.realWidth = 100;
+    /**
+     * Used to store the actual height of the source of this texture
+     *
+     * @member {number}
+     * @readOnly
+     */
+    this.realHeight = 100;
+
+    /**
+     * The scale mode to apply when scaling this texture
+     *
+     * @member {number}
+     * @default PIXI.SCALE_MODES.LINEAR
+     * @see PIXI.SCALE_MODES
+     */
+    this.scaleMode = scaleMode || CONST.SCALE_MODES.DEFAULT;
+
+    /**
+     * Set to true once the base texture has successfully loaded.
+     *
+     * This is never true if the underlying source fails to load or has no texture data.
+     *
+     * @member {boolean}
+     * @readOnly
+     */
+    this.hasLoaded = false;
+
+    /**
+     * Set to true if the source is currently loading.
+     *
+     * If an Image source is loading the 'loaded' or 'error' event will be
+     * dispatched when the operation ends. An underyling source that is
+     * immediately-available bypasses loading entirely.
+     *
+     * @member {boolean}
+     * @readonly
+     */
+    this.isLoading = false;
+
+    /**
+     * The image source that is used to create the texture.
+     *
+     * TODO: Make this a setter that calls loadSource();
+     *
+     * @member {Image|Canvas}
+     * @readonly
+     */
+    this.source = null; // set in loadSource, if at all
+
+    /**
+     * Controls if RGB channels should be pre-multiplied by Alpha  (WebGL only)
+     * All blend modes, and shaders written for default value. Change it on your own risk.
+     *
+     * @member {boolean}
+     * @default true
+     */
+    this.premultipliedAlpha = true;
+
+    /**
+     * @member {string}
+     */
+    this.imageUrl = null;
+
+    /**
+     * Wether or not the texture is a power of two, try to use power of two textures as much as you can
+     * @member {boolean}
+     * @private
+     */
+    this.isPowerOfTwo = false;
+
+    // used for webGL
+
+    /**
+     *
+     * Set this to true if a mipmap of this texture needs to be generated. This value needs to be set before the texture is used
+     * Also the texture must be a power of two size to work
+     *
+     * @member {boolean}
+     */
+    this.mipmap = false;
+
+    /**
+     * A map of renderer IDs to webgl textures
+     *
+     * @member {object<number, WebGLTexture>}
+     * @private
+     */
+    this._glTextures = {};
+
+    // if no source passed don't try to load
+    if (source)
+    {
+        this.loadSource(source);
+    }
+
+    /**
+     * Fired when a not-immediately-available source finishes loading.
+     *
+     * @event loaded
+     * @memberof PIXI.BaseTexture#
+     * @protected
+     */
+
+    /**
+     * Fired when a not-immediately-available source fails to load.
+     *
+     * @event error
+     * @memberof PIXI.BaseTexture#
+     * @protected
+     */
+}
+
+BaseTexture.prototype = Object.create(EventEmitter.prototype);
+BaseTexture.prototype.constructor = BaseTexture;
+module.exports = BaseTexture;
+
+/**
+ * Updates the texture on all the webgl renderers, this also assumes the src has changed.
+ *
+ * @fires update
+ */
+BaseTexture.prototype.update = function ()
+{
+    this.realWidth = this.source.naturalWidth || this.source.width;
+    this.realHeight = this.source.naturalHeight || this.source.height;
+
+    this.width = this.realWidth / this.resolution;
+    this.height = this.realHeight / this.resolution;
+
+    this.isPowerOfTwo = utils.isPowerOfTwo(this.realWidth, this.realHeight);
+
+    this.emit('update', this);
+};
+
+/**
+ * Load a source.
+ *
+ * If the source is not-immediately-available, such as an image that needs to be
+ * downloaded, then the 'loaded' or 'error' event will be dispatched in the future
+ * and `hasLoaded` will remain false after this call.
+ *
+ * The logic state after calling `loadSource` directly or indirectly (eg. `fromImage`, `new BaseTexture`) is:
+ *
+ *     if (texture.hasLoaded)
+ {
+ *        // texture ready for use
+ *     } else if (texture.isLoading)
+ {
+ *        // listen to 'loaded' and/or 'error' events on texture
+ *     } else {
+ *        // not loading, not going to load UNLESS the source is reloaded
+ *        // (it may still make sense to listen to the events)
+ *     }
+ *
+ * @protected
+ * @param source {Image|Canvas} the source object of the texture.
+ */
+BaseTexture.prototype.loadSource = function (source)
+{
+    var wasLoading = this.isLoading;
+    this.hasLoaded = false;
+    this.isLoading = false;
+
+    if (wasLoading && this.source)
+    {
+        this.source.onload = null;
+        this.source.onerror = null;
+    }
+
+    this.source = source;
+
+    // Apply source if loaded. Otherwise setup appropriate loading monitors.
+    if ((this.source.complete || this.source.getContext) && this.source.width && this.source.height)
+    {
+        this._sourceLoaded();
+    }
+    else if (!source.getContext)
+    {
+
+        // Image fail / not ready
+        this.isLoading = true;
+
+        var scope = this;
+
+        source.onload = function ()
+        {
+            source.onload = null;
+            source.onerror = null;
+
+            if (!scope.isLoading)
+            {
+                return;
+            }
+
+            scope.isLoading = false;
+            scope._sourceLoaded();
+
+            scope.emit('loaded', scope);
+        };
+
+        source.onerror = function ()
+        {
+            source.onload = null;
+            source.onerror = null;
+
+            if (!scope.isLoading)
+            {
+                return;
+            }
+
+            scope.isLoading = false;
+            scope.emit('error', scope);
+        };
+
+        // Per http://www.w3.org/TR/html5/embedded-content-0.html#the-img-element
+        //   "The value of `complete` can thus change while a script is executing."
+        // So complete needs to be re-checked after the callbacks have been added..
+        // NOTE: complete will be true if the image has no src so best to check if the src is set.
+        if (source.complete && source.src)
+        {
+            this.isLoading = false;
+
+            // ..and if we're complete now, no need for callbacks
+            source.onload = null;
+            source.onerror = null;
+
+            if (source.width && source.height)
+            {
+                this._sourceLoaded();
+
+                // If any previous subscribers possible
+                if (wasLoading)
+                {
+                    this.emit('loaded', this);
+                }
+            }
+            else
+            {
+                // If any previous subscribers possible
+                if (wasLoading)
+                {
+                    this.emit('error', this);
+                }
+            }
+        }
+    }
+};
+
+/**
+ * Used internally to update the width, height, and some other tracking vars once
+ * a source has successfully loaded.
+ *
+ * @private
+ */
+BaseTexture.prototype._sourceLoaded = function ()
+{
+    this.hasLoaded = true;
+    this.update();
+};
+
+/**
+ * Destroys this base texture
+ *
+ */
+BaseTexture.prototype.destroy = function ()
+{
+    if (this.imageUrl)
+    {
+        delete utils.BaseTextureCache[this.imageUrl];
+        delete utils.TextureCache[this.imageUrl];
+
+        this.imageUrl = null;
+
+        if (!navigator.isCocoonJS)
+        {
+            this.source.src = '';
+        }
+    }
+    else if (this.source && this.source._pixiId)
+    {
+        delete utils.BaseTextureCache[this.source._pixiId];
+    }
+
+    this.source = null;
+
+    this.dispose();
+};
+
+/**
+ * Frees the texture from WebGL memory without destroying this texture object.
+ * This means you can still use the texture later which will upload it to GPU
+ * memory again.
+ *
+ */
+BaseTexture.prototype.dispose = function ()
+{
+    this.emit('dispose', this);
+
+    // this should no longer be needed, the renderers should cleanup all the gl textures.
+    // this._glTextures = {};
+};
+
+/**
+ * Changes the source image of the texture.
+ * The original source must be an Image element.
+ *
+ * @param newSrc {string} the path of the image
+ */
+BaseTexture.prototype.updateSourceImage = function (newSrc)
+{
+    this.source.src = newSrc;
+
+    this.loadSource(this.source);
+};
+
+/**
+ * Helper function that creates a base texture from the given image url.
+ * If the image is not in the base texture cache it will be created and loaded.
+ *
+ * @static
+ * @param imageUrl {string} The image url of the texture
+ * @param [crossorigin=(auto)] {boolean} Should use anonymous CORS? Defaults to true if the URL is not a data-URI.
+ * @param [scaleMode=PIXI.SCALE_MODES.DEFAULT] {number} See {@link PIXI.SCALE_MODES} for possible values
+ * @return PIXI.BaseTexture
+ */
+BaseTexture.fromImage = function (imageUrl, crossorigin, scaleMode)
+{
+    var baseTexture = utils.BaseTextureCache[imageUrl];
+
+    if (crossorigin === undefined && imageUrl.indexOf('data:') !== 0)
+    {
+        crossorigin = true;
+    }
+
+    if (!baseTexture)
+    {
+        // new Image() breaks tex loading in some versions of Chrome.
+        // See https://code.google.com/p/chromium/issues/detail?id=238071
+        var image = new Image();//document.createElement('img');
+        if (crossorigin)
+        {
+            image.crossOrigin = '';
+        }
+
+        baseTexture = new BaseTexture(image, scaleMode);
+        baseTexture.imageUrl = imageUrl;
+
+        image.src = imageUrl;
+
+        utils.BaseTextureCache[imageUrl] = baseTexture;
+
+        // if there is an @2x at the end of the url we are going to assume its a highres image
+        baseTexture.resolution = utils.getResolutionOfUrl(imageUrl);
+    }
+
+    return baseTexture;
+};
+
+/**
+ * Helper function that creates a base texture from the given canvas element.
+ *
+ * @static
+ * @param canvas {Canvas} The canvas element source of the texture
+ * @param scaleMode {number} See {@link PIXI.SCALE_MODES} for possible values
+ * @return PIXI.BaseTexture
+ */
+BaseTexture.fromCanvas = function (canvas, scaleMode)
+{
+    if (!canvas._pixiId)
+    {
+        canvas._pixiId = 'canvas_' + utils.uid();
+    }
+
+    var baseTexture = utils.BaseTextureCache[canvas._pixiId];
+
+    if (!baseTexture)
+    {
+        baseTexture = new BaseTexture(canvas, scaleMode);
+        utils.BaseTextureCache[canvas._pixiId] = baseTexture;
+    }
+
+    return baseTexture;
+};
+
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var math = __webpack_require__(4),
+    utils = __webpack_require__(3),
+    CONST = __webpack_require__(1),
+    //StencilManager = require('../managers/StencilManager'),
+    StencilMaskStack = __webpack_require__(102);
+
+/**
+ * @author Mat Groves http://matgroves.com/ @Doormat23
+ */
+
+/**
+ * @class
+ * @memberof PIXI
+ * @param gl {WebGLRenderingContext} the current WebGL drawing context
+ * @param width {number} the horizontal range of the filter
+ * @param height {number} the vertical range of the filter
+ * @param scaleMode {number} See {@link PIXI.SCALE_MODES} for possible values
+ * @param resolution {number} the current resolution
+ * @param root {boolean} Whether this object is the root element or not
+ */
+var RenderTarget = function(gl, width, height, scaleMode, resolution, root)
+{
+    //TODO Resolution could go here ( eg low res blurs )
+
+    /**
+     * The current WebGL drawing context.
+     *
+     * @member {WebGLRenderingContext}
+     */
+    this.gl = gl;
+
+    // next time to create a frame buffer and texture
+
+    /**
+     * A frame buffer
+     *
+     * @member {WebGLFrameBuffer}
+     */
+    this.frameBuffer = null;
+
+    /**
+     * The texture
+     *
+     * @member {PIXI.Texture}
+     */
+    this.texture = null;
+
+    /**
+     * The size of the object as a rectangle
+     *
+     * @member {PIXI.Rectangle}
+     */
+    this.size = new math.Rectangle(0, 0, 1, 1);
+
+    /**
+     * The current resolution
+     *
+     * @member {number}
+     */
+    this.resolution = resolution || CONST.RESOLUTION;
+
+    /**
+     * The projection matrix
+     *
+     * @member {PIXI.Matrix}
+     */
+    this.projectionMatrix = new math.Matrix();
+
+    /**
+     * The object's transform
+     *
+     * @member {PIXI.Matrix}
+     */
+    this.transform = null;
+
+    /**
+     * The frame.
+     *
+     * @member {PIXI.Rectangle}
+     */
+    this.frame = null;
+
+    /**
+     * The stencil buffer stores masking data for the render target
+     *
+     * @member {WebGLRenderBuffer}
+     */
+    this.stencilBuffer = null;
+
+    /**
+     * The data structure for the stencil masks
+     *
+     * @member {PIXI.StencilMaskStack}
+     */
+    this.stencilMaskStack = new StencilMaskStack();
+
+    /**
+     * Stores filter data for the render target
+     *
+     * @member {object[]}
+     */
+    this.filterStack = [
+        {
+            renderTarget:this,
+            filter:[],
+            bounds:this.size
+        }
+    ];
+
+
+    /**
+     * The scale mode.
+     *
+     * @member {number}
+     * @default PIXI.SCALE_MODES.DEFAULT
+     * @see PIXI.SCALE_MODES
+     */
+    this.scaleMode = scaleMode || CONST.SCALE_MODES.DEFAULT;
+
+    /**
+     * Whether this object is the root element or not
+     *
+     * @member {boolean}
+     */
+    this.root = root;
+
+    if (!this.root)
+    {
+       // this.flipY = true;
+        this.frameBuffer = gl.createFramebuffer();
+
+        /*
+            A frame buffer needs a target to render to..
+            create a texture and bind it attach it to the framebuffer..
+         */
+
+        this.texture = gl.createTexture();
+
+        gl.bindTexture(gl.TEXTURE_2D,  this.texture);
+
+        // set the scale properties of the texture..
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, scaleMode === CONST.SCALE_MODES.LINEAR ? gl.LINEAR : gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, scaleMode === CONST.SCALE_MODES.LINEAR ? gl.LINEAR : gl.NEAREST);
+
+        // check to see if the texture is a power of two!
+        var isPowerOfTwo = utils.isPowerOfTwo(width, height);
+
+        //TODO for 99% of use cases if a texture is power of two we should tile the texture...
+         if (!isPowerOfTwo)
+        {
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        }
+        else
+        {
+
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+        }
+
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer );
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.texture, 0);
+    }
+
+    this.resize(width, height);
+};
+
+RenderTarget.prototype.constructor = RenderTarget;
+module.exports = RenderTarget;
+
+/**
+ * Clears the filter texture.
+ *
+ * @param [bind=false] {boolean} Should we bind our framebuffer before clearing?
+ */
+RenderTarget.prototype.clear = function(bind)
+{
+    var gl = this.gl;
+    if(bind)
+    {
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer);
+    }
+
+    gl.clearColor(0,0,0,0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+};
+
+/**
+ * Binds the stencil buffer.
+ *
+ */
+RenderTarget.prototype.attachStencilBuffer = function()
+{
+
+    if (this.stencilBuffer)
+    {
+        return;
+    }
+
+    /**
+     * The stencil buffer is used for masking in pixi
+     * lets create one and then add attach it to the framebuffer..
+     */
+    if (!this.root)
+    {
+        var gl = this.gl;
+
+        this.stencilBuffer = gl.createRenderbuffer();
+        gl.bindRenderbuffer(gl.RENDERBUFFER, this.stencilBuffer);
+        gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_STENCIL_ATTACHMENT, gl.RENDERBUFFER, this.stencilBuffer);
+        gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_STENCIL,  this.size.width * this.resolution  , this.size.height * this.resolution );
+    }
+};
+
+/**
+ * Binds the buffers and initialises the viewport.
+ *
+ */
+RenderTarget.prototype.activate = function()
+{
+    //TOOD refactor usage of frame..
+    var gl = this.gl;
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer);
+
+    var projectionFrame = this.frame || this.size;
+
+    // TODO add a dirty flag to this of a setter for the frame?
+    this.calculateProjection( projectionFrame );
+
+    if(this.transform)
+    {
+        this.projectionMatrix.append(this.transform);
+    }
+
+    gl.viewport(0,0, projectionFrame.width * this.resolution, projectionFrame.height * this.resolution);
+};
+
+/**
+ * Updates the projection matrix based on a projection frame (which is a rectangle)
+ *
+ */
+RenderTarget.prototype.calculateProjection = function (projectionFrame)
+{
+    var pm = this.projectionMatrix;
+
+    pm.identity();
+
+    if (!this.root)
+    {
+        pm.a = 1 / projectionFrame.width*2;
+        pm.d = 1 / projectionFrame.height*2;
+
+        pm.tx = -1 - projectionFrame.x * pm.a;
+        pm.ty = -1 - projectionFrame.y * pm.d;
+    }
+    else
+    {
+        pm.a = 1 / projectionFrame.width*2;
+        pm.d = -1 / projectionFrame.height*2;
+
+        pm.tx = -1 - projectionFrame.x * pm.a;
+        pm.ty = 1 - projectionFrame.y * pm.d;
+    }
+};
+
+
+/**
+ * Resizes the texture to the specified width and height
+ *
+ * @param width {Number} the new width of the texture
+ * @param height {Number} the new height of the texture
+ */
+RenderTarget.prototype.resize = function (width, height)
+{
+    width = width | 0;
+    height = height | 0;
+
+    if (this.size.width === width && this.size.height === height) {
+        return;
+    }
+
+    this.size.width = width;
+    this.size.height = height;
+
+    if (!this.root)
+    {
+        var gl = this.gl;
+
+        gl.bindTexture(gl.TEXTURE_2D,  this.texture);
+
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA,  width * this.resolution, height * this.resolution , 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+
+        if (this.stencilBuffer )
+        {
+            // update the stencil buffer width and height
+            gl.bindRenderbuffer(gl.RENDERBUFFER, this.stencilBuffer);
+            gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_STENCIL,  width * this.resolution, height * this.resolution );
+        }
+    }
+
+    var projectionFrame = this.frame || this.size;
+
+    this.calculateProjection( projectionFrame );
+};
+
+/**
+ * Destroys the render target.
+ *
+ */
+RenderTarget.prototype.destroy = function ()
+{
+    var gl = this.gl;
+    gl.deleteRenderbuffer( this.stencilBuffer );
+    gl.deleteFramebuffer( this.frameBuffer );
+    gl.deleteTexture( this.texture );
+
+    this.frameBuffer = null;
+    this.texture = null;
+};
+
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var math = __webpack_require__(4),
+    utils = __webpack_require__(3),
+    DisplayObject = __webpack_require__(38),
+    RenderTexture = __webpack_require__(26),
+    _tempMatrix = new math.Matrix();
+
+/**
+ * A Container represents a collection of display objects.
+ * It is the base class of all display objects that act as a container for other objects.
+ *
+ *```js
+ * var container = new PIXI.Container();
+ * container.addChild(sprite);
+ * ```
+ * @class
+ * @extends PIXI.DisplayObject
+ * @memberof PIXI
+ */
+function Container()
+{
+    DisplayObject.call(this);
+
+    /**
+     * The array of children of this container.
+     *
+     * @member {PIXI.DisplayObject[]}
+     * @readonly
+     */
+    this.children = [];
+}
+
+// constructor
+Container.prototype = Object.create(DisplayObject.prototype);
+Container.prototype.constructor = Container;
+module.exports = Container;
+
+Object.defineProperties(Container.prototype, {
+    /**
+     * The width of the Container, setting this will actually modify the scale to achieve the value set
+     *
+     * @member {number}
+     * @memberof PIXI.Container#
+     */
+    width: {
+        get: function ()
+        {
+            return this.scale.x * this.getLocalBounds().width;
+        },
+        set: function (value)
+        {
+
+            var width = this.getLocalBounds().width;
+
+            if (width !== 0)
+            {
+                this.scale.x = value / width;
+            }
+            else
+            {
+                this.scale.x = 1;
+            }
+
+
+            this._width = value;
+        }
+    },
+
+    /**
+     * The height of the Container, setting this will actually modify the scale to achieve the value set
+     *
+     * @member {number}
+     * @memberof PIXI.Container#
+     */
+    height: {
+        get: function ()
+        {
+            return  this.scale.y * this.getLocalBounds().height;
+        },
+        set: function (value)
+        {
+
+            var height = this.getLocalBounds().height;
+
+            if (height !== 0)
+            {
+                this.scale.y = value / height ;
+            }
+            else
+            {
+                this.scale.y = 1;
+            }
+
+            this._height = value;
+        }
+    }
+});
+
+/**
+ * Overridable method that can be used by Container subclasses whenever the children array is modified
+ *
+ * @private
+ */
+Container.prototype.onChildrenChange = function () {};
+
+/**
+ * Adds a child to the container.
+ * 
+ * You can also add multple items like so: myContainer.addChild(thinkOne, thingTwo, thingThree)
+ * @param child {PIXI.DisplayObject} The DisplayObject to add to the container
+ * @return {PIXI.DisplayObject} The child that was added.
+ */
+Container.prototype.addChild = function (child)
+{ 
+    var argumentsLength = arguments.length;
+
+    // if there is only one argument we can bypass looping through the them
+    if(argumentsLength > 1)
+    {
+        // loop through the arguments property and add all children
+        // use it the right way (.length and [i]) so that this function can still be optimised by JS runtimes
+        for (var i = 0; i < argumentsLength; i++)
+        {
+            this.addChild( arguments[i] );
+        }
+    }     
+    else
+    {
+        // if the child has a parent then lets remove it as Pixi objects can only exist in one place
+        if (child.parent)
+        {
+            child.parent.removeChild(child);
+        }
+
+        child.parent = this;
+        
+        this.children.push(child);
+
+        // TODO - lets either do all callbacks or all events.. not both!
+        this.onChildrenChange(this.children.length-1);
+        child.emit('added', this);
+    }
+
+    return child;
+};
+
+/**
+ * Adds a child to the container at a specified index. If the index is out of bounds an error will be thrown
+ *
+ * @param child {PIXI.DisplayObject} The child to add
+ * @param index {number} The index to place the child in
+ * @return {PIXI.DisplayObject} The child that was added.
+ */
+Container.prototype.addChildAt = function (child, index)
+{
+    if (index >= 0 && index <= this.children.length)
+    {
+        if (child.parent)
+        {
+            child.parent.removeChild(child);
+        }
+
+        child.parent = this;
+
+        this.children.splice(index, 0, child);
+
+        // TODO - lets either do all callbacks or all events.. not both!
+        this.onChildrenChange(index);
+        child.emit('added', this);
+
+        return child;
+    }
+    else
+    {
+        throw new Error(child + 'addChildAt: The index '+ index +' supplied is out of bounds ' + this.children.length);
+    }
+};
+
+/**
+ * Swaps the position of 2 Display Objects within this container.
+ *
+ * @param child {PIXI.DisplayObject}
+ * @param child2 {PIXI.DisplayObject}
+ */
+Container.prototype.swapChildren = function (child, child2)
+{
+    if (child === child2)
+    {
+        return;
+    }
+
+    var index1 = this.getChildIndex(child);
+    var index2 = this.getChildIndex(child2);
+
+    if (index1 < 0 || index2 < 0)
+    {
+        throw new Error('swapChildren: Both the supplied DisplayObjects must be children of the caller.');
+    }
+
+    this.children[index1] = child2;
+    this.children[index2] = child;
+    this.onChildrenChange(index1 < index2 ? index1 : index2);
+};
+
+/**
+ * Returns the index position of a child DisplayObject instance
+ *
+ * @param child {PIXI.DisplayObject} The DisplayObject instance to identify
+ * @return {number} The index position of the child display object to identify
+ */
+Container.prototype.getChildIndex = function (child)
+{
+    var index = this.children.indexOf(child);
+
+    if (index === -1)
+    {
+        throw new Error('The supplied DisplayObject must be a child of the caller');
+    }
+
+    return index;
+};
+
+/**
+ * Changes the position of an existing child in the display object container
+ *
+ * @param child {PIXI.DisplayObject} The child DisplayObject instance for which you want to change the index number
+ * @param index {number} The resulting index number for the child display object
+ */
+Container.prototype.setChildIndex = function (child, index)
+{
+    if (index < 0 || index >= this.children.length)
+    {
+        throw new Error('The supplied index is out of bounds');
+    }
+
+    var currentIndex = this.getChildIndex(child);
+
+    utils.removeItems(this.children, currentIndex, 1); // remove from old position
+    this.children.splice(index, 0, child); //add at new position
+    this.onChildrenChange(index);
+};
+
+/**
+ * Returns the child at the specified index
+ *
+ * @param index {number} The index to get the child at
+ * @return {PIXI.DisplayObject} The child at the given index, if any.
+ */
+Container.prototype.getChildAt = function (index)
+{
+    if (index < 0 || index >= this.children.length)
+    {
+        throw new Error('getChildAt: Supplied index ' + index + ' does not exist in the child list, or the supplied DisplayObject is not a child of the caller');
+    }
+
+    return this.children[index];
+};
+
+/**
+ * Removes a child from the container.
+ *
+ * @param child {PIXI.DisplayObject} The DisplayObject to remove
+ * @return {PIXI.DisplayObject} The child that was removed.
+ */
+Container.prototype.removeChild = function (child)
+{
+    var argumentsLength = arguments.length;
+
+    // if there is only one argument we can bypass looping through the them
+    if(argumentsLength > 1)
+    {
+        // loop through the arguments property and add all children
+        // use it the right way (.length and [i]) so that this function can still be optimised by JS runtimes
+        for (var i = 0; i < argumentsLength; i++)
+        {
+            this.removeChild( arguments[i] );
+        }
+    }     
+    else
+    {   
+        var index = this.children.indexOf(child);
+
+        if (index === -1)
+        {
+            return;
+        }
+
+        child.parent = null;
+        utils.removeItems(this.children, index, 1);
+
+        // TODO - lets either do all callbacks or all events.. not both!
+        this.onChildrenChange(index);
+        child.emit('removed', this);
+    }
+
+    return child;
+};
+
+/**
+ * Removes a child from the specified index position.
+ *
+ * @param index {number} The index to get the child from
+ * @return {PIXI.DisplayObject} The child that was removed.
+ */
+Container.prototype.removeChildAt = function (index)
+{
+    var child = this.getChildAt(index);
+
+    child.parent = null;
+    utils.removeItems(this.children, index, 1);
+
+    // TODO - lets either do all callbacks or all events.. not both!
+    this.onChildrenChange(index);
+    child.emit('removed', this);
+
+    return child;
+};
+
+/**
+ * Removes all children from this container that are within the begin and end indexes.
+ *
+ * @param beginIndex {number} The beginning position. Default value is 0.
+ * @param endIndex {number} The ending position. Default value is size of the container.
+ */
+Container.prototype.removeChildren = function (beginIndex, endIndex)
+{
+    var begin = beginIndex || 0;
+    var end = typeof endIndex === 'number' ? endIndex : this.children.length;
+    var range = end - begin;
+    var removed, i;
+
+    if (range > 0 && range <= end)
+    {
+        removed = this.children.splice(begin, range);
+
+        for (i = 0; i < removed.length; ++i)
+        {
+            removed[i].parent = null;
+        }
+
+        this.onChildrenChange(beginIndex);
+
+        for (i = 0; i < removed.length; ++i)
+        {
+            removed[i].emit('removed', this);
+        }
+
+        return removed;
+    }
+    else if (range === 0 && this.children.length === 0)
+    {
+        return [];
+    }
+    else
+    {
+        throw new RangeError('removeChildren: numeric values are outside the acceptable range.');
+    }
+};
+
+/**
+ * Useful function that returns a texture of the display object that can then be used to create sprites
+ * This can be quite useful if your displayObject is static / complicated and needs to be reused multiple times.
+ *
+ * @param renderer {PIXI.CanvasRenderer|PIXI.WebGLRenderer} The renderer used to generate the texture.
+ * @param resolution {number} The resolution of the texture being generated
+ * @param scaleMode {number} See {@link PIXI.SCALE_MODES} for possible values
+ * @return {PIXI.Texture} a texture of the display object
+ */
+Container.prototype.generateTexture = function (renderer, resolution, scaleMode)
+{
+    var bounds = this.getLocalBounds();
+
+    var renderTexture = new RenderTexture(renderer, bounds.width | 0, bounds.height | 0, scaleMode, resolution);
+
+    _tempMatrix.tx = -bounds.x;
+    _tempMatrix.ty = -bounds.y;
+
+    renderTexture.render(this, _tempMatrix);
+
+    return renderTexture;
+};
+
+/*
+ * Updates the transform on all children of this container for rendering
+ *
+ * @private
+ */
+Container.prototype.updateTransform = function ()
+{
+    if (!this.visible)
+    {
+        return;
+    }
+
+    this.displayObjectUpdateTransform();
+
+    for (var i = 0, j = this.children.length; i < j; ++i)
+    {
+        this.children[i].updateTransform();
+    }
+};
+
+// performance increase to avoid using call.. (10x faster)
+Container.prototype.containerUpdateTransform = Container.prototype.updateTransform;
+
+/**
+ * Retrieves the bounds of the Container as a rectangle. The bounds calculation takes all visible children into consideration.
+ *
+ * @return {PIXI.Rectangle} The rectangular bounding area
+ */
+Container.prototype.getBounds = function ()
+{
+    if(!this._currentBounds)
+    {
+
+        if (this.children.length === 0)
+        {
+            return math.Rectangle.EMPTY;
+        }
+
+        // TODO the bounds have already been calculated this render session so return what we have
+
+        var minX = Infinity;
+        var minY = Infinity;
+
+        var maxX = -Infinity;
+        var maxY = -Infinity;
+
+        var childBounds;
+        var childMaxX;
+        var childMaxY;
+
+        var childVisible = false;
+
+        for (var i = 0, j = this.children.length; i < j; ++i)
+        {
+            var child = this.children[i];
+
+            if (!child.visible)
+            {
+                continue;
+            }
+
+            childVisible = true;
+
+            childBounds = this.children[i].getBounds();
+
+            minX = minX < childBounds.x ? minX : childBounds.x;
+            minY = minY < childBounds.y ? minY : childBounds.y;
+
+            childMaxX = childBounds.width + childBounds.x;
+            childMaxY = childBounds.height + childBounds.y;
+
+            maxX = maxX > childMaxX ? maxX : childMaxX;
+            maxY = maxY > childMaxY ? maxY : childMaxY;
+        }
+
+        if (!childVisible)
+        {
+            return math.Rectangle.EMPTY;
+        }
+
+        var bounds = this._bounds;
+
+        bounds.x = minX;
+        bounds.y = minY;
+        bounds.width = maxX - minX;
+        bounds.height = maxY - minY;
+
+        this._currentBounds = bounds;
+    }
+
+    return this._currentBounds;
+};
+
+Container.prototype.containerGetBounds = Container.prototype.getBounds;
+
+/**
+ * Retrieves the non-global local bounds of the Container as a rectangle.
+ * The calculation takes all visible children into consideration.
+ *
+ * @return {PIXI.Rectangle} The rectangular bounding area
+ */
+Container.prototype.getLocalBounds = function ()
+{
+    var matrixCache = this.worldTransform;
+
+    this.worldTransform = math.Matrix.IDENTITY;
+
+    for (var i = 0, j = this.children.length; i < j; ++i)
+    {
+        this.children[i].updateTransform();
+    }
+
+    this.worldTransform = matrixCache;
+
+    this._currentBounds = null;
+
+    return this.getBounds( math.Matrix.IDENTITY );
+};
+
+/**
+ * Renders the object using the WebGL renderer
+ *
+ * @param renderer {PIXI.WebGLRenderer} The renderer
+ */
+Container.prototype.renderWebGL = function (renderer)
+{
+
+    // if the object is not visible or the alpha is 0 then no need to render this element
+    if (!this.visible || this.worldAlpha <= 0 || !this.renderable)
+    {
+        return;
+    }
+
+    var i, j;
+
+    // do a quick check to see if this element has a mask or a filter.
+    if (this._mask || this._filters)
+    {
+        renderer.currentRenderer.flush();
+
+        // push filter first as we need to ensure the stencil buffer is correct for any masking
+        if (this._filters && this._filters.length)
+        {
+            renderer.filterManager.pushFilter(this, this._filters);
+        }
+
+        if (this._mask)
+        {
+            renderer.maskManager.pushMask(this, this._mask);
+        }
+
+        renderer.currentRenderer.start();
+
+        // add this object to the batch, only rendered if it has a texture.
+        this._renderWebGL(renderer);
+
+        // now loop through the children and make sure they get rendered
+        for (i = 0, j = this.children.length; i < j; i++)
+        {
+            this.children[i].renderWebGL(renderer);
+        }
+
+        renderer.currentRenderer.flush();
+
+        if (this._mask)
+        {
+            renderer.maskManager.popMask(this, this._mask);
+        }
+
+        if (this._filters)
+        {
+            renderer.filterManager.popFilter();
+
+        }
+        renderer.currentRenderer.start();
+    }
+    else
+    {
+        this._renderWebGL(renderer);
+
+        // simple render children!
+        for (i = 0, j = this.children.length; i < j; ++i)
+        {
+            this.children[i].renderWebGL(renderer);
+        }
+    }
+};
+
+/**
+ * To be overridden by the subclass
+ *
+ * @param renderer {PIXI.WebGLRenderer} The renderer
+ * @private
+ */
+Container.prototype._renderWebGL = function (renderer) // jshint unused:false
+{
+    // this is where content itself gets rendered...
+};
+
+/**
+ * To be overridden by the subclass
+ *
+ * @param renderer {PIXI.CanvasRenderer} The renderer
+ * @private
+ */
+Container.prototype._renderCanvas = function (renderer) // jshint unused:false
+{
+    // this is where content itself gets rendered...
+};
+
+
+/**
+ * Renders the object using the Canvas renderer
+ *
+ * @param renderer {PIXI.CanvasRenderer} The renderer
+ */
+Container.prototype.renderCanvas = function (renderer)
+{
+    // if not visible or the alpha is 0 then no need to render this
+    if (!this.visible || this.alpha <= 0 || !this.renderable)
+    {
+        return;
+    }
+
+    if (this._mask)
+    {
+        renderer.maskManager.pushMask(this._mask, renderer);
+    }
+
+    this._renderCanvas(renderer);
+    for (var i = 0, j = this.children.length; i < j; ++i)
+    {
+        this.children[i].renderCanvas(renderer);
+    }
+
+    if (this._mask)
+    {
+        renderer.maskManager.popMask(renderer);
+    }
+};
+
+/**
+ * Destroys the container
+ * @param [destroyChildren=false] {boolean} if set to true, all the children will have their destroy method called as well
+ */
+Container.prototype.destroy = function (destroyChildren)
+{
+    DisplayObject.prototype.destroy.call(this);
+
+    if (destroyChildren)
+    {
+        for (var i = 0, j = this.children.length; i < j; ++i)
+        {
+            this.children[i].destroy(destroyChildren);
+        }
+    }
+
+    this.removeChildren();
+
+    this.children = null;
+};
+
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var SystemRenderer = __webpack_require__(44),
+    ShaderManager = __webpack_require__(45),
+    MaskManager = __webpack_require__(106),
+    StencilManager = __webpack_require__(107),
+    FilterManager = __webpack_require__(41),
+    BlendModeManager = __webpack_require__(108),
+    RenderTarget = __webpack_require__(15),
+    ObjectRenderer = __webpack_require__(13),
+    FXAAFilter = __webpack_require__(49),
+    utils = __webpack_require__(3),
+    CONST = __webpack_require__(1);
+
+/**
+ * The WebGLRenderer draws the scene and all its content onto a webGL enabled canvas. This renderer
+ * should be used for browsers that support webGL. This Render works by automatically managing webGLBatchs.
+ * So no need for Sprite Batches or Sprite Clouds.
+ * Don't forget to add the view to your DOM or you will not see anything :)
+ *
+ * @class
+ * @memberof PIXI
+ * @extends PIXI.SystemRenderer
+ * @param [width=0] {number} the width of the canvas view
+ * @param [height=0] {number} the height of the canvas view
+ * @param [options] {object} The optional renderer parameters
+ * @param [options.view] {HTMLCanvasElement} the canvas to use as a view, optional
+ * @param [options.transparent=false] {boolean} If the render view is transparent, default false
+ * @param [options.autoResize=false] {boolean} If the render view is automatically resized, default false
+ * @param [options.antialias=false] {boolean} sets antialias. If not available natively then FXAA antialiasing is used
+ * @param [options.forceFXAA=false] {boolean} forces FXAA antialiasing to be used over native. FXAA is faster, but may not always look as great
+ * @param [options.resolution=1] {number} the resolution of the renderer retina would be 2
+ * @param [options.clearBeforeRender=true] {boolean} This sets if the CanvasRenderer will clear the canvas or
+ *      not before the new render pass. If you wish to set this to false, you *must* set preserveDrawingBuffer to `true`.
+ * @param [options.preserveDrawingBuffer=false] {boolean} enables drawing buffer preservation, enable this if
+ *      you need to call toDataUrl on the webgl context.
+ * @param [options.roundPixels=false] {boolean} If true Pixi will Math.floor() x/y values when rendering, stopping pixel interpolation.
+ */
+function WebGLRenderer(width, height, options)
+{
+    options = options || {};
+
+    SystemRenderer.call(this, 'WebGL', width, height, options);
+
+    /**
+     * The type of this renderer as a standardised const
+     *
+     * @member {number}
+     *
+     */
+    this.type = CONST.RENDERER_TYPE.WEBGL;
+
+    this.handleContextLost = this.handleContextLost.bind(this);
+    this.handleContextRestored = this.handleContextRestored.bind(this);
+
+    this.view.addEventListener('webglcontextlost', this.handleContextLost, false);
+    this.view.addEventListener('webglcontextrestored', this.handleContextRestored, false);
+
+    //TODO possibility to force FXAA as it may offer better performance?
+    /**
+     * Does it use FXAA ?
+     *
+     * @member {boolean}
+     * @private
+     */
+    this._useFXAA = !!options.forceFXAA && options.antialias;
+
+    /**
+     * The fxaa filter
+     *
+     * @member {PIXI.FXAAFilter}
+     * @private
+     */
+    this._FXAAFilter = null;
+
+    /**
+     * The options passed in to create a new webgl context.
+     *
+     * @member {object}
+     * @private
+     */
+    this._contextOptions = {
+        alpha: this.transparent,
+        antialias: options.antialias,
+        premultipliedAlpha: this.transparent && this.transparent !== 'notMultiplied',
+        stencil: true,
+        preserveDrawingBuffer: options.preserveDrawingBuffer
+    };
+
+    /**
+     * Counter for the number of draws made each frame
+     *
+     * @member {number}
+     */
+    this.drawCount = 0;
+
+    /**
+     * Deals with managing the shader programs and their attribs.
+     *
+     * @member {PIXI.ShaderManager}
+     */
+    this.shaderManager = new ShaderManager(this);
+
+    /**
+     * Manages the masks using the stencil buffer.
+     *
+     * @member {PIXI.MaskManager}
+     */
+    this.maskManager = new MaskManager(this);
+
+    /**
+     * Manages the stencil buffer.
+     *
+     * @member {PIXI.StencilManager}
+     */
+    this.stencilManager = new StencilManager(this);
+
+    /**
+     * Manages the filters.
+     *
+     * @member {PIXI.FilterManager}
+     */
+    this.filterManager = new FilterManager(this);
+
+
+    /**
+     * Manages the blendModes
+     *
+     * @member {PIXI.BlendModeManager}
+     */
+    this.blendModeManager = new BlendModeManager(this);
+
+    /**
+     * Holds the current render target
+     *
+     * @member {PIXI.RenderTarget}
+     */
+    this.currentRenderTarget = null;
+
+    /**
+     * The currently active ObjectRenderer.
+     *
+     * @member {PIXI.ObjectRenderer}
+     */
+    this.currentRenderer = new ObjectRenderer(this);
+
+    this.initPlugins();
+
+    // initialize the context so it is ready for the managers.
+    this._createContext();
+    this._initContext();
+
+    // map some webGL blend modes..
+    this._mapGlModes();
+
+    // track textures in the renderer so we can no longer listen to them on destruction.
+    this._managedTextures = [];
+
+    /**
+     * An array of render targets
+     * @member {PIXI.RenderTarget[]}
+     * @private
+     */
+    this._renderTargetStack = [];
+}
+
+// constructor
+WebGLRenderer.prototype = Object.create(SystemRenderer.prototype);
+WebGLRenderer.prototype.constructor = WebGLRenderer;
+module.exports = WebGLRenderer;
+utils.pluginTarget.mixin(WebGLRenderer);
+
+WebGLRenderer.glContextId = 0;
+
+/**
+ * Creates the gl context.
+ *
+ * @private
+ */
+WebGLRenderer.prototype._createContext = function () {
+    var gl = this.view.getContext('webgl', this._contextOptions) || this.view.getContext('experimental-webgl', this._contextOptions);
+    this.gl = gl;
+
+    if (!gl)
+    {
+        // fail, not able to get a context
+        throw new Error('This browser does not support webGL. Try using the canvas renderer');
+    }
+
+    this.glContextId = WebGLRenderer.glContextId++;
+    gl.id = this.glContextId;
+    gl.renderer = this;
+};
+
+/**
+ * Creates the WebGL context
+ *
+ * @private
+ */
+WebGLRenderer.prototype._initContext = function ()
+{
+    var gl = this.gl;
+
+    // set up the default pixi settings..
+    gl.disable(gl.DEPTH_TEST);
+    gl.disable(gl.CULL_FACE);
+    gl.enable(gl.BLEND);
+
+    this.renderTarget = new RenderTarget(gl, this.width, this.height, null, this.resolution, true);
+
+    this.setRenderTarget(this.renderTarget);
+
+    this.emit('context', gl);
+
+    // setup the width/height properties and gl viewport
+    this.resize(this.width, this.height);
+
+    if(!this._useFXAA)
+    {
+        this._useFXAA = (this._contextOptions.antialias && ! gl.getContextAttributes().antialias);
+    }
+
+
+    if(this._useFXAA)
+    {
+        window.console.warn('FXAA antialiasing being used instead of native antialiasing');
+        this._FXAAFilter = [new FXAAFilter()];
+    }
+};
+
+/**
+ * Renders the object to its webGL view
+ *
+ * @param object {PIXI.DisplayObject} the object to be rendered
+ */
+WebGLRenderer.prototype.render = function (object)
+{
+
+    this.emit('prerender');
+
+    // no point rendering if our context has been blown up!
+    if (this.gl.isContextLost())
+    {
+        return;
+    }
+
+    this.drawCount = 0;
+
+    this._lastObjectRendered = object;
+
+    if(this._useFXAA)
+    {
+        this._FXAAFilter[0].uniforms.resolution.value.x = this.width;
+        this._FXAAFilter[0].uniforms.resolution.value.y = this.height;
+        object.filterArea = this.renderTarget.size;
+        object.filters = this._FXAAFilter;
+    }
+
+    var cacheParent = object.parent;
+    object.parent = this._tempDisplayObjectParent;
+
+    // update the scene graph
+    object.updateTransform();
+
+    object.parent = cacheParent;
+
+    var gl = this.gl;
+
+    // make sure we are bound to the main frame buffer
+    this.setRenderTarget(this.renderTarget);
+
+    if (this.clearBeforeRender)
+    {
+        if (this.transparent)
+        {
+            gl.clearColor(0, 0, 0, 0);
+        }
+        else
+        {
+            gl.clearColor(this._backgroundColorRgb[0], this._backgroundColorRgb[1], this._backgroundColorRgb[2], 1);
+        }
+
+        gl.clear(gl.COLOR_BUFFER_BIT);
+    }
+
+    this.renderDisplayObject(object, this.renderTarget);//this.projection);
+
+    this.emit('postrender');
+};
+
+/**
+ * Renders a Display Object.
+ *
+ * @param displayObject {PIXI.DisplayObject} The DisplayObject to render
+ * @param renderTarget {PIXI.RenderTarget} The render target to use to render this display object
+ *
+ */
+WebGLRenderer.prototype.renderDisplayObject = function (displayObject, renderTarget, clear)//projection, buffer)
+{
+    // TODO is this needed...
+    //this.blendModeManager.setBlendMode(CONST.BLEND_MODES.NORMAL);
+    this.setRenderTarget(renderTarget);
+
+    if(clear)
+    {
+        renderTarget.clear();
+    }
+
+    // start the filter manager
+    this.filterManager.setFilterStack( renderTarget.filterStack );
+
+    // render the scene!
+    displayObject.renderWebGL(this);
+
+    // finish the current renderer..
+    this.currentRenderer.flush();
+};
+
+/**
+ * Changes the current renderer to the one given in parameter
+ *
+ * @param objectRenderer {PIXI.ObjectRenderer} The object renderer to use.
+ */
+WebGLRenderer.prototype.setObjectRenderer = function (objectRenderer)
+{
+    if (this.currentRenderer === objectRenderer)
+    {
+        return;
+    }
+
+    this.currentRenderer.stop();
+    this.currentRenderer = objectRenderer;
+    this.currentRenderer.start();
+};
+
+/**
+ * Changes the current render target to the one given in parameter
+ *
+ * @param renderTarget {PIXI.RenderTarget} the new render target
+ */
+WebGLRenderer.prototype.setRenderTarget = function (renderTarget)
+{
+    if( this.currentRenderTarget === renderTarget)
+    {
+        return;
+    }
+    // TODO - maybe down the line this should be a push pos thing? Leaving for now though.
+    this.currentRenderTarget = renderTarget;
+    this.currentRenderTarget.activate();
+    this.stencilManager.setMaskStack( renderTarget.stencilMaskStack );
+};
+
+
+/**
+ * Resizes the webGL view to the specified width and height.
+ *
+ * @param width {number} the new width of the webGL view
+ * @param height {number} the new height of the webGL view
+ */
+WebGLRenderer.prototype.resize = function (width, height)
+{
+    SystemRenderer.prototype.resize.call(this, width, height);
+
+    this.filterManager.resize(width, height);
+    this.renderTarget.resize(width, height);
+
+    if(this.currentRenderTarget === this.renderTarget)
+    {
+        this.renderTarget.activate();
+        this.gl.viewport(0, 0, this.width, this.height);
+    }
+};
+
+/**
+ * Updates and/or Creates a WebGL texture for the renderer's context.
+ *
+ * @param texture {PIXI.BaseTexture|PIXI.Texture} the texture to update
+ */
+WebGLRenderer.prototype.updateTexture = function (texture)
+{
+    texture = texture.baseTexture || texture;
+
+    if (!texture.hasLoaded)
+    {
+        return;
+    }
+
+    var gl = this.gl;
+
+    if (!texture._glTextures[gl.id])
+    {
+        texture._glTextures[gl.id] = gl.createTexture();
+        texture.on('update', this.updateTexture, this);
+        texture.on('dispose', this.destroyTexture, this);
+        this._managedTextures.push(texture);
+    }
+
+
+    gl.bindTexture(gl.TEXTURE_2D, texture._glTextures[gl.id]);
+
+    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, texture.premultipliedAlpha);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.source);
+
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, texture.scaleMode === CONST.SCALE_MODES.LINEAR ? gl.LINEAR : gl.NEAREST);
+
+
+    if (texture.mipmap && texture.isPowerOfTwo)
+    {
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, texture.scaleMode === CONST.SCALE_MODES.LINEAR ? gl.LINEAR_MIPMAP_LINEAR : gl.NEAREST_MIPMAP_NEAREST);
+        gl.generateMipmap(gl.TEXTURE_2D);
+    }
+    else
+    {
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, texture.scaleMode === CONST.SCALE_MODES.LINEAR ? gl.LINEAR : gl.NEAREST);
+    }
+
+    if (!texture.isPowerOfTwo)
+    {
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    }
+    else
+    {
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+    }
+
+    return  texture._glTextures[gl.id];
+};
+
+/**
+ * Deletes the texture from WebGL
+ *
+ * @param texture {PIXI.BaseTexture|PIXI.Texture} the texture to destroy
+ */
+WebGLRenderer.prototype.destroyTexture = function (texture, _skipRemove)
+{
+    texture = texture.baseTexture || texture;
+
+    if (!texture.hasLoaded)
+    {
+        return;
+    }
+
+    if (texture._glTextures[this.gl.id])
+    {
+        this.gl.deleteTexture(texture._glTextures[this.gl.id]);
+        delete texture._glTextures[this.gl.id];
+
+        if (!_skipRemove)
+        {
+            var i = this._managedTextures.indexOf(texture);
+            if (i !== -1) {
+                utils.removeItems(this._managedTextures, i, 1);
+            }
+        }
+    }
+};
+
+/**
+ * Handles a lost webgl context
+ *
+ * @private
+ */
+WebGLRenderer.prototype.handleContextLost = function (event)
+{
+    event.preventDefault();
+};
+
+/**
+ * Handles a restored webgl context
+ *
+ * @private
+ */
+WebGLRenderer.prototype.handleContextRestored = function ()
+{
+    this._initContext();
+
+    // empty all the old gl textures as they are useless now
+    for (var i = 0; i < this._managedTextures.length; ++i)
+    {
+        var texture = this._managedTextures[i];
+        if (texture._glTextures[this.gl.id])
+        {
+            delete texture._glTextures[this.gl.id];
+        }
+    }
+};
+
+/**
+ * Removes everything from the renderer (event listeners, spritebatch, etc...)
+ *
+ * @param [removeView=false] {boolean} Removes the Canvas element from the DOM.
+ */
+WebGLRenderer.prototype.destroy = function (removeView)
+{
+    this.destroyPlugins();
+
+    // remove listeners
+    this.view.removeEventListener('webglcontextlost', this.handleContextLost);
+    this.view.removeEventListener('webglcontextrestored', this.handleContextRestored);
+
+    // destroy managed textures
+    for (var i = 0; i < this._managedTextures.length; ++i)
+    {
+        var texture = this._managedTextures[i];
+        this.destroyTexture(texture, true);
+        texture.off('update', this.updateTexture, this);
+        texture.off('dispose', this.destroyTexture, this);
+    }
+
+    // call base destroy
+    SystemRenderer.prototype.destroy.call(this, removeView);
+
+    this.uid = 0;
+
+    // destroy the managers
+    this.shaderManager.destroy();
+    this.maskManager.destroy();
+    this.stencilManager.destroy();
+    this.filterManager.destroy();
+    this.blendModeManager.destroy();
+
+    this.shaderManager = null;
+    this.maskManager = null;
+    this.filterManager = null;
+    this.blendModeManager = null;
+    this.currentRenderer = null;
+
+    this.handleContextLost = null;
+    this.handleContextRestored = null;
+
+    this._contextOptions = null;
+
+    this._managedTextures = null;
+
+    this.drawCount = 0;
+
+    this.gl.useProgram(null);
+
+    this.gl.flush();
+
+    this.gl = null;
+};
+
+/**
+ * Maps Pixi blend modes to WebGL blend modes. It works only for pre-multiplied textures.
+ *
+ * @private
+ */
+WebGLRenderer.prototype._mapGlModes = function ()
+{
+    var gl = this.gl;
+
+    if (!this.blendModes)
+    {
+        this.blendModes = {};
+
+        this.blendModes[CONST.BLEND_MODES.NORMAL]        = [gl.ONE,       gl.ONE_MINUS_SRC_ALPHA];
+        this.blendModes[CONST.BLEND_MODES.ADD]           = [gl.ONE,       gl.DST_ALPHA];
+        this.blendModes[CONST.BLEND_MODES.MULTIPLY]      = [gl.DST_COLOR, gl.ONE_MINUS_SRC_ALPHA];
+        this.blendModes[CONST.BLEND_MODES.SCREEN]        = [gl.ONE,       gl.ONE_MINUS_SRC_COLOR];
+        this.blendModes[CONST.BLEND_MODES.OVERLAY]       = [gl.ONE,       gl.ONE_MINUS_SRC_ALPHA];
+        this.blendModes[CONST.BLEND_MODES.DARKEN]        = [gl.ONE,       gl.ONE_MINUS_SRC_ALPHA];
+        this.blendModes[CONST.BLEND_MODES.LIGHTEN]       = [gl.ONE,       gl.ONE_MINUS_SRC_ALPHA];
+        this.blendModes[CONST.BLEND_MODES.COLOR_DODGE]   = [gl.ONE,       gl.ONE_MINUS_SRC_ALPHA];
+        this.blendModes[CONST.BLEND_MODES.COLOR_BURN]    = [gl.ONE,       gl.ONE_MINUS_SRC_ALPHA];
+        this.blendModes[CONST.BLEND_MODES.HARD_LIGHT]    = [gl.ONE,       gl.ONE_MINUS_SRC_ALPHA];
+        this.blendModes[CONST.BLEND_MODES.SOFT_LIGHT]    = [gl.ONE,       gl.ONE_MINUS_SRC_ALPHA];
+        this.blendModes[CONST.BLEND_MODES.DIFFERENCE]    = [gl.ONE,       gl.ONE_MINUS_SRC_ALPHA];
+        this.blendModes[CONST.BLEND_MODES.EXCLUSION]     = [gl.ONE,       gl.ONE_MINUS_SRC_ALPHA];
+        this.blendModes[CONST.BLEND_MODES.HUE]           = [gl.ONE,       gl.ONE_MINUS_SRC_ALPHA];
+        this.blendModes[CONST.BLEND_MODES.SATURATION]    = [gl.ONE,       gl.ONE_MINUS_SRC_ALPHA];
+        this.blendModes[CONST.BLEND_MODES.COLOR]         = [gl.ONE,       gl.ONE_MINUS_SRC_ALPHA];
+        this.blendModes[CONST.BLEND_MODES.LUMINOSITY]    = [gl.ONE,       gl.ONE_MINUS_SRC_ALPHA];
+    }
+
+    if (!this.drawModes)
+    {
+        this.drawModes = {};
+
+        this.drawModes[CONST.DRAW_MODES.POINTS]         = gl.POINTS;
+        this.drawModes[CONST.DRAW_MODES.LINES]          = gl.LINES;
+        this.drawModes[CONST.DRAW_MODES.LINE_LOOP]      = gl.LINE_LOOP;
+        this.drawModes[CONST.DRAW_MODES.LINE_STRIP]     = gl.LINE_STRIP;
+        this.drawModes[CONST.DRAW_MODES.TRIANGLES]      = gl.TRIANGLES;
+        this.drawModes[CONST.DRAW_MODES.TRIANGLE_STRIP] = gl.TRIANGLE_STRIP;
+        this.drawModes[CONST.DRAW_MODES.TRIANGLE_FAN]   = gl.TRIANGLE_FAN;
+    }
+};
+
+
+/***/ }),
+/* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var Shader = __webpack_require__(19);
+
+/**
+ * @class
+ * @memberof PIXI
+ * @extends PIXI.Shader
+ * @param shaderManager {PIXI.ShaderManager} The webgl shader manager this shader works for.
+ * @param [vertexSrc] {string} The source of the vertex shader.
+ * @param [fragmentSrc] {string} The source of the fragment shader.
+ * @param [customUniforms] {object} Custom uniforms to use to augment the built-in ones.
+ * @param [fragmentSrc] {string} The source of the fragment shader.
+ */
+function TextureShader(shaderManager, vertexSrc, fragmentSrc, customUniforms, customAttributes)
+{
+    var uniforms = {
+
+        uSampler:           { type: 'sampler2D', value: 0 },
+        projectionMatrix:   { type: 'mat3', value: new Float32Array([1, 0, 0,
+                                                                     0, 1, 0,
+                                                                     0, 0, 1]) }
+    };
+
+    if (customUniforms)
+    {
+        for (var u in customUniforms)
+        {
+            uniforms[u] = customUniforms[u];
+        }
+    }
+
+
+    var attributes = {
+        aVertexPosition:    0,
+        aTextureCoord:      0,
+        aColor:             0
+    };
+
+    if (customAttributes)
+    {
+        for (var a in customAttributes)
+        {
+            attributes[a] = customAttributes[a];
+        }
+    }
+
+    /**
+     * The vertex shader.
+     *
+     * @member {string}
+     */
+    vertexSrc = vertexSrc || TextureShader.defaultVertexSrc;
+
+    /**
+     * The fragment shader.
+     *
+     * @member {string}
+     */
+    fragmentSrc = fragmentSrc || TextureShader.defaultFragmentSrc;
+
+    Shader.call(this, shaderManager, vertexSrc, fragmentSrc, uniforms, attributes);
+}
+
+// constructor
+TextureShader.prototype = Object.create(Shader.prototype);
+TextureShader.prototype.constructor = TextureShader;
+module.exports = TextureShader;
+
+/**
+ * The default vertex shader source
+ *
+ * @static
+ * @constant
+ */
+TextureShader.defaultVertexSrc = [
+    'precision lowp float;',
+    'attribute vec2 aVertexPosition;',
+    'attribute vec2 aTextureCoord;',
+    'attribute vec4 aColor;',
+
+    'uniform mat3 projectionMatrix;',
+
+    'varying vec2 vTextureCoord;',
+    'varying vec4 vColor;',
+
+    'void main(void){',
+    '   gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);',
+    '   vTextureCoord = aTextureCoord;',
+    '   vColor = vec4(aColor.rgb * aColor.a, aColor.a);',
+    '}'
+].join('\n');
+
+/**
+ * The default fragment shader source
+ *
+ * @static
+ * @constant
+ */
+TextureShader.defaultFragmentSrc = [
+    'precision lowp float;',
+
+    'varying vec2 vTextureCoord;',
+    'varying vec4 vColor;',
+
+    'uniform sampler2D uSampler;',
+
+    'void main(void){',
+    '   gl_FragColor = texture2D(uSampler, vTextureCoord) * vColor ;',
+    '}'
+].join('\n');
+
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/*global console */
+var utils = __webpack_require__(3);
+
+/**
+ * Base shader class for PIXI managed shaders.
+ *
+ * @class
+ * @memberof PIXI
+ * @param shaderManager {PIXI.ShaderManager} The webgl shader manager this shader works for.
+ * @param [vertexSrc] {string} The source of the vertex shader.
+ * @param [fragmentSrc] {string} The source of the fragment shader.
+ * @param [uniforms] {object} Uniforms for this shader.
+ * @param [attributes] {object} Attributes for this shader.
+ */
+function Shader(shaderManager, vertexSrc, fragmentSrc, uniforms, attributes)
+{
+    if (!vertexSrc || !fragmentSrc)
+    {
+         throw new Error('Pixi.js Error. Shader requires vertexSrc and fragmentSrc');
+    }
+
+    /**
+     * A unique id
+     * @member {number}
+     * @readonly
+     */
+    this.uid = utils.uid();
+
+    /**
+     * The current WebGL drawing context
+     * @member {WebGLRenderingContext}
+     * @readonly
+     */
+    this.gl = shaderManager.renderer.gl;
+
+    //TODO maybe we should pass renderer rather than shader manger?? food for thought..
+    this.shaderManager = shaderManager;
+
+    /**
+     * The WebGL program.
+     *
+     * @member {WebGLProgram}
+     * @readonly
+     */
+    this.program = null;
+
+    /**
+     * The uniforms as an object
+     * @member {object}
+     * @private
+     */
+    this.uniforms = uniforms || {};
+
+    /**
+     * The attributes as an object
+     * @member {object}
+     * @private
+     */
+    this.attributes = attributes || {};
+
+    /**
+     * Internal texture counter
+     * @member {number}
+     * @private
+     */
+    this.textureCount = 1;
+
+    /**
+     * The vertex shader as an array of strings
+     *
+     * @member {string}
+     */
+    this.vertexSrc = vertexSrc;
+
+    /**
+     * The fragment shader as an array of strings
+     *
+     * @member {string}
+     */
+    this.fragmentSrc = fragmentSrc;
+
+    this.init();
+}
+
+Shader.prototype.constructor = Shader;
+module.exports = Shader;
+
+/**
+ * Creates the shader and uses it
+ *
+ */
+Shader.prototype.init = function ()
+{
+    this.compile();
+
+    this.gl.useProgram(this.program);
+
+    this.cacheUniformLocations(Object.keys(this.uniforms));
+    this.cacheAttributeLocations(Object.keys(this.attributes));
+};
+
+/**
+ * Caches the locations of the uniform for reuse.
+ *
+ * @param keys {string} the uniforms to cache
+ */
+Shader.prototype.cacheUniformLocations = function (keys)
+{
+    for (var i = 0; i < keys.length; ++i)
+    {
+        this.uniforms[keys[i]]._location = this.gl.getUniformLocation(this.program, keys[i]);
+    }
+};
+
+/**
+ * Caches the locations of the attribute for reuse.
+ *
+ * @param keys {string} the attributes to cache
+ */
+Shader.prototype.cacheAttributeLocations = function (keys)
+{
+    for (var i = 0; i < keys.length; ++i)
+    {
+        this.attributes[keys[i]] = this.gl.getAttribLocation(this.program, keys[i]);
+    }
+
+    // TODO: Check if this is needed anymore...
+
+    // Begin worst hack eva //
+
+    // WHY??? ONLY on my chrome pixel the line above returns -1 when using filters?
+    // maybe its something to do with the current state of the gl context.
+    // I'm convinced this is a bug in the chrome browser as there is NO reason why this should be returning -1 especially as it only manifests on my chrome pixel
+    // If theres any webGL people that know why could happen please help :)
+    // if (this.attributes.aColor === -1){
+    //     this.attributes.aColor = 2;
+    // }
+
+    // End worst hack eva //
+};
+
+/**
+ * Attaches the shaders and creates the program.
+ *
+ * @return {WebGLProgram}
+ */
+Shader.prototype.compile = function ()
+{
+    var gl = this.gl;
+
+    var glVertShader = this._glCompile(gl.VERTEX_SHADER, this.vertexSrc);
+    var glFragShader = this._glCompile(gl.FRAGMENT_SHADER, this.fragmentSrc);
+
+    var program = gl.createProgram();
+
+    gl.attachShader(program, glVertShader);
+    gl.attachShader(program, glFragShader);
+    gl.linkProgram(program);
+
+    // if linking fails, then log and cleanup
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS))
+    {
+        console.error('Pixi.js Error: Could not initialize shader.');
+        console.error('gl.VALIDATE_STATUS', gl.getProgramParameter(program, gl.VALIDATE_STATUS));
+        console.error('gl.getError()', gl.getError());
+
+        // if there is a program info log, log it
+        if (gl.getProgramInfoLog(program) !== '')
+        {
+            console.warn('Pixi.js Warning: gl.getProgramInfoLog()', gl.getProgramInfoLog(program));
+        }
+
+        gl.deleteProgram(program);
+        program = null;
+    }
+
+    // clean up some shaders
+    gl.deleteShader(glVertShader);
+    gl.deleteShader(glFragShader);
+
+    return (this.program = program);
+};
+
+/*
+Shader.prototype.buildSync = function ()
+{
+   // var str = ""
+
+   // str =  "Shader.prototype.syncUniforms = function()";
+   // str += "{\n";
+
+    for (var key in this.uniforms)
+    {
+        var uniform = this.uniforms[key];
+
+        Object.defineProperty(this, key, {
+
+            get: function ()
+            {
+                return uniform.value
+            },
+            set: function (value)
+            {
+                this.setUniform(uniform, value);
+            }
+        });
+
+        console.log( makePropSetter( key, " bloop", uniform.type )  )
+  //      Object.def
+        //    location = uniform._location,
+          //  value = uniform.value,
+            //i, il;
+
+    //    str += "gl.uniform1i(this.uniforms."+ key +"._location, this.uniforms." + key + ".value );\n"
+
+    }
+
+}*/
+
+/**
+* Adds a new uniform
+*
+* @param uniform {object} the new uniform to attach
+*/
+Shader.prototype.syncUniform = function (uniform)
+{
+    var location = uniform._location,
+        value = uniform.value,
+        gl = this.gl,
+        i, il;
+
+    switch (uniform.type)
+    {
+        case 'b':
+        case 'bool':
+        case 'boolean':
+            gl.uniform1i(location, value ? 1 : 0);
+            break;
+
+        // single int value
+        case 'i':
+        case '1i':
+            gl.uniform1i(location, value);
+            break;
+
+        // single float value
+        case 'f':
+        case '1f':
+            gl.uniform1f(location, value);
+            break;
+
+        // Float32Array(2) or JS Arrray
+        case '2f':
+            gl.uniform2f(location, value[0], value[1]);
+            break;
+
+        // Float32Array(3) or JS Arrray
+        case '3f':
+            gl.uniform3f(location, value[0], value[1], value[2]);
+            break;
+
+        // Float32Array(4) or JS Arrray
+        case '4f':
+            gl.uniform4f(location, value[0], value[1], value[2], value[3]);
+            break;
+
+        // a 2D Point object
+        case 'v2':
+            gl.uniform2f(location, value.x, value.y);
+            break;
+
+        // a 3D Point object
+        case 'v3':
+            gl.uniform3f(location, value.x, value.y, value.z);
+            break;
+
+        // a 4D Point object
+        case 'v4':
+            gl.uniform4f(location, value.x, value.y, value.z, value.w);
+            break;
+
+        // Int32Array or JS Array
+        case '1iv':
+            gl.uniform1iv(location, value);
+            break;
+
+        // Int32Array or JS Array
+        case '2iv':
+            gl.uniform2iv(location, value);
+            break;
+
+        // Int32Array or JS Array
+        case '3iv':
+            gl.uniform3iv(location, value);
+            break;
+
+        // Int32Array or JS Array
+        case '4iv':
+            gl.uniform4iv(location, value);
+            break;
+
+        // Float32Array or JS Array
+        case '1fv':
+            gl.uniform1fv(location, value);
+            break;
+
+        // Float32Array or JS Array
+        case '2fv':
+            gl.uniform2fv(location, value);
+            break;
+
+        // Float32Array or JS Array
+        case '3fv':
+            gl.uniform3fv(location, value);
+            break;
+
+        // Float32Array or JS Array
+        case '4fv':
+            gl.uniform4fv(location, value);
+            break;
+
+        // Float32Array or JS Array
+        case 'm2':
+        case 'mat2':
+        case 'Matrix2fv':
+            gl.uniformMatrix2fv(location, uniform.transpose, value);
+            break;
+
+        // Float32Array or JS Array
+        case 'm3':
+        case 'mat3':
+        case 'Matrix3fv':
+
+            gl.uniformMatrix3fv(location, uniform.transpose, value);
+            break;
+
+        // Float32Array or JS Array
+        case 'm4':
+        case 'mat4':
+        case 'Matrix4fv':
+            gl.uniformMatrix4fv(location, uniform.transpose, value);
+            break;
+
+        // a Color Value
+        case 'c':
+            if (typeof value === 'number')
+            {
+                value = utils.hex2rgb(value);
+            }
+
+            gl.uniform3f(location, value[0], value[1], value[2]);
+            break;
+
+        // flat array of integers (JS or typed array)
+        case 'iv1':
+            gl.uniform1iv(location, value);
+            break;
+
+        // flat array of integers with 3 x N size (JS or typed array)
+        case 'iv':
+            gl.uniform3iv(location, value);
+            break;
+
+        // flat array of floats (JS or typed array)
+        case 'fv1':
+            gl.uniform1fv(location, value);
+            break;
+
+        // flat array of floats with 3 x N size (JS or typed array)
+        case 'fv':
+            gl.uniform3fv(location, value);
+            break;
+
+        // array of 2D Point objects
+        case 'v2v':
+            if (!uniform._array)
+            {
+                uniform._array = new Float32Array(2 * value.length);
+            }
+
+            for (i = 0, il = value.length; i < il; ++i)
+            {
+                uniform._array[i * 2]       = value[i].x;
+                uniform._array[i * 2 + 1]   = value[i].y;
+            }
+
+            gl.uniform2fv(location, uniform._array);
+            break;
+
+        // array of 3D Point objects
+        case 'v3v':
+            if (!uniform._array)
+            {
+                uniform._array = new Float32Array(3 * value.length);
+            }
+
+            for (i = 0, il = value.length; i < il; ++i)
+            {
+                uniform._array[i * 3]       = value[i].x;
+                uniform._array[i * 3 + 1]   = value[i].y;
+                uniform._array[i * 3 + 2]   = value[i].z;
+
+            }
+
+            gl.uniform3fv(location, uniform._array);
+            break;
+
+        // array of 4D Point objects
+        case 'v4v':
+            if (!uniform._array)
+            {
+                uniform._array = new Float32Array(4 * value.length);
+            }
+
+            for (i = 0, il = value.length; i < il; ++i)
+            {
+                uniform._array[i * 4]       = value[i].x;
+                uniform._array[i * 4 + 1]   = value[i].y;
+                uniform._array[i * 4 + 2]   = value[i].z;
+                uniform._array[i * 4 + 3]   = value[i].w;
+
+            }
+
+            gl.uniform4fv(location, uniform._array);
+            break;
+
+        // PIXI.Texture
+        case 't':
+        case 'sampler2D':
+
+            if (!uniform.value || !uniform.value.baseTexture.hasLoaded)
+            {
+                break;
+            }
+
+            // activate this texture
+            gl.activeTexture(gl['TEXTURE' + this.textureCount]);
+
+            var texture = uniform.value.baseTexture._glTextures[gl.id];
+
+            if (!texture)
+            {
+                this.initSampler2D(uniform);
+
+                // set the textur to the newly created one..
+                texture = uniform.value.baseTexture._glTextures[gl.id];
+            }
+
+            // bind the texture
+            gl.bindTexture(gl.TEXTURE_2D, texture);
+
+            // set uniform to texture index
+            gl.uniform1i(uniform._location, this.textureCount);
+
+            // increment next texture id
+            this.textureCount++;
+
+            break;
+
+        default:
+            console.warn('Pixi.js Shader Warning: Unknown uniform type: ' + uniform.type);
+    }
+};
+
+/**
+ * Updates the shader uniform values.
+ *
+ */
+Shader.prototype.syncUniforms = function ()
+{
+    this.textureCount = 1;
+
+    for (var key in this.uniforms)
+    {
+        this.syncUniform(this.uniforms[key]);
+    }
+};
+
+
+/**
+ * Initialises a Sampler2D uniform (which may only be available later on after initUniforms once the texture has loaded)
+ *
+ */
+Shader.prototype.initSampler2D = function (uniform)
+{
+    var gl = this.gl;
+
+    var texture = uniform.value.baseTexture;
+
+    if(!texture.hasLoaded)
+    {
+        return;
+    }
+
+
+
+    if (uniform.textureData)
+    {
+
+        //TODO move this...
+        var data = uniform.textureData;
+
+        texture._glTextures[gl.id] = gl.createTexture();
+
+        gl.bindTexture(gl.TEXTURE_2D, texture._glTextures[gl.id]);
+
+        gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, texture.premultipliedAlpha);
+        // GLTexture = mag linear, min linear_mipmap_linear, wrap repeat + gl.generateMipmap(gl.TEXTURE_2D);
+        // GLTextureLinear = mag/min linear, wrap clamp
+        // GLTextureNearestRepeat = mag/min NEAREST, wrap repeat
+        // GLTextureNearest = mag/min nearest, wrap clamp
+        // AudioTexture = whatever + luminance + width 512, height 2, border 0
+        // KeyTexture = whatever + luminance + width 256, height 2, border 0
+
+        //  magFilter can be: gl.LINEAR, gl.LINEAR_MIPMAP_LINEAR or gl.NEAREST
+        //  wrapS/T can be: gl.CLAMP_TO_EDGE or gl.REPEAT
+
+        gl.texImage2D(gl.TEXTURE_2D, 0, data.luminance ? gl.LUMINANCE : gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.source);
+
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, data.magFilter ? data.magFilter : gl.LINEAR );
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, data.wrapS ? data.wrapS : gl.CLAMP_TO_EDGE );
+
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, data.wrapS ? data.wrapS : gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, data.wrapT ? data.wrapT : gl.CLAMP_TO_EDGE);
+    }
+    else
+    {
+        this.shaderManager.renderer.updateTexture(texture);
+    }
+};
+
+/**
+ * Destroys the shader.
+ *
+ */
+Shader.prototype.destroy = function ()
+{
+    this.gl.deleteProgram(this.program);
+
+    this.gl = null;
+    this.uniforms = null;
+    this.attributes = null;
+
+    this.vertexSrc = null;
+    this.fragmentSrc = null;
+};
+
+Shader.prototype._glCompile = function (type, src)
+{
+    var shader = this.gl.createShader(type);
+
+    this.gl.shaderSource(shader, src);
+    this.gl.compileShader(shader);
+
+    if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS))
+    {
+        console.log(this.gl.getShaderInfoLog(shader));
+        return null;
+    }
+
+    return shader;
+};
+
+
+/***/ }),
+/* 20 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(__dirname) {var core = __webpack_require__(0);
+// @see https://github.com/substack/brfs/issues/25
+var fs = __webpack_require__(2);
+
+/**
+ * The BlurXFilter applies a horizontal Gaussian blur to an object.
+ *
+ * @class
+ * @extends PIXI.AbstractFilter
+ * @memberof PIXI.filters
+ */
+function BlurXFilter()
+{
+    core.AbstractFilter.call(this,
+        // vertex shader
+        fs.readFileSync(__dirname + '/blurX.vert', 'utf8'),
+        // fragment shader
+        fs.readFileSync(__dirname + '/blur.frag', 'utf8'),
+        // set the uniforms
+        {
+            strength: { type: '1f', value: 1 }
+        }
+    );
+
+    /**
+     * Sets the number of passes for blur. More passes means higher quaility bluring.
+     *
+     * @member {number}
+     * @default 1
+     */
+    this.passes = 1;
+
+    this.strength = 4;
+}
+
+BlurXFilter.prototype = Object.create(core.AbstractFilter.prototype);
+BlurXFilter.prototype.constructor = BlurXFilter;
+module.exports = BlurXFilter;
+
+BlurXFilter.prototype.applyFilter = function (renderer, input, output, clear)
+{
+    var shader = this.getShader(renderer);
+
+    this.uniforms.strength.value = this.strength / 4 / this.passes * (input.frame.width / input.size.width);
+
+    if(this.passes === 1)
+    {
+        renderer.filterManager.applyFilter(shader, input, output, clear);
+    }
+    else
+    {
+        var renderTarget = renderer.filterManager.getRenderTarget(true);
+        var flip = input;
+        var flop = renderTarget;
+
+        for(var i = 0; i < this.passes-1; i++)
+        {
+            renderer.filterManager.applyFilter(shader, flip, flop, true);
+
+           var temp = flop;
+           flop = flip;
+           flip = temp;
+        }
+
+        renderer.filterManager.applyFilter(shader, flip, output, clear);
+
+        renderer.filterManager.returnRenderTarget(renderTarget);
+    }
+};
+
+
+Object.defineProperties(BlurXFilter.prototype, {
+    /**
+     * Sets the strength of both the blur.
+     *
+     * @member {number}
+     * @memberof PIXI.filters.BlurXFilter#
+     * @default 2
+     */
+    blur: {
+        get: function ()
+        {
+            return  this.strength;
+        },
+        set: function (value)
+        {
+            this.padding =  Math.abs(value) * 0.5;
+            this.strength = value;
+        }
+    }
+});
+
+/* WEBPACK VAR INJECTION */}.call(exports, "/"))
+
+/***/ }),
+/* 21 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* eslint global-require: 0 */
+
+
+module.exports = __webpack_require__(151);
+module.exports.Resource = __webpack_require__(32);
+module.exports.middleware = {
+    caching: {
+        memory: __webpack_require__(152)
+    },
+    parsing: {
+        blob: __webpack_require__(153)
+    }
+};
+
+module.exports.async = __webpack_require__(58);
+
+
+/***/ }),
+/* 22 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var core = __webpack_require__(0),
+    tempPoint = new core.Point(),
+    tempPolygon = new core.Polygon();
+
+/**
+ * Base mesh class
+ * @class
+ * @extends PIXI.Container
+ * @memberof PIXI.mesh
+ * @param texture {PIXI.Texture} The texture to use
+ * @param [vertices] {Float32Array} if you want to specify the vertices
+ * @param [uvs] {Float32Array} if you want to specify the uvs
+ * @param [indices] {Uint16Array} if you want to specify the indices
+ * @param [drawMode] {number} the drawMode, can be any of the Mesh.DRAW_MODES consts
+ */
+function Mesh(texture, vertices, uvs, indices, drawMode)
+{
+    core.Container.call(this);
+
+    /**
+     * The texture of the Mesh
+     *
+     * @member {PIXI.Texture}
+     * @private
+     */
+    this._texture = null;
+
+    /**
+     * The Uvs of the Mesh
+     *
+     * @member {Float32Array}
+     */
+    this.uvs = uvs || new Float32Array([0, 0,
+        1, 0,
+        1, 1,
+        0, 1]);
+
+    /**
+     * An array of vertices
+     *
+     * @member {Float32Array}
+     */
+    this.vertices = vertices || new Float32Array([0, 0,
+        100, 0,
+        100, 100,
+        0, 100]);
+
+    /*
+     * @member {Uint16Array} An array containing the indices of the vertices
+     */
+    //  TODO auto generate this based on draw mode!
+    this.indices = indices || new Uint16Array([0, 1, 3, 2]);
+
+    /**
+     * Whether the Mesh is dirty or not
+     *
+     * @member {boolean}
+     */
+    this.dirty = true;
+
+    /**
+     * The blend mode to be applied to the sprite. Set to `PIXI.BLEND_MODES.NORMAL` to remove any blend mode.
+     *
+     * @member {number}
+     * @default PIXI.BLEND_MODES.NORMAL
+     * @see PIXI.BLEND_MODES
+     */
+    this.blendMode = core.BLEND_MODES.NORMAL;
+
+    /**
+     * Triangles in canvas mode are automatically antialiased, use this value to force triangles to overlap a bit with each other.
+     *
+     * @member {number}
+     */
+    this.canvasPadding = 0;
+
+    /**
+     * The way the Mesh should be drawn, can be any of the {@link PIXI.mesh.Mesh.DRAW_MODES} consts
+     *
+     * @member {number}
+     * @see PIXI.mesh.Mesh.DRAW_MODES
+     */
+    this.drawMode = drawMode || Mesh.DRAW_MODES.TRIANGLE_MESH;
+
+    // run texture setter;
+    this.texture = texture;
+
+     /**
+     * The default shader that is used if a mesh doesn't have a more specific one.
+     *
+     * @member {PIXI.Shader}
+     */
+    this.shader = null;
+}
+
+// constructor
+Mesh.prototype = Object.create(core.Container.prototype);
+Mesh.prototype.constructor = Mesh;
+module.exports = Mesh;
+
+Object.defineProperties(Mesh.prototype, {
+    /**
+     * The texture that the sprite is using
+     *
+     * @member {PIXI.Texture}
+     * @memberof PIXI.mesh.Mesh#
+     */
+    texture: {
+        get: function ()
+        {
+            return  this._texture;
+        },
+        set: function (value)
+        {
+            if (this._texture === value)
+            {
+                return;
+            }
+
+            this._texture = value;
+
+            if (value)
+            {
+                // wait for the texture to load
+                if (value.baseTexture.hasLoaded)
+                {
+                    this._onTextureUpdate();
+                }
+                else
+                {
+                    value.once('update', this._onTextureUpdate, this);
+                }
+            }
+        }
+    }
+});
+
+/**
+ * Renders the object using the WebGL renderer
+ *
+ * @param renderer {PIXI.WebGLRenderer} a reference to the WebGL renderer
+ * @private
+ */
+Mesh.prototype._renderWebGL = function (renderer)
+{
+    renderer.setObjectRenderer(renderer.plugins.mesh);
+    renderer.plugins.mesh.render(this);
+};
+
+/**
+ * Renders the object using the Canvas renderer
+ *
+ * @param renderer {PIXI.CanvasRenderer}
+ * @private
+ */
+Mesh.prototype._renderCanvas = function (renderer)
+{
+    var context = renderer.context;
+
+    var transform = this.worldTransform;
+    var res = renderer.resolution;
+
+    if (renderer.roundPixels)
+    {
+        context.setTransform(transform.a * res, transform.b * res, transform.c * res, transform.d * res, (transform.tx * res) | 0, (transform.ty * res) | 0);
+    }
+    else
+    {
+        context.setTransform(transform.a * res, transform.b * res, transform.c * res, transform.d * res, transform.tx * res, transform.ty * res);
+    }
+
+    if (this.drawMode === Mesh.DRAW_MODES.TRIANGLE_MESH)
+    {
+        this._renderCanvasTriangleMesh(context);
+    }
+    else
+    {
+        this._renderCanvasTriangles(context);
+    }
+};
+
+/**
+ * Draws the object in Triangle Mesh mode using canvas
+ *
+ * @param context {CanvasRenderingContext2D} the current drawing context
+ * @private
+ */
+Mesh.prototype._renderCanvasTriangleMesh = function (context)
+{
+    // draw triangles!!
+    var vertices = this.vertices;
+    var uvs = this.uvs;
+
+    var length = vertices.length / 2;
+    // this.count++;
+
+    for (var i = 0; i < length - 2; i++)
+    {
+        // draw some triangles!
+        var index = i * 2;
+        this._renderCanvasDrawTriangle(context, vertices, uvs, index, (index + 2), (index + 4));
+    }
+};
+
+/**
+ * Draws the object in triangle mode using canvas
+ *
+ * @param context {CanvasRenderingContext2D} the current drawing context
+ * @private
+ */
+Mesh.prototype._renderCanvasTriangles = function (context)
+{
+    // draw triangles!!
+    var vertices = this.vertices;
+    var uvs = this.uvs;
+    var indices = this.indices;
+
+    var length = indices.length;
+    // this.count++;
+
+    for (var i = 0; i < length; i += 3)
+    {
+        // draw some triangles!
+        var index0 = indices[i] * 2, index1 = indices[i + 1] * 2, index2 = indices[i + 2] * 2;
+        this._renderCanvasDrawTriangle(context, vertices, uvs, index0, index1, index2);
+    }
+};
+
+/**
+ * Draws one of the triangles that form this Mesh
+ *
+ * @param context {CanvasRenderingContext2D} the current drawing context
+ * @param vertices {Float32Array} a reference to the vertices of the Mesh
+ * @param uvs {Float32Array} a reference to the uvs of the Mesh
+ * @param index0 {number} the index of the first vertex
+ * @param index1 {number} the index of the second vertex
+ * @param index2 {number} the index of the third vertex
+ * @private
+ */
+Mesh.prototype._renderCanvasDrawTriangle = function (context, vertices, uvs, index0, index1, index2)
+{
+    var base = this._texture.baseTexture;
+    var textureSource = base.source;
+    var textureWidth = base.width;
+    var textureHeight = base.height;
+
+    var x0 = vertices[index0], x1 = vertices[index1], x2 = vertices[index2];
+    var y0 = vertices[index0 + 1], y1 = vertices[index1 + 1], y2 = vertices[index2 + 1];
+
+    var u0 = uvs[index0] * base.width, u1 = uvs[index1] * base.width, u2 = uvs[index2] * base.width;
+    var v0 = uvs[index0 + 1] * base.height, v1 = uvs[index1 + 1] * base.height, v2 = uvs[index2 + 1] * base.height;
+
+    if (this.canvasPadding > 0)
+    {
+        var paddingX = this.canvasPadding / this.worldTransform.a;
+        var paddingY = this.canvasPadding / this.worldTransform.d;
+        var centerX = (x0 + x1 + x2) / 3;
+        var centerY = (y0 + y1 + y2) / 3;
+
+        var normX = x0 - centerX;
+        var normY = y0 - centerY;
+
+        var dist = Math.sqrt(normX * normX + normY * normY);
+        x0 = centerX + (normX / dist) * (dist + paddingX);
+        y0 = centerY + (normY / dist) * (dist + paddingY);
+
+        //
+
+        normX = x1 - centerX;
+        normY = y1 - centerY;
+
+        dist = Math.sqrt(normX * normX + normY * normY);
+        x1 = centerX + (normX / dist) * (dist + paddingX);
+        y1 = centerY + (normY / dist) * (dist + paddingY);
+
+        normX = x2 - centerX;
+        normY = y2 - centerY;
+
+        dist = Math.sqrt(normX * normX + normY * normY);
+        x2 = centerX + (normX / dist) * (dist + paddingX);
+        y2 = centerY + (normY / dist) * (dist + paddingY);
+    }
+
+    context.save();
+    context.beginPath();
+
+
+    context.moveTo(x0, y0);
+    context.lineTo(x1, y1);
+    context.lineTo(x2, y2);
+
+    context.closePath();
+
+    context.clip();
+
+    // Compute matrix transform
+    var delta =  (u0 * v1)      + (v0 * u2)      + (u1 * v2)      - (v1 * u2)      - (v0 * u1)      - (u0 * v2);
+    var deltaA = (x0 * v1)      + (v0 * x2)      + (x1 * v2)      - (v1 * x2)      - (v0 * x1)      - (x0 * v2);
+    var deltaB = (u0 * x1)      + (x0 * u2)      + (u1 * x2)      - (x1 * u2)      - (x0 * u1)      - (u0 * x2);
+    var deltaC = (u0 * v1 * x2) + (v0 * x1 * u2) + (x0 * u1 * v2) - (x0 * v1 * u2) - (v0 * u1 * x2) - (u0 * x1 * v2);
+    var deltaD = (y0 * v1)      + (v0 * y2)      + (y1 * v2)      - (v1 * y2)      - (v0 * y1)      - (y0 * v2);
+    var deltaE = (u0 * y1)      + (y0 * u2)      + (u1 * y2)      - (y1 * u2)      - (y0 * u1)      - (u0 * y2);
+    var deltaF = (u0 * v1 * y2) + (v0 * y1 * u2) + (y0 * u1 * v2) - (y0 * v1 * u2) - (v0 * u1 * y2) - (u0 * y1 * v2);
+
+    context.transform(deltaA / delta, deltaD / delta,
+        deltaB / delta, deltaE / delta,
+        deltaC / delta, deltaF / delta);
+
+    context.drawImage(textureSource, 0, 0, textureWidth * base.resolution, textureHeight * base.resolution, 0, 0, textureWidth, textureHeight);
+    context.restore();
+};
+
+
+
+/**
+ * Renders a flat Mesh
+ *
+ * @param Mesh {PIXI.mesh.Mesh} The Mesh to render
+ * @private
+ */
+Mesh.prototype.renderMeshFlat = function (Mesh)
+{
+    var context = this.context;
+    var vertices = Mesh.vertices;
+
+    var length = vertices.length/2;
+    // this.count++;
+
+    context.beginPath();
+    for (var i=1; i < length-2; i++)
+    {
+        // draw some triangles!
+        var index = i*2;
+
+        var x0 = vertices[index],   x1 = vertices[index+2], x2 = vertices[index+4];
+        var y0 = vertices[index+1], y1 = vertices[index+3], y2 = vertices[index+5];
+
+        context.moveTo(x0, y0);
+        context.lineTo(x1, y1);
+        context.lineTo(x2, y2);
+    }
+
+    context.fillStyle = '#FF0000';
+    context.fill();
+    context.closePath();
+};
+
+/**
+ * When the texture is updated, this event will fire to update the scale and frame
+ *
+ * @param event
+ * @private
+ */
+Mesh.prototype._onTextureUpdate = function ()
+{
+    this.updateFrame = true;
+};
+
+/**
+ * Returns the bounds of the mesh as a rectangle. The bounds calculation takes the worldTransform into account.
+ *
+ * @param matrix {PIXI.Matrix} the transformation matrix of the sprite
+ * @return {PIXI.Rectangle} the framing rectangle
+ */
+Mesh.prototype.getBounds = function (matrix)
+{
+    if (!this._currentBounds) {
+        var worldTransform = matrix || this.worldTransform;
+
+        var a = worldTransform.a;
+        var b = worldTransform.b;
+        var c = worldTransform.c;
+        var d = worldTransform.d;
+        var tx = worldTransform.tx;
+        var ty = worldTransform.ty;
+
+        var maxX = -Infinity;
+        var maxY = -Infinity;
+
+        var minX = Infinity;
+        var minY = Infinity;
+
+        var vertices = this.vertices;
+        for (var i = 0, n = vertices.length; i < n; i += 2) {
+            var rawX = vertices[i], rawY = vertices[i + 1];
+            var x = (a * rawX) + (c * rawY) + tx;
+            var y = (d * rawY) + (b * rawX) + ty;
+
+            minX = x < minX ? x : minX;
+            minY = y < minY ? y : minY;
+
+            maxX = x > maxX ? x : maxX;
+            maxY = y > maxY ? y : maxY;
+        }
+
+        if (minX === -Infinity || maxY === Infinity) {
+            return core.Rectangle.EMPTY;
+        }
+
+        var bounds = this._bounds;
+
+        bounds.x = minX;
+        bounds.width = maxX - minX;
+
+        bounds.y = minY;
+        bounds.height = maxY - minY;
+
+        // store a reference so that if this function gets called again in the render cycle we do not have to recalculate
+        this._currentBounds = bounds;
+    }
+
+    return this._currentBounds;
+};
+
+/**
+ * Tests if a point is inside this mesh. Works only for TRIANGLE_MESH
+ *
+ * @param point {PIXI.Point} the point to test
+ * @return {boolean} the result of the test
+ */
+Mesh.prototype.containsPoint = function( point ) {
+    if (!this.getBounds().contains(point.x, point.y)) {
+        return false;
+    }
+    this.worldTransform.applyInverse(point,  tempPoint);
+
+    var vertices = this.vertices;
+    var points = tempPolygon.points;
+    var i, len;
+
+    if (this.drawMode === Mesh.DRAW_MODES.TRIANGLES) {
+        var indices = this.indices;
+        len = this.indices.length;
+        //TODO: inline this.
+        for (i=0;i<len;i+=3) {
+            var ind0 = indices[i]*2, ind1 = indices[i+1]*2, ind2 = indices[i+2]*2;
+            points[0] = vertices[ind0];
+            points[1] = vertices[ind0+1];
+            points[2] = vertices[ind1];
+            points[3] = vertices[ind1+1];
+            points[4] = vertices[ind2];
+            points[5] = vertices[ind2+1];
+            if (tempPolygon.contains(tempPoint.x, tempPoint.y)) {
+                return true;
+            }
+        }
+    } else {
+        len = vertices.length;
+        for (i=0;i<len;i+=6) {
+            points[0] = vertices[i];
+            points[1] = vertices[i+1];
+            points[2] = vertices[i+2];
+            points[3] = vertices[i+3];
+            points[4] = vertices[i+4];
+            points[5] = vertices[i+5];
+            if (tempPolygon.contains(tempPoint.x, tempPoint.y)) {
+                return true;
+            }
+        }
+    }
+    return false;
+};
+
+/**
+ * Different drawing buffer modes supported
+ *
+ * @static
+ * @constant
+ * @property {object} DRAW_MODES
+ * @property {number} DRAW_MODES.TRIANGLE_MESH
+ * @property {number} DRAW_MODES.TRIANGLES
+ */
+Mesh.DRAW_MODES = {
+    TRIANGLE_MESH: 0,
+    TRIANGLES: 1
+};
+
+
+/***/ }),
+/* 23 */
+/***/ (function(module, exports) {
+
+/**
+ * The Point object represents a location in a two-dimensional coordinate system, where x represents
+ * the horizontal axis and y represents the vertical axis.
+ *
+ * @class
+ * @memberof PIXI
+ * @param [x=0] {number} position of the point on the x axis
+ * @param [y=0] {number} position of the point on the y axis
+ */
+function Point(x, y)
+{
+    /**
+     * @member {number}
+     * @default 0
+     */
+    this.x = x || 0;
+
+    /**
+     * @member {number}
+     * @default 0
+     */
+    this.y = y || 0;
+}
+
+Point.prototype.constructor = Point;
+module.exports = Point;
+
+/**
+ * Creates a clone of this point
+ *
+ * @return {PIXI.Point} a copy of the point
+ */
+Point.prototype.clone = function ()
+{
+    return new Point(this.x, this.y);
+};
+
+/**
+ * Copies x and y from the given point
+ *
+ * @param p {PIXI.Point}
+ */
+Point.prototype.copy = function (p) {
+    this.set(p.x, p.y);
+};
+
+/**
+ * Returns true if the given point is equal to this point
+ *
+ * @param p {PIXI.Point}
+ * @returns {boolean}
+ */
+Point.prototype.equals = function (p) {
+    return (p.x === this.x) && (p.y === this.y);
+};
+
+/**
+ * Sets the point to a new x and y position.
+ * If y is omitted, both x and y will be set to x.
+ *
+ * @param [x=0] {number} position of the point on the x axis
+ * @param [y=0] {number} position of the point on the y axis
+ */
+Point.prototype.set = function (x, y)
+{
+    this.x = x || 0;
+    this.y = y || ( (y !== 0) ? this.x : 0 ) ;
+};
+
+
+/***/ }),
+/* 24 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var CONST = __webpack_require__(1);
+
+/**
+ * the Rectangle object is an area defined by its position, as indicated by its top-left corner point (x, y) and by its width and its height.
+ *
+ * @class
+ * @memberof PIXI
+ * @param x {number} The X coordinate of the upper-left corner of the rectangle
+ * @param y {number} The Y coordinate of the upper-left corner of the rectangle
+ * @param width {number} The overall width of this rectangle
+ * @param height {number} The overall height of this rectangle
+ */
+function Rectangle(x, y, width, height)
+{
+    /**
+     * @member {number}
+     * @default 0
+     */
+    this.x = x || 0;
+
+    /**
+     * @member {number}
+     * @default 0
+     */
+    this.y = y || 0;
+
+    /**
+     * @member {number}
+     * @default 0
+     */
+    this.width = width || 0;
+
+    /**
+     * @member {number}
+     * @default 0
+     */
+    this.height = height || 0;
+
+    /**
+     * The type of the object, mainly used to avoid `instanceof` checks
+     *
+     * @member {number}
+     */
+    this.type = CONST.SHAPES.RECT;
+}
+
+Rectangle.prototype.constructor = Rectangle;
+module.exports = Rectangle;
+
+/**
+ * A constant empty rectangle.
+ *
+ * @static
+ * @constant
+ */
+Rectangle.EMPTY = new Rectangle(0, 0, 0, 0);
+
+
+/**
+ * Creates a clone of this Rectangle
+ *
+ * @return {PIXI.Rectangle} a copy of the rectangle
+ */
+Rectangle.prototype.clone = function ()
+{
+    return new Rectangle(this.x, this.y, this.width, this.height);
+};
+
+/**
+ * Checks whether the x and y coordinates given are contained within this Rectangle
+ *
+ * @param x {number} The X coordinate of the point to test
+ * @param y {number} The Y coordinate of the point to test
+ * @return {boolean} Whether the x/y coordinates are within this Rectangle
+ */
+Rectangle.prototype.contains = function (x, y)
+{
+    if (this.width <= 0 || this.height <= 0)
+    {
+        return false;
+    }
+
+    if (x >= this.x && x < this.x + this.width)
+    {
+        if (y >= this.y && y < this.y + this.height)
+        {
+            return true;
+        }
+    }
+
+    return false;
+};
+
+
+/***/ }),
+/* 25 */
+/***/ (function(module, exports) {
+
+// shim for using process in browser
+var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+(function () {
+    try {
+        if (typeof setTimeout === 'function') {
+            cachedSetTimeout = setTimeout;
+        } else {
+            cachedSetTimeout = defaultSetTimout;
+        }
+    } catch (e) {
+        cachedSetTimeout = defaultSetTimout;
+    }
+    try {
+        if (typeof clearTimeout === 'function') {
+            cachedClearTimeout = clearTimeout;
+        } else {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    } catch (e) {
+        cachedClearTimeout = defaultClearTimeout;
+    }
+} ())
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+
+
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+
+
+
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+
+process.listeners = function (name) { return [] }
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
+
+/***/ }),
+/* 26 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var BaseTexture = __webpack_require__(14),
+    Texture = __webpack_require__(12),
+    RenderTarget = __webpack_require__(15),
+    FilterManager = __webpack_require__(41),
+    CanvasBuffer = __webpack_require__(27),
+    math = __webpack_require__(4),
+    CONST = __webpack_require__(1),
+    tempMatrix = new math.Matrix();
+
+/**
+ * A RenderTexture is a special texture that allows any Pixi display object to be rendered to it.
+ *
+ * __Hint__: All DisplayObjects (i.e. Sprites) that render to a RenderTexture should be preloaded
+ * otherwise black rectangles will be drawn instead.
+ *
+ * A RenderTexture takes a snapshot of any Display Object given to its render method. The position
+ * and rotation of the given Display Objects is ignored. For example:
+ *
+ * ```js
+ * var renderer = PIXI.autoDetectRenderer(1024, 1024, { view: canvas, ratio: 1 });
+ * var renderTexture = new PIXI.RenderTexture(renderer, 800, 600);
+ * var sprite = PIXI.Sprite.fromImage("spinObj_01.png");
+ *
+ * sprite.position.x = 800/2;
+ * sprite.position.y = 600/2;
+ * sprite.anchor.x = 0.5;
+ * sprite.anchor.y = 0.5;
+ *
+ * renderTexture.render(sprite);
+ * ```
+ *
+ * The Sprite in this case will be rendered to a position of 0,0. To render this sprite at its actual
+ * position a Container should be used:
+ *
+ * ```js
+ * var doc = new PIXI.Container();
+ *
+ * doc.addChild(sprite);
+ *
+ * renderTexture.render(doc);  // Renders to center of renderTexture
+ * ```
+ *
+ * @class
+ * @extends PIXI.Texture
+ * @memberof PIXI
+ * @param renderer {PIXI.CanvasRenderer|PIXI.WebGLRenderer} The renderer used for this RenderTexture
+ * @param [width=100] {number} The width of the render texture
+ * @param [height=100] {number} The height of the render texture
+ * @param [scaleMode] {number} See {@link PIXI.SCALE_MODES} for possible values
+ * @param [resolution=1] {number} The resolution of the texture being generated
+ */
+function RenderTexture(renderer, width, height, scaleMode, resolution)
+{
+    if (!renderer)
+    {
+        throw new Error('Unable to create RenderTexture, you must pass a renderer into the constructor.');
+    }
+
+    width = width || 100;
+    height = height || 100;
+    resolution = resolution || CONST.RESOLUTION;
+
+    /**
+     * The base texture object that this texture uses
+     *
+     * @member {BaseTexture}
+     */
+    var baseTexture = new BaseTexture();
+    baseTexture.width = width;
+    baseTexture.height = height;
+    baseTexture.resolution = resolution;
+    baseTexture.scaleMode = scaleMode || CONST.SCALE_MODES.DEFAULT;
+    baseTexture.hasLoaded = true;
+
+
+    Texture.call(this,
+        baseTexture,
+        new math.Rectangle(0, 0, width, height)
+    );
+
+
+    /**
+     * The with of the render texture
+     *
+     * @member {number}
+     */
+    this.width = width;
+
+    /**
+     * The height of the render texture
+     *
+     * @member {number}
+     */
+    this.height = height;
+
+    /**
+     * The Resolution of the texture.
+     *
+     * @member {number}
+     */
+    this.resolution = resolution;
+
+    /**
+     * Draw/render the given DisplayObject onto the texture.
+     *
+     * The displayObject and descendents are transformed during this operation.
+     * If `updateTransform` is true then the transformations will be restored before the
+     * method returns. Otherwise it is up to the calling code to correctly use or reset
+     * the transformed display objects.
+     *
+     * The display object is always rendered with a worldAlpha value of 1.
+     *
+     * @method
+     * @param displayObject {PIXI.DisplayObject} The display object to render this texture on
+     * @param [matrix] {PIXI.Matrix} Optional matrix to apply to the display object before rendering.
+     * @param [clear=false] {boolean} If true the texture will be cleared before the displayObject is drawn
+     * @param [updateTransform=true] {boolean} If true the displayObject's worldTransform/worldAlpha and all children
+     *  transformations will be restored. Not restoring this information will be a little faster.
+     */
+    this.render = null;
+
+    /**
+     * The renderer this RenderTexture uses. A RenderTexture can only belong to one renderer at the moment if its webGL.
+     *
+     * @member {PIXI.CanvasRenderer|PIXI.WebGLRenderer}
+     */
+    this.renderer = renderer;
+
+    if (this.renderer.type === CONST.RENDERER_TYPE.WEBGL)
+    {
+        var gl = this.renderer.gl;
+
+        this.textureBuffer = new RenderTarget(gl, this.width, this.height, baseTexture.scaleMode, this.resolution);//, this.baseTexture.scaleMode);
+        this.baseTexture._glTextures[gl.id] = this.textureBuffer.texture;
+
+        //TODO refactor filter manager.. as really its no longer a manager if we use it here..
+        this.filterManager = new FilterManager(this.renderer);
+        this.filterManager.onContextChange();
+        this.filterManager.resize(width, height);
+        this.render = this.renderWebGL;
+
+        // the creation of a filter manager unbinds the buffers..
+        this.renderer.currentRenderer.start();
+        this.renderer.currentRenderTarget.activate();
+    }
+    else
+    {
+
+        this.render = this.renderCanvas;
+        this.textureBuffer = new CanvasBuffer(this.width* this.resolution, this.height* this.resolution);
+        this.baseTexture.source = this.textureBuffer.canvas;
+    }
+
+    /**
+     * @member {boolean}
+     */
+    this.valid = true;
+
+    this._updateUvs();
+}
+
+RenderTexture.prototype = Object.create(Texture.prototype);
+RenderTexture.prototype.constructor = RenderTexture;
+module.exports = RenderTexture;
+
+/**
+ * Resizes the RenderTexture.
+ *
+ * @param width {number} The width to resize to.
+ * @param height {number} The height to resize to.
+ * @param updateBase {boolean} Should the baseTexture.width and height values be resized as well?
+ */
+RenderTexture.prototype.resize = function (width, height, updateBase)
+{
+    if (width === this.width && height === this.height)
+    {
+        return;
+    }
+
+    this.valid = (width > 0 && height > 0);
+
+    this.width = this._frame.width = this.crop.width = width;
+    this.height =  this._frame.height = this.crop.height = height;
+
+    if (updateBase)
+    {
+        this.baseTexture.width = this.width;
+        this.baseTexture.height = this.height;
+    }
+
+    if (!this.valid)
+    {
+        return;
+    }
+
+    this.textureBuffer.resize(this.width, this.height);
+
+    if(this.filterManager)
+    {
+        this.filterManager.resize(this.width, this.height);
+    }
+};
+
+/**
+ * Clears the RenderTexture.
+ *
+ */
+RenderTexture.prototype.clear = function ()
+{
+    if (!this.valid)
+    {
+        return;
+    }
+
+    if (this.renderer.type === CONST.RENDERER_TYPE.WEBGL)
+    {
+        this.renderer.gl.bindFramebuffer(this.renderer.gl.FRAMEBUFFER, this.textureBuffer.frameBuffer);
+    }
+
+    this.textureBuffer.clear();
+};
+
+/**
+ * Internal method assigned to the `render` property if using a CanvasRenderer.
+ *
+ * @private
+ * @param displayObject {PIXI.DisplayObject} The display object to render this texture on
+ * @param [matrix] {PIXI.Matrix} Optional matrix to apply to the display object before rendering.
+ * @param [clear=false] {boolean} If true the texture will be cleared before the displayObject is drawn
+ * @param [updateTransform=true] {boolean} If true the displayObject's worldTransform/worldAlpha and all children
+ *  transformations will be restored. Not restoring this information will be a little faster.
+ */
+RenderTexture.prototype.renderWebGL = function (displayObject, matrix, clear, updateTransform)
+{
+    if (!this.valid)
+    {
+        return;
+    }
+
+
+    updateTransform = (updateTransform !== undefined) ? updateTransform : true;//!updateTransform;
+
+    this.textureBuffer.transform = matrix;
+
+    //TODO not a fan that this is here... it will move!
+    this.textureBuffer.activate();
+
+    // setWorld Alpha to ensure that the object is renderer at full opacity
+    displayObject.worldAlpha = 1;
+
+    if (updateTransform)
+    {
+
+        // reset the matrix of the displatyObject..
+        displayObject.worldTransform.identity();
+
+        displayObject.currentBounds = null;
+
+        // Time to update all the children of the displayObject with the new matrix..
+        var children = displayObject.children;
+        var i, j;
+
+        for (i = 0, j = children.length; i < j; ++i)
+        {
+            children[i].updateTransform();
+        }
+    }
+
+    //TODO rename textureBuffer to renderTarget..
+    var temp =  this.renderer.filterManager;
+
+    this.renderer.filterManager = this.filterManager;
+    this.renderer.renderDisplayObject(displayObject, this.textureBuffer, clear);
+
+    this.renderer.filterManager = temp;
+};
+
+
+/**
+ * Internal method assigned to the `render` property if using a CanvasRenderer.
+ *
+ * @private
+ * @param displayObject {PIXI.DisplayObject} The display object to render this texture on
+ * @param [matrix] {PIXI.Matrix} Optional matrix to apply to the display object before rendering.
+ * @param [clear] {boolean} If true the texture will be cleared before the displayObject is drawn
+ */
+RenderTexture.prototype.renderCanvas = function (displayObject, matrix, clear, updateTransform)
+{
+    if (!this.valid)
+    {
+        return;
+    }
+
+    updateTransform = !!updateTransform;
+
+    var wt = tempMatrix;
+
+    wt.identity();
+
+    if (matrix)
+    {
+        wt.append(matrix);
+    }
+
+    var cachedWt = displayObject.worldTransform;
+    displayObject.worldTransform = wt;
+
+    // setWorld Alpha to ensure that the object is renderer at full opacity
+    displayObject.worldAlpha = 1;
+
+    // Time to update all the children of the displayObject with the new matrix..
+    var children = displayObject.children;
+    var i, j;
+
+    for (i = 0, j = children.length; i < j; ++i)
+    {
+        children[i].updateTransform();
+    }
+
+    if (clear)
+    {
+        this.textureBuffer.clear();
+    }
+
+
+//    this.textureBuffer.
+    var context = this.textureBuffer.context;
+
+    var realResolution = this.renderer.resolution;
+
+    this.renderer.resolution = this.resolution;
+
+    this.renderer.renderDisplayObject(displayObject, context);
+
+    this.renderer.resolution = realResolution;
+
+    if(displayObject.worldTransform === wt)
+    {
+        // fixes cacheAsBitmap Happening during the above..
+        displayObject.worldTransform = cachedWt;
+    }
+
+};
+
+/**
+ * Destroys this texture
+ *
+ * @param destroyBase {boolean} Whether to destroy the base texture as well
+ */
+RenderTexture.prototype.destroy = function ()
+{
+    Texture.prototype.destroy.call(this, true);
+
+    this.textureBuffer.destroy();
+
+    // destroy the filtermanager..
+    if(this.filterManager)
+    {
+        this.filterManager.destroy();
+    }
+
+    this.renderer = null;
+};
+
+/**
+ * Will return a HTML Image of the texture
+ *
+ * @return {Image}
+ */
+RenderTexture.prototype.getImage = function ()
+{
+    var image = new Image();
+    image.src = this.getBase64();
+    return image;
+};
+
+/**
+ * Will return a a base64 encoded string of this texture. It works by calling RenderTexture.getCanvas and then running toDataURL on that.
+ *
+ * @return {string} A base64 encoded string of the texture.
+ */
+RenderTexture.prototype.getBase64 = function ()
+{
+    return this.getCanvas().toDataURL();
+};
+
+/**
+ * Creates a Canvas element, renders this RenderTexture to it and then returns it.
+ *
+ * @return {HTMLCanvasElement} A Canvas element with the texture rendered on.
+ */
+RenderTexture.prototype.getCanvas = function ()
+{
+    if (this.renderer.type === CONST.RENDERER_TYPE.WEBGL)
+    {
+        var gl = this.renderer.gl;
+        var width = this.textureBuffer.size.width;
+        var height = this.textureBuffer.size.height;
+
+        var webGLPixels = new Uint8Array(4 * width * height);
+
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.textureBuffer.frameBuffer);
+        gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, webGLPixels);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+        var tempCanvas = new CanvasBuffer(width, height);
+        var canvasData = tempCanvas.context.getImageData(0, 0, width, height);
+        canvasData.data.set(webGLPixels);
+
+        tempCanvas.context.putImageData(canvasData, 0, 0);
+
+        return tempCanvas.canvas;
+    }
+    else
+    {
+        return this.textureBuffer.canvas;
+    }
+};
+
+/**
+ * Will return a one-dimensional array containing the pixel data of the entire texture in RGBA order, with integer values between 0 and 255 (included).
+ *
+ * @return {Uint8ClampedArray}
+ */
+RenderTexture.prototype.getPixels = function ()
+{
+    var width, height;
+
+    if (this.renderer.type === CONST.RENDERER_TYPE.WEBGL)
+    {
+        var gl = this.renderer.gl;
+        width = this.textureBuffer.size.width;
+        height = this.textureBuffer.size.height;
+
+        var webGLPixels = new Uint8Array(4 * width * height);
+
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.textureBuffer.frameBuffer);
+        gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, webGLPixels);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+        return webGLPixels;
+    }
+    else
+    {
+        width = this.textureBuffer.canvas.width;
+        height = this.textureBuffer.canvas.height;
+
+        return this.textureBuffer.canvas.getContext('2d').getImageData(0, 0, width, height).data;
+    }
+};
+
+/**
+ * Will return a one-dimensional array containing the pixel data of a pixel within the texture in RGBA order, with integer values between 0 and 255 (included).
+ *
+ * @param x {number} The x coordinate of the pixel to retrieve.
+ * @param y {number} The y coordinate of the pixel to retrieve.
+ * @return {Uint8ClampedArray}
+ */
+RenderTexture.prototype.getPixel = function (x, y)
+{
+    if (this.renderer.type === CONST.RENDERER_TYPE.WEBGL)
+    {
+        var gl = this.renderer.gl;
+
+        var webGLPixels = new Uint8Array(4);
+
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.textureBuffer.frameBuffer);
+        gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, webGLPixels);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+        return webGLPixels;
+    }
+    else
+    {
+        return this.textureBuffer.canvas.getContext('2d').getImageData(x, y, 1, 1).data;
+    }
+};
+
+
+/***/ }),
+/* 27 */
+/***/ (function(module, exports) {
+
+/**
+ * Creates a Canvas element of the given size.
+ *
+ * @class
+ * @memberof PIXI
+ * @param width {number} the width for the newly created canvas
+ * @param height {number} the height for the newly created canvas
+ */
+function CanvasBuffer(width, height)
+{
+    /**
+     * The Canvas object that belongs to this CanvasBuffer.
+     *
+     * @member {HTMLCanvasElement}
+     */
+    this.canvas = document.createElement('canvas');
+
+    /**
+     * A CanvasRenderingContext2D object representing a two-dimensional rendering context.
+     *
+     * @member {CanvasRenderingContext2D}
+     */
+    this.context = this.canvas.getContext('2d');
+
+    this.canvas.width = width;
+    this.canvas.height = height;
+}
+
+CanvasBuffer.prototype.constructor = CanvasBuffer;
+module.exports = CanvasBuffer;
+
+Object.defineProperties(CanvasBuffer.prototype, {
+    /**
+     * The width of the canvas buffer in pixels.
+     *
+     * @member {number}
+     * @memberof PIXI.CanvasBuffer#
+     */
+    width: {
+        get: function ()
+        {
+            return this.canvas.width;
+        },
+        set: function (val)
+        {
+            this.canvas.width = val;
+        }
+    },
+    /**
+     * The height of the canvas buffer in pixels.
+     *
+     * @member {number}
+     * @memberof PIXI.CanvasBuffer#
+     */
+    height: {
+        get: function ()
+        {
+            return this.canvas.height;
+        },
+        set: function (val)
+        {
+            this.canvas.height = val;
+        }
+    }
+});
+
+/**
+ * Clears the canvas that was created by the CanvasBuffer class.
+ *
+ * @private
+ */
+CanvasBuffer.prototype.clear = function ()
+{
+    this.context.setTransform(1, 0, 0, 1, 0, 0);
+    this.context.clearRect(0,0, this.canvas.width, this.canvas.height);
+};
+
+/**
+ * Resizes the canvas to the specified width and height.
+ *
+ * @param width {number} the new width of the canvas
+ * @param height {number} the new height of the canvas
+ */
+CanvasBuffer.prototype.resize = function (width, height)
+{
+    this.canvas.width = width;
+    this.canvas.height = height;
+};
+
+/**
+ * Destroys this canvas.
+ *
+ */
+CanvasBuffer.prototype.destroy = function ()
+{
+    this.context = null;
+    this.canvas = null;
+};
+
+
+/***/ }),
+/* 28 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var DefaultShader = __webpack_require__(18);
+
+/**
+ * This is the base class for creating a PIXI filter. Currently only WebGL supports filters.
+ * If you want to make a custom filter this should be your base class.
+ *
+ * @class
+ * @memberof PIXI
+ * @param vertexSrc {string|string[]} The vertex shader source as an array of strings.
+ * @param fragmentSrc {string|string[]} The fragment shader source as an array of strings.
+ * @param uniforms {object} An object containing the uniforms for this filter.
+ */
+function AbstractFilter(vertexSrc, fragmentSrc, uniforms)
+{
+
+    /**
+     * An array of shaders
+     * @member {PIXI.Shader[]}
+     * @private
+     */
+    this.shaders = [];
+
+    /**
+     * The extra padding that the filter might need
+     * @member {number}
+     */
+    this.padding = 0;
+
+    /**
+     * The uniforms as an object
+     * @member {object}
+     */
+    this.uniforms = uniforms || {};
+
+
+    /**
+     * The code of the vertex shader
+     * @member {string[]}
+     * @private
+     */
+    this.vertexSrc = vertexSrc || DefaultShader.defaultVertexSrc;
+
+    /**
+     * The code of the frament shader
+     * @member {string[]}
+     * @private
+     */
+    this.fragmentSrc = fragmentSrc || DefaultShader.defaultFragmentSrc;
+
+    //TODO a reminder - would be cool to have lower res filters as this would give better performance.
+
+    //typeof fragmentSrc === 'string' ? fragmentSrc.split('') : (fragmentSrc || []);
+
+}
+
+AbstractFilter.prototype.constructor = AbstractFilter;
+module.exports = AbstractFilter;
+
+/**
+ * Grabs a shader from the current renderer
+ *
+ * @param renderer {PIXI.WebGLRenderer} The renderer to retrieve the shader from
+ */
+AbstractFilter.prototype.getShader = function (renderer)
+{
+    var gl = renderer.gl;
+
+    var shader = this.shaders[gl.id];
+
+    if (!shader)
+    {
+        shader = new DefaultShader(renderer.shaderManager,
+            this.vertexSrc,
+            this.fragmentSrc,
+            this.uniforms,
+            this.attributes
+        );
+
+        this.shaders[gl.id] = shader;
+    }
+
+    return shader;
+};
+
+/**
+ * Applies the filter
+ *
+ * @param renderer {PIXI.WebGLRenderer} The renderer to retrieve the filter from
+ * @param input {PIXI.RenderTarget}
+ * @param output {PIXI.RenderTarget}
+ * @param clear {boolean} Whether or not we want to clear the outputTarget
+ */
+AbstractFilter.prototype.applyFilter = function (renderer, input, output, clear)
+{
+    var shader = this.getShader(renderer);
+
+    renderer.filterManager.applyFilter(shader, input, output, clear);
+};
+
+/**
+ * Syncs a uniform between the class object and the shaders.
+ *
+ */
+AbstractFilter.prototype.syncUniform = function (uniform)
+{
+    for (var i = 0, j = this.shaders.length; i < j; ++i)
+    {
+        this.shaders[i].syncUniform(uniform);
+    }
+};
+
+
+/***/ }),
+/* 29 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var CONST = __webpack_require__(1);
+
+/**
+ * A set of functions used by the canvas renderer to draw the primitive graphics data.
+ * @static
+ * @class
+ * @memberof PIXI
+ */
+var CanvasGraphics = {};
+module.exports = CanvasGraphics;
+
+/*
+ * Renders a Graphics object to a canvas.
+ *
+ * @param graphics {PIXI.Graphics} the actual graphics object to render
+ * @param context {CanvasRenderingContext2D} the 2d drawing method of the canvas
+ */
+CanvasGraphics.renderGraphics = function (graphics, context)
+{
+    var worldAlpha = graphics.worldAlpha;
+
+    if (graphics.dirty)
+    {
+        this.updateGraphicsTint(graphics);
+        graphics.dirty = false;
+    }
+
+    for (var i = 0; i < graphics.graphicsData.length; i++)
+    {
+        var data = graphics.graphicsData[i];
+        var shape = data.shape;
+
+        var fillColor = data._fillTint;
+        var lineColor = data._lineTint;
+
+        context.lineWidth = data.lineWidth;
+
+        if (data.type === CONST.SHAPES.POLY)
+        {
+            context.beginPath();
+
+            var points = shape.points;
+
+            context.moveTo(points[0], points[1]);
+
+            for (var j=1; j < points.length/2; j++)
+            {
+                context.lineTo(points[j * 2], points[j * 2 + 1]);
+            }
+
+            if (shape.closed)
+            {
+                context.lineTo(points[0], points[1]);
+            }
+
+            // if the first and last point are the same close the path - much neater :)
+            if (points[0] === points[points.length-2] && points[1] === points[points.length-1])
+            {
+                context.closePath();
+            }
+
+            if (data.fill)
+            {
+                context.globalAlpha = data.fillAlpha * worldAlpha;
+                context.fillStyle = '#' + ('00000' + ( fillColor | 0).toString(16)).substr(-6);
+                context.fill();
+            }
+            if (data.lineWidth)
+            {
+                context.globalAlpha = data.lineAlpha * worldAlpha;
+                context.strokeStyle = '#' + ('00000' + ( lineColor | 0).toString(16)).substr(-6);
+                context.stroke();
+            }
+        }
+        else if (data.type === CONST.SHAPES.RECT)
+        {
+
+            if (data.fillColor || data.fillColor === 0)
+            {
+                context.globalAlpha = data.fillAlpha * worldAlpha;
+                context.fillStyle = '#' + ('00000' + ( fillColor | 0).toString(16)).substr(-6);
+                context.fillRect(shape.x, shape.y, shape.width, shape.height);
+
+            }
+            if (data.lineWidth)
+            {
+                context.globalAlpha = data.lineAlpha * worldAlpha;
+                context.strokeStyle = '#' + ('00000' + ( lineColor | 0).toString(16)).substr(-6);
+                context.strokeRect(shape.x, shape.y, shape.width, shape.height);
+            }
+        }
+        else if (data.type === CONST.SHAPES.CIRC)
+        {
+            // TODO - need to be Undefined!
+            context.beginPath();
+            context.arc(shape.x, shape.y, shape.radius,0,2*Math.PI);
+            context.closePath();
+
+            if (data.fill)
+            {
+                context.globalAlpha = data.fillAlpha * worldAlpha;
+                context.fillStyle = '#' + ('00000' + ( fillColor | 0).toString(16)).substr(-6);
+                context.fill();
+            }
+            if (data.lineWidth)
+            {
+                context.globalAlpha = data.lineAlpha * worldAlpha;
+                context.strokeStyle = '#' + ('00000' + ( lineColor | 0).toString(16)).substr(-6);
+                context.stroke();
+            }
+        }
+        else if (data.type === CONST.SHAPES.ELIP)
+        {
+            // ellipse code taken from: http://stackoverflow.com/questions/2172798/how-to-draw-an-oval-in-html5-canvas
+
+            var w = shape.width * 2;
+            var h = shape.height * 2;
+
+            var x = shape.x - w/2;
+            var y = shape.y - h/2;
+
+            context.beginPath();
+
+            var kappa = 0.5522848,
+                ox = (w / 2) * kappa, // control point offset horizontal
+                oy = (h / 2) * kappa, // control point offset vertical
+                xe = x + w,           // x-end
+                ye = y + h,           // y-end
+                xm = x + w / 2,       // x-middle
+                ym = y + h / 2;       // y-middle
+
+            context.moveTo(x, ym);
+            context.bezierCurveTo(x, ym - oy, xm - ox, y, xm, y);
+            context.bezierCurveTo(xm + ox, y, xe, ym - oy, xe, ym);
+            context.bezierCurveTo(xe, ym + oy, xm + ox, ye, xm, ye);
+            context.bezierCurveTo(xm - ox, ye, x, ym + oy, x, ym);
+
+            context.closePath();
+
+            if (data.fill)
+            {
+                context.globalAlpha = data.fillAlpha * worldAlpha;
+                context.fillStyle = '#' + ('00000' + ( fillColor | 0).toString(16)).substr(-6);
+                context.fill();
+            }
+            if (data.lineWidth)
+            {
+                context.globalAlpha = data.lineAlpha * worldAlpha;
+                context.strokeStyle = '#' + ('00000' + ( lineColor | 0).toString(16)).substr(-6);
+                context.stroke();
+            }
+        }
+        else if (data.type === CONST.SHAPES.RREC)
+        {
+            var rx = shape.x;
+            var ry = shape.y;
+            var width = shape.width;
+            var height = shape.height;
+            var radius = shape.radius;
+
+            var maxRadius = Math.min(width, height) / 2 | 0;
+            radius = radius > maxRadius ? maxRadius : radius;
+
+            context.beginPath();
+            context.moveTo(rx, ry + radius);
+            context.lineTo(rx, ry + height - radius);
+            context.quadraticCurveTo(rx, ry + height, rx + radius, ry + height);
+            context.lineTo(rx + width - radius, ry + height);
+            context.quadraticCurveTo(rx + width, ry + height, rx + width, ry + height - radius);
+            context.lineTo(rx + width, ry + radius);
+            context.quadraticCurveTo(rx + width, ry, rx + width - radius, ry);
+            context.lineTo(rx + radius, ry);
+            context.quadraticCurveTo(rx, ry, rx, ry + radius);
+            context.closePath();
+
+            if (data.fillColor || data.fillColor === 0)
+            {
+                context.globalAlpha = data.fillAlpha * worldAlpha;
+                context.fillStyle = '#' + ('00000' + ( fillColor | 0).toString(16)).substr(-6);
+                context.fill();
+
+            }
+            if (data.lineWidth)
+            {
+                context.globalAlpha = data.lineAlpha * worldAlpha;
+                context.strokeStyle = '#' + ('00000' + ( lineColor | 0).toString(16)).substr(-6);
+                context.stroke();
+            }
+        }
+    }
+};
+
+/*
+ * Renders a graphics mask
+ *
+ * @private
+ * @param graphics {PIXI.Graphics} the graphics which will be used as a mask
+ * @param context {CanvasRenderingContext2D} the context 2d method of the canvas
+ */
+CanvasGraphics.renderGraphicsMask = function (graphics, context)
+{
+    var len = graphics.graphicsData.length;
+
+    if (len === 0)
+    {
+        return;
+    }
+
+    context.beginPath();
+
+    for (var i = 0; i < len; i++)
+    {
+        var data = graphics.graphicsData[i];
+        var shape = data.shape;
+
+        if (data.type === CONST.SHAPES.POLY)
+        {
+
+            var points = shape.points;
+
+            context.moveTo(points[0], points[1]);
+
+            for (var j=1; j < points.length/2; j++)
+            {
+                context.lineTo(points[j * 2], points[j * 2 + 1]);
+            }
+
+            // if the first and last point are the same close the path - much neater :)
+            if (points[0] === points[points.length-2] && points[1] === points[points.length-1])
+            {
+                context.closePath();
+            }
+
+        }
+        else if (data.type === CONST.SHAPES.RECT)
+        {
+            context.rect(shape.x, shape.y, shape.width, shape.height);
+            context.closePath();
+        }
+        else if (data.type === CONST.SHAPES.CIRC)
+        {
+            // TODO - need to be Undefined!
+            context.arc(shape.x, shape.y, shape.radius, 0, 2 * Math.PI);
+            context.closePath();
+        }
+        else if (data.type === CONST.SHAPES.ELIP)
+        {
+
+            // ellipse code taken from: http://stackoverflow.com/questions/2172798/how-to-draw-an-oval-in-html5-canvas
+
+            var w = shape.width * 2;
+            var h = shape.height * 2;
+
+            var x = shape.x - w/2;
+            var y = shape.y - h/2;
+
+            var kappa = 0.5522848,
+                ox = (w / 2) * kappa, // control point offset horizontal
+                oy = (h / 2) * kappa, // control point offset vertical
+                xe = x + w,           // x-end
+                ye = y + h,           // y-end
+                xm = x + w / 2,       // x-middle
+                ym = y + h / 2;       // y-middle
+
+            context.moveTo(x, ym);
+            context.bezierCurveTo(x, ym - oy, xm - ox, y, xm, y);
+            context.bezierCurveTo(xm + ox, y, xe, ym - oy, xe, ym);
+            context.bezierCurveTo(xe, ym + oy, xm + ox, ye, xm, ye);
+            context.bezierCurveTo(xm - ox, ye, x, ym + oy, x, ym);
+            context.closePath();
+        }
+        else if (data.type === CONST.SHAPES.RREC)
+        {
+
+            var rx = shape.x;
+            var ry = shape.y;
+            var width = shape.width;
+            var height = shape.height;
+            var radius = shape.radius;
+
+            var maxRadius = Math.min(width, height) / 2 | 0;
+            radius = radius > maxRadius ? maxRadius : radius;
+
+            context.moveTo(rx, ry + radius);
+            context.lineTo(rx, ry + height - radius);
+            context.quadraticCurveTo(rx, ry + height, rx + radius, ry + height);
+            context.lineTo(rx + width - radius, ry + height);
+            context.quadraticCurveTo(rx + width, ry + height, rx + width, ry + height - radius);
+            context.lineTo(rx + width, ry + radius);
+            context.quadraticCurveTo(rx + width, ry, rx + width - radius, ry);
+            context.lineTo(rx + radius, ry);
+            context.quadraticCurveTo(rx, ry, rx, ry + radius);
+            context.closePath();
+        }
+    }
+};
+
+/*
+ * Updates the tint of a graphics object
+ *
+ * @private
+ * @param graphics {PIXI.Graphics} the graphics that will have its tint updated
+ *
+ */
+CanvasGraphics.updateGraphicsTint = function (graphics)
+{
+    if (graphics.tint === 0xFFFFFF && graphics._prevTint === graphics.tint)
+    {
+        return;
+    }
+    graphics._prevTint = graphics.tint;
+
+    var tintR = (graphics.tint >> 16 & 0xFF) / 255;
+    var tintG = (graphics.tint >> 8 & 0xFF) / 255;
+    var tintB = (graphics.tint & 0xFF)/ 255;
+
+    for (var i = 0; i < graphics.graphicsData.length; i++)
+    {
+        var data = graphics.graphicsData[i];
+
+        var fillColor = data.fillColor | 0;
+        var lineColor = data.lineColor | 0;
+
+        /*
+        var colorR = (fillColor >> 16 & 0xFF) / 255;
+        var colorG = (fillColor >> 8 & 0xFF) / 255;
+        var colorB = (fillColor & 0xFF) / 255;
+
+        colorR *= tintR;
+        colorG *= tintG;
+        colorB *= tintB;
+
+        fillColor = ((colorR*255 << 16) + (colorG*255 << 8) + colorB*255);
+
+        colorR = (lineColor >> 16 & 0xFF) / 255;
+        colorG = (lineColor >> 8 & 0xFF) / 255;
+        colorB = (lineColor & 0xFF) / 255;
+
+        colorR *= tintR;
+        colorG *= tintG;
+        colorB *= tintB;
+
+        lineColor = ((colorR*255 << 16) + (colorG*255 << 8) + colorB*255);
+        */
+
+        // super inline cos im an optimization NAZI :)
+        data._fillTint = (((fillColor >> 16 & 0xFF) / 255 * tintR*255 << 16) + ((fillColor >> 8 & 0xFF) / 255 * tintG*255 << 8) +  (fillColor & 0xFF) / 255 * tintB*255);
+        data._lineTint = (((lineColor >> 16 & 0xFF) / 255 * tintR*255 << 16) + ((lineColor >> 8 & 0xFF) / 255 * tintG*255 << 8) +  (lineColor & 0xFF) / 255 * tintB*255);
+
+    }
+};
+
+
+
+/***/ }),
+/* 30 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * @file        Main export of the PIXI extras library
+ * @author      Mat Groves <mat@goodboydigital.com>
+ * @copyright   2013-2015 GoodBoyDigital
+ * @license     {@link https://github.com/pixijs/pixi.js/blob/master/LICENSE|MIT License}
+ */
+
+__webpack_require__(119);
+__webpack_require__(120);
+__webpack_require__(121);
+
+/**
+ * @namespace PIXI.extras
+ */
+module.exports = {
+    MovieClip:      __webpack_require__(122),
+    TilingSprite:   __webpack_require__(123),
+    BitmapText:     __webpack_require__(124)
+};
+
+
+/***/ }),
+/* 31 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(__dirname) {var core = __webpack_require__(0);
+// @see https://github.com/substack/brfs/issues/25
+var fs = __webpack_require__(2);
+
+/**
+ * The BlurYFilter applies a horizontal Gaussian blur to an object.
+ *
+ * @class
+ * @extends PIXI.AbstractFilter
+ * @memberof PIXI.filters
+ */
+function BlurYFilter()
+{
+    core.AbstractFilter.call(this,
+        // vertex shader
+        fs.readFileSync(__dirname + '/blurY.vert', 'utf8'),
+        // fragment shader
+        fs.readFileSync(__dirname + '/blur.frag', 'utf8'),
+        // set the uniforms
+        {
+            strength: { type: '1f', value: 1 }
+        }
+    );
+
+    this.passes = 1;
+    this.strength = 4;
+}
+
+BlurYFilter.prototype = Object.create(core.AbstractFilter.prototype);
+BlurYFilter.prototype.constructor = BlurYFilter;
+module.exports = BlurYFilter;
+
+BlurYFilter.prototype.applyFilter = function (renderer, input, output, clear)
+{
+    var shader = this.getShader(renderer);
+
+    this.uniforms.strength.value = Math.abs(this.strength) / 4 / this.passes * (input.frame.height / input.size.height);
+
+    if(this.passes === 1)
+    {
+        renderer.filterManager.applyFilter(shader, input, output, clear);
+    }
+    else
+    {
+        var renderTarget = renderer.filterManager.getRenderTarget(true);
+        var flip = input;
+        var flop = renderTarget;
+
+        for(var i = 0; i < this.passes-1; i++)
+        {
+            renderer.filterManager.applyFilter(shader, flip, flop, true);
+
+           var temp = flop;
+           flop = flip;
+           flip = temp;
+        }
+
+        renderer.filterManager.applyFilter(shader, flip, output, clear);
+
+        renderer.filterManager.returnRenderTarget(renderTarget);
+    }
+};
+
+
+Object.defineProperties(BlurYFilter.prototype, {
+    /**
+     * Sets the strength of both the blur.
+     *
+     * @member {number}
+     * @memberof PIXI.filters.BlurYFilter#
+     * @default 2
+     */
+    blur: {
+        get: function ()
+        {
+            return  this.strength;
+        },
+        set: function (value)
+        {
+            this.padding = Math.abs(value) * 0.5;
+            this.strength = value;
+        }
+    }
+});
+
+/* WEBPACK VAR INJECTION */}.call(exports, "/"))
+
+/***/ }),
+/* 32 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var EventEmitter    = __webpack_require__(59);
+var parseUri        = __webpack_require__(57);
+
+// tests is CORS is supported in XHR, if not we need to use XDR
+var useXdr = !!(window.XDomainRequest && !('withCredentials' in (new XMLHttpRequest())));
+var tempAnchor = null;
+
+// some status constants
+var STATUS_NONE = 0;
+var STATUS_OK = 200;
+var STATUS_EMPTY = 204;
+
+/**
+ * Manages the state and loading of a single resource represented by
+ * a single URL.
+ *
+ * @class
+ * @param {string} name - The name of the resource to load.
+ * @param {string|string[]} url - The url for this resource, for audio/video loads you can pass an array of sources.
+ * @param {object} [options] - The options for the load.
+ * @param {string|boolean} [options.crossOrigin] - Is this request cross-origin? Default is to determine automatically.
+ * @param {Resource.LOAD_TYPE} [options.loadType=Resource.LOAD_TYPE.XHR] - How should this resource be loaded?
+ * @param {Resource.XHR_RESPONSE_TYPE} [options.xhrType=Resource.XHR_RESPONSE_TYPE.DEFAULT] - How should the data being
+ *      loaded be interpreted when using XHR?
+ * @param {object} [options.metadata] - Extra info for middleware.
+ */
+function Resource(name, url, options) {
+    EventEmitter.call(this);
+
+    options = options || {};
+
+    if (typeof name !== 'string' || typeof url !== 'string') {
+        throw new Error('Both name and url are required for constructing a resource.');
+    }
+
+    /**
+     * The name of this resource.
+     *
+     * @member {string}
+     * @readonly
+     */
+    this.name = name;
+
+    /**
+     * The url used to load this resource.
+     *
+     * @member {string}
+     * @readonly
+     */
+    this.url = url;
+
+    /**
+     * Stores whether or not this url is a data url.
+     *
+     * @member {boolean}
+     * @readonly
+     */
+    this.isDataUrl = this.url.indexOf('data:') === 0;
+
+    /**
+     * The data that was loaded by the resource.
+     *
+     * @member {any}
+     */
+    this.data = null;
+
+    /**
+     * Is this request cross-origin? If unset, determined automatically.
+     *
+     * @member {string}
+     */
+    this.crossOrigin = options.crossOrigin === true ? 'anonymous' : options.crossOrigin;
+
+    /**
+     * The method of loading to use for this resource.
+     *
+     * @member {Resource.LOAD_TYPE}
+     */
+    this.loadType = options.loadType || this._determineLoadType();
+
+    /**
+     * The type used to load the resource via XHR. If unset, determined automatically.
+     *
+     * @member {string}
+     */
+    this.xhrType = options.xhrType;
+
+    /**
+     * Extra info for middleware, and controlling specifics about how the resource loads.
+     *
+     * Note that if you pass in a `loadElement`, the Resource class takes ownership of it.
+     * Meaning it will modify it as it sees fit.
+     *
+     * @member {object}
+     * @property {HTMLImageElement|HTMLAudioElement|HTMLVideoElement} [loadElement=null] - The
+     *  element to use for loading, instead of creating one.
+     * @property {boolean} [skipSource=false] - Skips adding source(s) to the load element. This
+     *  is useful if you want to pass in a `loadElement` that you already added load sources
+     *  to.
+     */
+    this.metadata = options.metadata || {};
+
+    /**
+     * The error that occurred while loading (if any).
+     *
+     * @member {Error}
+     * @readonly
+     */
+    this.error = null;
+
+    /**
+     * The XHR object that was used to load this resource. This is only set
+     * when `loadType` is `Resource.LOAD_TYPE.XHR`.
+     *
+     * @member {XMLHttpRequest}
+     */
+    this.xhr = null;
+
+    /**
+     * Describes if this resource was loaded as json. Only valid after the resource
+     * has completely loaded.
+     *
+     * @member {boolean}
+     */
+    this.isJson = false;
+
+    /**
+     * Describes if this resource was loaded as xml. Only valid after the resource
+     * has completely loaded.
+     *
+     * @member {boolean}
+     */
+    this.isXml = false;
+
+    /**
+     * Describes if this resource was loaded as an image tag. Only valid after the resource
+     * has completely loaded.
+     *
+     * @member {boolean}
+     */
+    this.isImage = false;
+
+    /**
+     * Describes if this resource was loaded as an audio tag. Only valid after the resource
+     * has completely loaded.
+     *
+     * @member {boolean}
+     */
+    this.isAudio = false;
+
+    /**
+     * Describes if this resource was loaded as a video tag. Only valid after the resource
+     * has completely loaded.
+     *
+     * @member {boolean}
+     */
+    this.isVideo = false;
+
+    /**
+     * Describes if this resource has finished loading. Is true when the resource has completely
+     * loaded.
+     *
+     * @member {boolean}
+     */
+    this.isComplete = false;
+
+    /**
+     * Describes if this resource is currently loading. Is true when the resource starts loading,
+     * and is false again when complete.
+     *
+     * @member {boolean}
+     */
+    this.isLoading = false;
+
+    /**
+     * The `dequeue` method that will be used a storage place for the async queue dequeue method
+     * used privately by the loader.
+     *
+     * @private
+     * @member {function}
+     */
+    this._dequeue = null;
+
+    /**
+     * The `complete` function bound to this resource's context.
+     *
+     * @private
+     * @member {function}
+     */
+    this._boundComplete = this.complete.bind(this);
+
+    /**
+     * The `_onError` function bound to this resource's context.
+     *
+     * @private
+     * @member {function}
+     */
+    this._boundOnError = this._onError.bind(this);
+
+    /**
+     * The `_onProgress` function bound to this resource's context.
+     *
+     * @private
+     * @member {function}
+     */
+    this._boundOnProgress = this._onProgress.bind(this);
+
+    // xhr callbacks
+    this._boundXhrOnError = this._xhrOnError.bind(this);
+    this._boundXhrOnAbort = this._xhrOnAbort.bind(this);
+    this._boundXhrOnLoad = this._xhrOnLoad.bind(this);
+    this._boundXdrOnTimeout = this._xdrOnTimeout.bind(this);
+
+    /**
+     * Emitted when the resource beings to load.
+     *
+     * @event start
+     * @memberof Resource#
+     */
+
+    /**
+     * Emitted each time progress of this resource load updates.
+     * Not all resources types and loader systems can support this event
+     * so sometimes it may not be available. If the resource
+     * is being loaded on a modern browser, using XHR, and the remote server
+     * properly sets Content-Length headers, then this will be available.
+     *
+     * @event progress
+     * @memberof Resource#
+     */
+
+    /**
+     * Emitted once this resource has loaded, if there was an error it will
+     * be in the `error` property.
+     *
+     * @event complete
+     * @memberof Resource#
+     */
+}
+
+Resource.prototype = Object.create(EventEmitter.prototype);
+Resource.prototype.constructor = Resource;
+module.exports = Resource;
+
+/**
+ * Marks the resource as complete.
+ *
+ * @fires complete
+ */
+Resource.prototype.complete = function () {
+    // TODO: Clean this up in a wrapper or something...gross....
+    if (this.data && this.data.removeEventListener) {
+        this.data.removeEventListener('error', this._boundOnError, false);
+        this.data.removeEventListener('load', this._boundComplete, false);
+        this.data.removeEventListener('progress', this._boundOnProgress, false);
+        this.data.removeEventListener('canplaythrough', this._boundComplete, false);
+    }
+
+    if (this.xhr) {
+        if (this.xhr.removeEventListener) {
+            this.xhr.removeEventListener('error', this._boundXhrOnError, false);
+            this.xhr.removeEventListener('abort', this._boundXhrOnAbort, false);
+            this.xhr.removeEventListener('progress', this._boundOnProgress, false);
+            this.xhr.removeEventListener('load', this._boundXhrOnLoad, false);
+        }
+        else {
+            this.xhr.onerror = null;
+            this.xhr.ontimeout = null;
+            this.xhr.onprogress = null;
+            this.xhr.onload = null;
+        }
+    }
+
+    if (this.isComplete) {
+        throw new Error('Complete called again for an already completed resource.');
+    }
+
+    this.isComplete = true;
+    this.isLoading = false;
+
+    this.emit('complete', this);
+};
+
+/**
+ * Aborts the loading of this resource, with an optional message.
+ *
+ * @param {string} message - The message to use for the error
+ */
+Resource.prototype.abort = function (message) {
+    // abort can be called multiple times, ignore subsequent calls.
+    if (this.error) {
+        return;
+    }
+
+    // store error
+    this.error = new Error(message);
+
+    // abort the actual loading
+    if (this.xhr) {
+        this.xhr.abort();
+    }
+    else if (this.xdr) {
+        this.xdr.abort();
+    }
+    else if (this.data) {
+        // single source
+        if (typeof this.data.src !== 'undefined') {
+            this.data.src = '';
+        }
+        // multi-source
+        else {
+            while (this.data.firstChild) {
+                this.data.removeChild(this.data.firstChild);
+            }
+        }
+    }
+
+    // done now.
+    this.complete();
+};
+
+/**
+ * Kicks off loading of this resource. This method is asynchronous.
+ *
+ * @fires start
+ * @param {function} [cb] - Optional callback to call once the resource is loaded.
+ */
+Resource.prototype.load = function (cb) {
+    if (this.isLoading) {
+        return;
+    }
+
+    if (this.isComplete) {
+        if (cb) {
+            var self = this;
+
+            setTimeout(function () {
+                cb(self);
+            }, 1);
+        }
+
+        return;
+    }
+    else if (cb) {
+        this.once('complete', cb);
+    }
+
+    this.isLoading = true;
+
+    this.emit('start', this);
+
+    // if unset, determine the value
+    if (this.crossOrigin === false || typeof this.crossOrigin !== 'string') {
+        this.crossOrigin = this._determineCrossOrigin(this.url);
+    }
+
+    switch (this.loadType) {
+        case Resource.LOAD_TYPE.IMAGE:
+            this._loadElement('image');
+            break;
+
+        case Resource.LOAD_TYPE.AUDIO:
+            this._loadSourceElement('audio');
+            break;
+
+        case Resource.LOAD_TYPE.VIDEO:
+            this._loadSourceElement('video');
+            break;
+
+        case Resource.LOAD_TYPE.XHR:
+            /* falls through */
+        default:
+            if (useXdr && this.crossOrigin) {
+                this._loadXdr();
+            }
+            else {
+                this._loadXhr();
+            }
+            break;
+    }
+};
+
+/**
+ * Loads this resources using an element that has a single source,
+ * like an HTMLImageElement.
+ *
+ * @private
+ * @param {string} type - The type of element to use.
+ */
+Resource.prototype._loadElement = function (type) {
+    if (this.metadata.loadElement) {
+        this.data = this.metadata.loadElement;
+    }
+    else if (type === 'image' && typeof window.Image !== 'undefined') {
+        this.data = new Image();
+    }
+    else {
+        this.data = document.createElement(type);
+    }
+
+    if (this.crossOrigin) {
+        this.data.crossOrigin = this.crossOrigin;
+    }
+
+    if (!this.metadata.skipSource) {
+        this.data.src = this.url;
+    }
+
+    var typeName = 'is' + type[0].toUpperCase() + type.substring(1);
+
+    if (this[typeName] === false) {
+        this[typeName] = true;
+    }
+
+    this.data.addEventListener('error', this._boundOnError, false);
+    this.data.addEventListener('load', this._boundComplete, false);
+    this.data.addEventListener('progress', this._boundOnProgress, false);
+};
+
+/**
+ * Loads this resources using an element that has multiple sources,
+ * like an HTMLAudioElement or HTMLVideoElement.
+ *
+ * @private
+ * @param {string} type - The type of element to use.
+ */
+Resource.prototype._loadSourceElement = function (type) {
+    if (this.metadata.loadElement) {
+        this.data = this.metadata.loadElement;
+    }
+    else if (type === 'audio' && typeof window.Audio !== 'undefined') {
+        this.data = new Audio();
+    }
+    else {
+        this.data = document.createElement(type);
+    }
+
+    if (this.data === null) {
+        this.abort('Unsupported element ' + type);
+
+        return;
+    }
+
+    if (!this.metadata.skipSource) {
+        // support for CocoonJS Canvas+ runtime, lacks document.createElement('source')
+        if (navigator.isCocoonJS) {
+            this.data.src = Array.isArray(this.url) ? this.url[0] : this.url;
+        }
+        else if (Array.isArray(this.url)) {
+            for (var i = 0; i < this.url.length; ++i) {
+                this.data.appendChild(this._createSource(type, this.url[i]));
+            }
+        }
+        else {
+            this.data.appendChild(this._createSource(type, this.url));
+        }
+    }
+
+    this['is' + type[0].toUpperCase() + type.substring(1)] = true;
+
+    this.data.addEventListener('error', this._boundOnError, false);
+    this.data.addEventListener('load', this._boundComplete, false);
+    this.data.addEventListener('progress', this._boundOnProgress, false);
+    this.data.addEventListener('canplaythrough', this._boundComplete, false);
+
+    this.data.load();
+};
+
+/**
+ * Loads this resources using an XMLHttpRequest.
+ *
+ * @private
+ */
+Resource.prototype._loadXhr = function () {
+    // if unset, determine the value
+    if (typeof this.xhrType !== 'string') {
+        this.xhrType = this._determineXhrType();
+    }
+
+    var xhr = this.xhr = new XMLHttpRequest();
+
+    // set the request type and url
+    xhr.open('GET', this.url, true);
+
+    // load json as text and parse it ourselves. We do this because some browsers
+    // *cough* safari *cough* can't deal with it.
+    if (this.xhrType === Resource.XHR_RESPONSE_TYPE.JSON || this.xhrType === Resource.XHR_RESPONSE_TYPE.DOCUMENT) {
+        xhr.responseType = Resource.XHR_RESPONSE_TYPE.TEXT;
+    }
+    else {
+        xhr.responseType = this.xhrType;
+    }
+
+    xhr.addEventListener('error', this._boundXhrOnError, false);
+    xhr.addEventListener('abort', this._boundXhrOnAbort, false);
+    xhr.addEventListener('progress', this._boundOnProgress, false);
+    xhr.addEventListener('load', this._boundXhrOnLoad, false);
+
+    xhr.send();
+};
+
+/**
+ * Loads this resources using an XDomainRequest. This is here because we need to support IE9 (gross).
+ *
+ * @private
+ */
+Resource.prototype._loadXdr = function () {
+    // if unset, determine the value
+    if (typeof this.xhrType !== 'string') {
+        this.xhrType = this._determineXhrType();
+    }
+
+    var xdr = this.xhr = new XDomainRequest();
+
+    // XDomainRequest has a few quirks. Occasionally it will abort requests
+    // A way to avoid this is to make sure ALL callbacks are set even if not used
+    // More info here: http://stackoverflow.com/questions/15786966/xdomainrequest-aborts-post-on-ie-9
+    xdr.timeout = 5000;
+
+    xdr.onerror = this._boundXhrOnError;
+    xdr.ontimeout = this._boundXdrOnTimeout;
+    xdr.onprogress = this._boundOnProgress;
+    xdr.onload = this._boundXhrOnLoad;
+
+    xdr.open('GET', this.url, true);
+
+    // Note: The xdr.send() call is wrapped in a timeout to prevent an
+    // issue with the interface where some requests are lost if multiple
+    // XDomainRequests are being sent at the same time.
+    // Some info here: https://github.com/photonstorm/phaser/issues/1248
+    setTimeout(function () {
+        xdr.send();
+    }, 0);
+};
+
+/**
+ * Creates a source used in loading via an element.
+ *
+ * @private
+ * @param {string} type - The element type (video or audio).
+ * @param {string} url - The source URL to load from.
+ * @param {string} [mime] - The mime type of the video
+ * @return {HTMLSourceElement} The source element.
+ */
+Resource.prototype._createSource = function (type, url, mime) {
+    if (!mime) {
+        mime = type + '/' + url.substr(url.lastIndexOf('.') + 1);
+    }
+
+    var source = document.createElement('source');
+
+    source.src = url;
+    source.type = mime;
+
+    return source;
+};
+
+/**
+ * Called if a load errors out.
+ *
+ * @param {Event} event - The error event from the element that emits it.
+ * @private
+ */
+Resource.prototype._onError = function (event) {
+    this.abort('Failed to load element using ' + event.target.nodeName);
+};
+
+/**
+ * Called if a load progress event fires for xhr/xdr.
+ *
+ * @fires progress
+ * @private
+ * @param {XMLHttpRequestProgressEvent|Event} event - Progress event.
+ */
+Resource.prototype._onProgress = function (event) {
+    if (event && event.lengthComputable) {
+        this.emit('progress', this, event.loaded / event.total);
+    }
+};
+
+/**
+ * Called if an error event fires for xhr/xdr.
+ *
+ * @private
+ * @param {XMLHttpRequestErrorEvent|Event} event - Error event.
+ */
+Resource.prototype._xhrOnError = function () {
+    var xhr = this.xhr;
+
+    this.abort(reqType(xhr) + ' Request failed. Status: ' + xhr.status + ', text: "' + xhr.statusText + '"');
+};
+
+/**
+ * Called if an abort event fires for xhr.
+ *
+ * @private
+ * @param {XMLHttpRequestAbortEvent} event - Abort Event
+ */
+Resource.prototype._xhrOnAbort = function () {
+    this.abort(reqType(this.xhr) + ' Request was aborted by the user.');
+};
+
+/**
+ * Called if a timeout event fires for xdr.
+ *
+ * @private
+ * @param {Event} event - Timeout event.
+ */
+Resource.prototype._xdrOnTimeout = function () {
+    this.abort(reqType(this.xhr) + ' Request timed out.');
+};
+
+/**
+ * Called when data successfully loads from an xhr/xdr request.
+ *
+ * @private
+ * @param {XMLHttpRequestLoadEvent|Event} event - Load event
+ */
+Resource.prototype._xhrOnLoad = function () {
+    var xhr = this.xhr;
+    var status = typeof xhr.status === 'undefined' ? xhr.status : STATUS_OK; // XDR has no `.status`, assume 200.
+
+    // status can be 0 when using the file:// protocol, also check if a response was found
+    if (status === STATUS_OK || status === STATUS_EMPTY || (status === STATUS_NONE && xhr.responseText.length > 0)) {
+        // if text, just return it
+        if (this.xhrType === Resource.XHR_RESPONSE_TYPE.TEXT) {
+            this.data = xhr.responseText;
+        }
+        // if json, parse into json object
+        else if (this.xhrType === Resource.XHR_RESPONSE_TYPE.JSON) {
+            try {
+                this.data = JSON.parse(xhr.responseText);
+                this.isJson = true;
+            }
+            catch (e) {
+                this.abort('Error trying to parse loaded json:', e);
+
+                return;
+            }
+        }
+        // if xml, parse into an xml document or div element
+        else if (this.xhrType === Resource.XHR_RESPONSE_TYPE.DOCUMENT) {
+            try {
+                if (window.DOMParser) {
+                    var domparser = new DOMParser();
+
+                    this.data = domparser.parseFromString(xhr.responseText, 'text/xml');
+                }
+                else {
+                    var div = document.createElement('div');
+
+                    div.innerHTML = xhr.responseText;
+                    this.data = div;
+                }
+                this.isXml = true;
+            }
+            catch (e) {
+                this.abort('Error trying to parse loaded xml:', e);
+
+                return;
+            }
+        }
+        // other types just return the response
+        else {
+            this.data = xhr.response || xhr.responseText;
+        }
+    }
+    else {
+        this.abort('[' + xhr.status + ']' + xhr.statusText + ':' + xhr.responseURL);
+
+        return;
+    }
+
+    this.complete();
+};
+
+/**
+ * Sets the `crossOrigin` property for this resource based on if the url
+ * for this resource is cross-origin. If crossOrigin was manually set, this
+ * function does nothing.
+ *
+ * @private
+ * @param {string} url - The url to test.
+ * @param {object} [loc=window.location] - The location object to test against.
+ * @return {string} The crossOrigin value to use (or empty string for none).
+ */
+Resource.prototype._determineCrossOrigin = function (url, loc) {
+    // data: and javascript: urls are considered same-origin
+    if (url.indexOf('data:') === 0) {
+        return '';
+    }
+
+    // default is window.location
+    loc = loc || window.location;
+
+    if (!tempAnchor) {
+        tempAnchor = document.createElement('a');
+    }
+
+    // let the browser determine the full href for the url of this resource and then
+    // parse with the node url lib, we can't use the properties of the anchor element
+    // because they don't work in IE9 :(
+    tempAnchor.href = url;
+    url = parseUri(tempAnchor.href, { strictMode: true });
+
+    var samePort = (!url.port && loc.port === '') || (url.port === loc.port);
+    var protocol = url.protocol ? url.protocol + ':' : '';
+
+    // if cross origin
+    if (url.host !== loc.hostname || !samePort || protocol !== loc.protocol) {
+        return 'anonymous';
+    }
+
+    return '';
+};
+
+/**
+ * Determines the responseType of an XHR request based on the extension of the
+ * resource being loaded.
+ *
+ * @private
+ * @return {Resource.XHR_RESPONSE_TYPE} The responseType to use.
+ */
+Resource.prototype._determineXhrType = function () {
+    return Resource._xhrTypeMap[this._getExtension()] || Resource.XHR_RESPONSE_TYPE.TEXT;
+};
+
+Resource.prototype._determineLoadType = function () {
+    return Resource._loadTypeMap[this._getExtension()] || Resource.LOAD_TYPE.XHR;
+};
+
+Resource.prototype._getExtension = function () {
+    var url = this.url;
+    var ext = '';
+
+    if (this.isDataUrl) {
+        var slashIndex = url.indexOf('/');
+
+        ext = url.substring(slashIndex + 1, url.indexOf(';', slashIndex));
+    }
+    else {
+        var queryStart = url.indexOf('?');
+
+        if (queryStart !== -1) {
+            url = url.substring(0, queryStart);
+        }
+
+        ext = url.substring(url.lastIndexOf('.') + 1);
+    }
+
+    return ext.toLowerCase();
+};
+
+/**
+ * Determines the mime type of an XHR request based on the responseType of
+ * resource being loaded.
+ *
+ * @private
+ * @param {Resource.XHR_RESPONSE_TYPE} type - The type to get a mime type for.
+ * @return {string} The mime type to use.
+ */
+Resource.prototype._getMimeFromXhrType = function (type) {
+    switch (type) {
+        case Resource.XHR_RESPONSE_TYPE.BUFFER:
+            return 'application/octet-binary';
+
+        case Resource.XHR_RESPONSE_TYPE.BLOB:
+            return 'application/blob';
+
+        case Resource.XHR_RESPONSE_TYPE.DOCUMENT:
+            return 'application/xml';
+
+        case Resource.XHR_RESPONSE_TYPE.JSON:
+            return 'application/json';
+
+        case Resource.XHR_RESPONSE_TYPE.DEFAULT:
+        case Resource.XHR_RESPONSE_TYPE.TEXT:
+            /* falls through */
+        default:
+            return 'text/plain';
+
+    }
+};
+
+/**
+ * Quick helper to get string xhr type.
+ *
+ * @ignore
+ * @param {XMLHttpRequest|XDomainRequest} xhr - The request to check.
+ * @return {string} The type.
+ */
+function reqType(xhr) {
+    return xhr.toString().replace('object ', '');
+}
+
+/**
+ * The types of loading a resource can use.
+ *
+ * @static
+ * @readonly
+ * @enum {number}
+ */
+Resource.LOAD_TYPE = {
+    /** Uses XMLHttpRequest to load the resource. */
+    XHR:    1,
+    /** Uses an `Image` object to load the resource. */
+    IMAGE:  2,
+    /** Uses an `Audio` object to load the resource. */
+    AUDIO:  3,
+    /** Uses a `Video` object to load the resource. */
+    VIDEO:  4
+};
+
+/**
+ * The XHR ready states, used internally.
+ *
+ * @static
+ * @readonly
+ * @enum {string}
+ */
+Resource.XHR_RESPONSE_TYPE = {
+    /** defaults to text */
+    DEFAULT:    'text',
+    /** ArrayBuffer */
+    BUFFER:     'arraybuffer',
+    /** Blob */
+    BLOB:       'blob',
+    /** Document */
+    DOCUMENT:   'document',
+    /** Object */
+    JSON:       'json',
+    /** String */
+    TEXT:       'text'
+};
+
+Resource._loadTypeMap = {
+    gif:      Resource.LOAD_TYPE.IMAGE,
+    png:      Resource.LOAD_TYPE.IMAGE,
+    bmp:      Resource.LOAD_TYPE.IMAGE,
+    jpg:      Resource.LOAD_TYPE.IMAGE,
+    jpeg:     Resource.LOAD_TYPE.IMAGE,
+    tif:      Resource.LOAD_TYPE.IMAGE,
+    tiff:     Resource.LOAD_TYPE.IMAGE,
+    webp:     Resource.LOAD_TYPE.IMAGE,
+    tga:      Resource.LOAD_TYPE.IMAGE,
+    'svg+xml':  Resource.LOAD_TYPE.IMAGE
+};
+
+Resource._xhrTypeMap = {
+    // xml
+    xhtml:    Resource.XHR_RESPONSE_TYPE.DOCUMENT,
+    html:     Resource.XHR_RESPONSE_TYPE.DOCUMENT,
+    htm:      Resource.XHR_RESPONSE_TYPE.DOCUMENT,
+    xml:      Resource.XHR_RESPONSE_TYPE.DOCUMENT,
+    tmx:      Resource.XHR_RESPONSE_TYPE.DOCUMENT,
+    tsx:      Resource.XHR_RESPONSE_TYPE.DOCUMENT,
+    svg:      Resource.XHR_RESPONSE_TYPE.DOCUMENT,
+
+    // images
+    gif:      Resource.XHR_RESPONSE_TYPE.BLOB,
+    png:      Resource.XHR_RESPONSE_TYPE.BLOB,
+    bmp:      Resource.XHR_RESPONSE_TYPE.BLOB,
+    jpg:      Resource.XHR_RESPONSE_TYPE.BLOB,
+    jpeg:     Resource.XHR_RESPONSE_TYPE.BLOB,
+    tif:      Resource.XHR_RESPONSE_TYPE.BLOB,
+    tiff:     Resource.XHR_RESPONSE_TYPE.BLOB,
+    webp:     Resource.XHR_RESPONSE_TYPE.BLOB,
+    tga:      Resource.XHR_RESPONSE_TYPE.BLOB,
+
+    // json
+    json:     Resource.XHR_RESPONSE_TYPE.JSON,
+
+    // text
+    text:     Resource.XHR_RESPONSE_TYPE.TEXT,
+    txt:      Resource.XHR_RESPONSE_TYPE.TEXT
+};
+
+/**
+ * Sets the load type to be used for a specific extension.
+ *
+ * @static
+ * @param {string} extname - The extension to set the type for, e.g. "png" or "fnt"
+ * @param {Resource.LOAD_TYPE} loadType - The load type to set it to.
+ */
+Resource.setExtensionLoadType = function (extname, loadType) {
+    setExtMap(Resource._loadTypeMap, extname, loadType);
+};
+
+/**
+ * Sets the load type to be used for a specific extension.
+ *
+ * @static
+ * @param {string} extname - The extension to set the type for, e.g. "png" or "fnt"
+ * @param {Resource.XHR_RESPONSE_TYPE} xhrType - The xhr type to set it to.
+ */
+Resource.setExtensionXhrType = function (extname, xhrType) {
+    setExtMap(Resource._xhrTypeMap, extname, xhrType);
+};
+
+function setExtMap(map, extname, val) {
+    if (extname && extname.indexOf('.') === 0) {
+        extname = extname.substring(1);
+    }
+
+    if (!extname) {
+        return;
+    }
+
+    map[extname] = val;
+}
+
+
+/***/ }),
 /* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -64046,7 +64046,7 @@ __webpack_require__(89);
 var core = module.exports = __webpack_require__(0);
 
 // add core plugins.
-core.extras         = __webpack_require__(29);
+core.extras         = __webpack_require__(30);
 core.filters        = __webpack_require__(51);
 core.interaction    = __webpack_require__(147);
 core.loaders        = __webpack_require__(149);
@@ -64069,7 +64069,7 @@ Object.assign(core, __webpack_require__(161));
 // Always export pixi globally.
 global.PIXI = core;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11)))
 
 /***/ }),
 /* 34 */
@@ -64079,7 +64079,7 @@ global.PIXI = core;
 // should either fix it or change the jshint config
 // jshint -W072
 
-var Point = __webpack_require__(22);
+var Point = __webpack_require__(23);
 
 /**
  * The pixi Matrix class as an object, which makes it a lot faster,
@@ -65954,7 +65954,7 @@ module.exports = GroupD8;
 
 }());
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10), __webpack_require__(37).setImmediate, __webpack_require__(24)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11), __webpack_require__(37).setImmediate, __webpack_require__(25)))
 
 /***/ }),
 /* 37 */
@@ -66019,8 +66019,8 @@ exports.clearImmediate = clearImmediate;
 /* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var math = __webpack_require__(6),
-    RenderTexture = __webpack_require__(25),
+var math = __webpack_require__(4),
+    RenderTexture = __webpack_require__(26),
     EventEmitter = __webpack_require__(9),
     CONST = __webpack_require__(1),
     _tempMatrix = new math.Matrix(),
@@ -66589,7 +66589,7 @@ DisplayObject.prototype.destroy = function ()
 /* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var BaseTexture = __webpack_require__(13),
+var BaseTexture = __webpack_require__(14),
     utils = __webpack_require__(3);
 
 /**
@@ -66914,10 +66914,10 @@ TextureUvs.prototype.set = function (frame, baseFrame, rotate)
 /***/ (function(module, exports, __webpack_require__) {
 
 var WebGLManager = __webpack_require__(8),
-    RenderTarget = __webpack_require__(14),
+    RenderTarget = __webpack_require__(15),
     CONST = __webpack_require__(1),
     Quad = __webpack_require__(103),
-    math =  __webpack_require__(6);
+    math =  __webpack_require__(4);
 
 /**
  * @class
@@ -67369,9 +67369,9 @@ FilterManager.prototype.destroy = function ()
 /* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var math = __webpack_require__(6),
-    Texture = __webpack_require__(11),
-    Container = __webpack_require__(15),
+var math = __webpack_require__(4),
+    Texture = __webpack_require__(12),
+    Container = __webpack_require__(16),
     CanvasTinter = __webpack_require__(43),
     utils = __webpack_require__(3),
     CONST = __webpack_require__(1),
@@ -68198,7 +68198,7 @@ CanvasTinter.tintMethod = CanvasTinter.canUseMultiply ? CanvasTinter.tintWithMul
 /***/ (function(module, exports, __webpack_require__) {
 
 var utils = __webpack_require__(3),
-    math = __webpack_require__(6),
+    math = __webpack_require__(4),
     CONST = __webpack_require__(1),
     EventEmitter = __webpack_require__(9);
 
@@ -68463,7 +68463,7 @@ SystemRenderer.prototype.destroy = function (removeView) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var WebGLManager = __webpack_require__(8),
-    TextureShader = __webpack_require__(17),
+    TextureShader = __webpack_require__(18),
     ComplexPrimitiveShader = __webpack_require__(46),
     PrimitiveShader = __webpack_require__(47),
     utils = __webpack_require__(3);
@@ -68635,7 +68635,7 @@ ShaderManager.prototype.destroy = function ()
 /* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Shader = __webpack_require__(18);
+var Shader = __webpack_require__(19);
 
 /**
  * This shader is used to draw complex primitive shapes for {@link PIXI.Graphics}.
@@ -68701,7 +68701,7 @@ module.exports = ComplexPrimitiveShader;
 /* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Shader = __webpack_require__(18);
+var Shader = __webpack_require__(19);
 
 /**
  * This shader is used to draw simple primitive shapes for {@link PIXI.Graphics}.
@@ -68768,8 +68768,8 @@ module.exports = PrimitiveShader;
 /* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(__dirname) {var AbstractFilter = __webpack_require__(27),
-    math =  __webpack_require__(6);
+/* WEBPACK VAR INJECTION */(function(__dirname) {var AbstractFilter = __webpack_require__(28),
+    math =  __webpack_require__(4);
 
 // @see https://github.com/substack/brfs/issues/25
 var fs = __webpack_require__(2);
@@ -68870,7 +68870,7 @@ Object.defineProperties(SpriteMaskFilter.prototype, {
 /* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(__dirname) {var AbstractFilter = __webpack_require__(27);
+/* WEBPACK VAR INJECTION */(function(__dirname) {var AbstractFilter = __webpack_require__(28);
 // @see https://github.com/substack/brfs/issues/25
 var fs = __webpack_require__(2);
 
@@ -69041,8 +69041,8 @@ module.exports = {
     AsciiFilter:        __webpack_require__(125),
     BloomFilter:        __webpack_require__(126),
     BlurFilter:         __webpack_require__(127),
-    BlurXFilter:        __webpack_require__(19),
-    BlurYFilter:        __webpack_require__(30),
+    BlurXFilter:        __webpack_require__(20),
+    BlurYFilter:        __webpack_require__(31),
     BlurDirFilter:      __webpack_require__(128),
     ColorMatrixFilter:  __webpack_require__(129),
     ColorStepFilter:    __webpack_require__(130),
@@ -69977,7 +69977,7 @@ module.exports = function ()
 /* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Resource = __webpack_require__(20).Resource,
+var Resource = __webpack_require__(21).Resource,
     path = __webpack_require__(62),
     core = __webpack_require__(0),
     async = __webpack_require__(36);
@@ -70325,15 +70325,15 @@ var substr = 'ab'.substr(-1) === 'b'
     }
 ;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(24)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(25)))
 
 /***/ }),
 /* 63 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Resource = __webpack_require__(20).Resource,
+var Resource = __webpack_require__(21).Resource,
     core = __webpack_require__(0),
-    extras = __webpack_require__(29),
+    extras = __webpack_require__(30),
     path = __webpack_require__(62);
 
 
@@ -70470,7 +70470,7 @@ module.exports = function ()
  * @namespace PIXI.mesh
  */
 module.exports = {
-    Mesh:           __webpack_require__(21),
+    Mesh:           __webpack_require__(22),
     Plane:           __webpack_require__(155),
     Rope:           __webpack_require__(156),
     MeshRenderer:   __webpack_require__(157),
@@ -70560,17 +70560,15 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__Controllers_PixiController_js__ = __webpack_require__(88);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__Controllers_PopupController_js__ = __webpack_require__(166);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__Controllers_ThreeController_js__ = __webpack_require__(169);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__Controllers_VimeoController_js__ = __webpack_require__(172);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__Controllers_VimeoController_js__ = __webpack_require__(175);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_jquery__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_8_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__css_reset_css__ = __webpack_require__(176);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__css_reset_css__ = __webpack_require__(179);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__css_reset_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_9__css_reset_css__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__css_style_css__ = __webpack_require__(178);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__css_style_css__ = __webpack_require__(181);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__css_style_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_10__css_style_css__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__css_fonts_css__ = __webpack_require__(181);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__css_fonts_css__ = __webpack_require__(184);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__css_fonts_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_11__css_fonts_css__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__css_effects_css__ = __webpack_require__(186);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__css_effects_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_12__css_effects_css__);
 
 
 
@@ -70584,19 +70582,22 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 
+// import effects from '../css/effects.css';
 
-
-__webpack_require__(188);
 __webpack_require__(189);
+__webpack_require__(190);
 
-var settings = __webpack_require__(192);
+//var settings = require('./settings.js');
+var settings = {
+  debug: false
+};
 var debug = settings.debug;
 
 var init = function() {
   var loader_control = document.getElementById('loadBar').ldBar;
   var pixi_container = document.getElementById('pixi_cont');
   var three_container = document.createElement('div');
-
+  // Controllers
   var loader = new __WEBPACK_IMPORTED_MODULE_3__Controllers_LoaderController_js__["a" /* default */](loader_control, {
     verbose: debug
   });
@@ -70623,10 +70624,11 @@ var init = function() {
     verbose: debug
   });
   window.vimeo = vimeo;
-  three.init();
-  // var three = new ThreeController(three_container, {
-  //   verbose: debug
-  // });
+  var three = new __WEBPACK_IMPORTED_MODULE_6__Controllers_ThreeController_js__["a" /* default */](three_container, {
+    className: "three",
+    verbose: debug
+  });
+  window.three = three;
 };
 // Window load event: "all" resources
 window.addEventListener('load', init, false);
@@ -71327,7 +71329,7 @@ var transform;
 var options = {"hmr":true}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(5)(content, options);
+var update = __webpack_require__(6)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -71347,7 +71349,7 @@ if(false) {
 /* 72 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(4)(false);
+exports = module.exports = __webpack_require__(5)(false);
 // imports
 
 
@@ -71529,7 +71531,7 @@ var transform;
 var options = {"hmr":true}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(5)(content, options);
+var update = __webpack_require__(6)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -71549,7 +71551,7 @@ if(false) {
 /* 76 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(4)(false);
+exports = module.exports = __webpack_require__(5)(false);
 // imports
 
 
@@ -71608,7 +71610,7 @@ class FullPageController {
     if (this.verbose) console.log("fullPage: afterLoad--" + "anchorLink: " + anchorLink + " index: " + index );
     // ++ TODO: REMOVE THIS DEPENDENCIES!!!:
     if (loader.entered) {
-      three.trigger_anim(1);
+      three.scene.bot.playAnimation(index-1);
     }
     // ++
   }
@@ -74503,7 +74505,7 @@ var transform;
 var options = {"hmr":true}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(5)(content, options);
+var update = __webpack_require__(6)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -74523,7 +74525,7 @@ if(false) {
 /* 80 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(4)(false);
+exports = module.exports = __webpack_require__(5)(false);
 // imports
 
 
@@ -74548,7 +74550,7 @@ var transform;
 var options = {"hmr":true}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(5)(content, options);
+var update = __webpack_require__(6)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -74568,7 +74570,7 @@ if(false) {
 /* 82 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(4)(false);
+exports = module.exports = __webpack_require__(5)(false);
 // imports
 
 
@@ -74585,7 +74587,7 @@ exports.push([module.i, "/* fullPage.js Mods -> Fading Transition\n/* ----------
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_three__ = __webpack_require__(32);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_three__ = __webpack_require__(10);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__css_loader_css__ = __webpack_require__(84);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__css_loader_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__css_loader_css__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__css_loading_bar_css__ = __webpack_require__(86);
@@ -74606,7 +74608,7 @@ class LoaderController {
     this.bar = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('#loadBar');
     this.dom = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('#loadScreen');
     this.logo.hover(this.onEnter.bind(this));
-    this.manager = new __WEBPACK_IMPORTED_MODULE_1_three__["b" /* LoadingManager */]();
+    this.manager = new __WEBPACK_IMPORTED_MODULE_1_three__["g" /* LoadingManager */]();
     this.manager.onStart = this.onStart.bind(this);
     this.manager.onLoad = this.onLoad.bind(this);
     this.manager.onProgress = this.onProgress.bind(this);
@@ -74635,8 +74637,8 @@ class LoaderController {
     if (this.loaded && !this.entered) {
       this.dom.animateOnce('fadeOut');
       // ++ TODO: REMOVE THIS DEPENDENCIES!!!:
-      //three.trigger_anim(1,0.5);
-      pixi.anim();
+      three.scene.bot.playAnimation(0);
+      pixi.animate();
       __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.fn.fullpage.setAllowScrolling(true);
       // ++
       this.entered = true;
@@ -74662,7 +74664,7 @@ var transform;
 var options = {"hmr":true}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(5)(content, options);
+var update = __webpack_require__(6)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -74682,7 +74684,7 @@ if(false) {
 /* 85 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(4)(false);
+exports = module.exports = __webpack_require__(5)(false);
 // imports
 
 
@@ -74707,7 +74709,7 @@ var transform;
 var options = {"hmr":true}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(5)(content, options);
+var update = __webpack_require__(6)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -74727,7 +74729,7 @@ if(false) {
 /* 87 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(4)(false);
+exports = module.exports = __webpack_require__(5)(false);
 // imports
 
 
@@ -74786,8 +74788,8 @@ class PixiController {
     this.stage.addChild(this.team);
     window.addEventListener("resize", this.resize.bind(this), false);
   }
-  anim() {
-    requestAnimationFrame(this.anim.bind(this));
+  animate() {
+    requestAnimationFrame(this.animate.bind(this));
     this.smokeShader.update(0.01);
     this.renderer.render(this.stage);
   }
@@ -74995,7 +74997,7 @@ if (!global.cancelAnimationFrame) {
     };
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11)))
 
 /***/ }),
 /* 93 */
@@ -75021,7 +75023,7 @@ if (!Math.sign)
 /* 94 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Rectangle = __webpack_require__(23),
+var Rectangle = __webpack_require__(24),
     CONST = __webpack_require__(1);
 
 /**
@@ -75113,7 +75115,7 @@ Circle.prototype.getBounds = function ()
 /* 95 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Rectangle = __webpack_require__(23),
+var Rectangle = __webpack_require__(24),
     CONST = __webpack_require__(1);
 
 /**
@@ -75212,7 +75214,7 @@ Ellipse.prototype.getBounds = function ()
 /* 96 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Point = __webpack_require__(22),
+var Point = __webpack_require__(23),
     CONST = __webpack_require__(1);
 
 /**
@@ -75676,7 +75678,7 @@ module.exports = {
     attachTo.clearImmediate = clearImmediate;
 }(typeof self === "undefined" ? typeof global === "undefined" ? this : global : self));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10), __webpack_require__(24)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11), __webpack_require__(25)))
 
 /***/ }),
 /* 100 */
@@ -76297,7 +76299,7 @@ module.exports = Quad;
 /* 104 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Container = __webpack_require__(15),
+var Container = __webpack_require__(16),
     CONST = __webpack_require__(1);
 
 /**
@@ -76620,8 +76622,8 @@ ParticleContainer.prototype.destroy = function () {
 /* 105 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var ObjectRenderer = __webpack_require__(12),
-    WebGLRenderer = __webpack_require__(16),
+var ObjectRenderer = __webpack_require__(13),
+    WebGLRenderer = __webpack_require__(17),
     CONST = __webpack_require__(1);
 
 /**
@@ -77614,11 +77616,11 @@ BlendModeManager.prototype.setBlendMode = function (blendMode)
 /* 109 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var ObjectRenderer = __webpack_require__(12),
-    WebGLRenderer = __webpack_require__(16),
+var ObjectRenderer = __webpack_require__(13),
+    WebGLRenderer = __webpack_require__(17),
     ParticleShader = __webpack_require__(110),
     ParticleBuffer = __webpack_require__(111),
-    math            = __webpack_require__(6);
+    math            = __webpack_require__(4);
 
 /**
  * @author Mat Groves
@@ -78094,7 +78096,7 @@ ParticleRenderer.prototype.destroy = function ()
 /* 110 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var TextureShader = __webpack_require__(17);
+var TextureShader = __webpack_require__(18);
 
 /**
  * @class
@@ -78401,8 +78403,8 @@ ParticleBuffer.prototype.destroy = function ()
 /***/ (function(module, exports, __webpack_require__) {
 
 var Sprite = __webpack_require__(42),
-    Texture = __webpack_require__(11),
-    math = __webpack_require__(6),
+    Texture = __webpack_require__(12),
+    math = __webpack_require__(4),
     utils = __webpack_require__(3),
     CONST = __webpack_require__(1);
 
@@ -79101,12 +79103,12 @@ Text.prototype.destroy = function (destroyBaseTexture)
 /* 113 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Container = __webpack_require__(15),
-    Texture = __webpack_require__(11),
-    CanvasBuffer = __webpack_require__(26),
-    CanvasGraphics = __webpack_require__(28),
+var Container = __webpack_require__(16),
+    Texture = __webpack_require__(12),
+    CanvasBuffer = __webpack_require__(27),
+    CanvasGraphics = __webpack_require__(29),
     GraphicsData = __webpack_require__(50),
-    math = __webpack_require__(6),
+    math = __webpack_require__(4),
     CONST = __webpack_require__(1),
     tempPoint = new math.Point();
 
@@ -80291,10 +80293,10 @@ Graphics.prototype.destroy = function () {
 /***/ (function(module, exports, __webpack_require__) {
 
 var utils = __webpack_require__(3),
-    math = __webpack_require__(6),
+    math = __webpack_require__(4),
     CONST = __webpack_require__(1),
-    ObjectRenderer = __webpack_require__(12),
-    WebGLRenderer = __webpack_require__(16),
+    ObjectRenderer = __webpack_require__(13),
+    WebGLRenderer = __webpack_require__(17),
     WebGLGraphicsData = __webpack_require__(115),
     earcut = __webpack_require__(116);
 
@@ -81981,7 +81983,7 @@ earcut.flatten = function (data) {
 var SystemRenderer = __webpack_require__(44),
     CanvasMaskManager = __webpack_require__(118),
     utils = __webpack_require__(3),
-    math = __webpack_require__(6),
+    math = __webpack_require__(4),
     CONST = __webpack_require__(1);
 
 /**
@@ -82250,7 +82252,7 @@ CanvasRenderer.prototype._mapBlendModes = function ()
 /* 118 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var CanvasGraphics = __webpack_require__(28);
+var CanvasGraphics = __webpack_require__(29);
 
 /**
  * A set of functions used to handle masking.
@@ -83895,8 +83897,8 @@ Object.defineProperties(AsciiFilter.prototype, {
 /***/ (function(module, exports, __webpack_require__) {
 
 var core = __webpack_require__(0),
-    BlurXFilter = __webpack_require__(19),
-    BlurYFilter = __webpack_require__(30);
+    BlurXFilter = __webpack_require__(20),
+    BlurYFilter = __webpack_require__(31);
 
 /**
  * The BloomFilter applies a Gaussian blur to an object.
@@ -84000,8 +84002,8 @@ Object.defineProperties(BloomFilter.prototype, {
 /***/ (function(module, exports, __webpack_require__) {
 
 var core = __webpack_require__(0),
-    BlurXFilter = __webpack_require__(19),
-    BlurYFilter = __webpack_require__(30);
+    BlurXFilter = __webpack_require__(20),
+    BlurYFilter = __webpack_require__(31);
 
 /**
  * The BlurFilter applies a Gaussian blur to an object.
@@ -85203,7 +85205,7 @@ Object.defineProperties(GrayFilter.prototype, {
 /***/ (function(module, exports, __webpack_require__) {
 
 var core = __webpack_require__(0),
-    BlurXFilter = __webpack_require__(19),
+    BlurXFilter = __webpack_require__(20),
     BlurYTintFilter = __webpack_require__(137);
 
 /**
@@ -87092,7 +87094,7 @@ module.exports = {
     bitmapFontParser:   __webpack_require__(63),
     spritesheetParser:  __webpack_require__(61),
     textureParser:      __webpack_require__(60),
-    Resource:           __webpack_require__(20).Resource
+    Resource:           __webpack_require__(21).Resource
 };
 
 
@@ -87100,7 +87102,7 @@ module.exports = {
 /* 150 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var ResourceLoader = __webpack_require__(20),
+var ResourceLoader = __webpack_require__(21),
     textureParser = __webpack_require__(60),
     spritesheetParser = __webpack_require__(61),
     bitmapFontParser = __webpack_require__(63);
@@ -87171,7 +87173,7 @@ Resource.setExtensionXhrType('fnt', Resource.XHR_RESPONSE_TYPE.DOCUMENT);
 
 var parseUri        = __webpack_require__(57);
 var async           = __webpack_require__(58);
-var Resource        = __webpack_require__(31);
+var Resource        = __webpack_require__(32);
 var EventEmitter    = __webpack_require__(59);
 
 // some constants
@@ -87697,7 +87699,7 @@ module.exports = function () {
 "use strict";
 
 
-var Resource = __webpack_require__(31);
+var Resource = __webpack_require__(32);
 var b64 = __webpack_require__(154);
 
 var Url = window.URL || window.webkitURL;
@@ -87843,7 +87845,7 @@ module.exports = {
 /* 155 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Mesh = __webpack_require__(21);
+var Mesh = __webpack_require__(22);
 
 /**
  * The Plane allows you to draw a texture across several points and them manipulate these points
@@ -87973,7 +87975,7 @@ Plane.prototype._onTextureUpdate = function ()
 /* 156 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Mesh = __webpack_require__(21);
+var Mesh = __webpack_require__(22);
 var core = __webpack_require__(0);
 
 /**
@@ -88191,7 +88193,7 @@ Rope.prototype.updateTransform = function ()
 /***/ (function(module, exports, __webpack_require__) {
 
 var core = __webpack_require__(0),
-    Mesh = __webpack_require__(21);
+    Mesh = __webpack_require__(22);
 
 /**
  * @author Mat Groves
@@ -88925,7 +88927,7 @@ core.CanvasRenderer.registerPlugin('accessibility', AccessibilityManager);
 /*global console */
 var core = __webpack_require__(0),
     mesh = __webpack_require__(64),
-    extras = __webpack_require__(29),
+    extras = __webpack_require__(30),
     filters = __webpack_require__(51);
 
 /**
@@ -89330,7 +89332,7 @@ var transform;
 var options = {"hmr":true}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(5)(content, options);
+var update = __webpack_require__(6)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -89350,7 +89352,7 @@ if(false) {
 /* 164 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(4)(false);
+exports = module.exports = __webpack_require__(5)(false);
 // imports
 
 
@@ -89479,7 +89481,7 @@ var transform;
 var options = {"hmr":true}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(5)(content, options);
+var update = __webpack_require__(6)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -89499,7 +89501,7 @@ if(false) {
 /* 168 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(4)(false);
+exports = module.exports = __webpack_require__(5)(false);
 // imports
 
 
@@ -89514,45 +89516,311 @@ exports.push([module.i, "#popup{\n\tposition: absolute;\n\tright: 0%;\n\theight:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_three__ = __webpack_require__(32);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__css_three_css__ = __webpack_require__(170);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__css_three_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__css_three_css__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_three__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Models_ThreeScene_js__ = __webpack_require__(170);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__css_three_css__ = __webpack_require__(173);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__css_three_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__css_three_css__);
+
 
 
 
 class ThreeController {
   constructor(container, properties = {}) {
     this.container = container;
+    this.className = properties.className;
     this.verbose = properties.verbose;
     this.editor = properties.editor;
-    this.clock = new __WEBPACK_IMPORTED_MODULE_0_three__["a" /* Clock */]();
-    this.renderer = new __WEBPACK_IMPORTED_MODULE_0_three__["d" /* WebGLRenderer */]({
+    this.renderer = new __WEBPACK_IMPORTED_MODULE_0_three__["v" /* WebGLRenderer */]({
       antialias: false
     });
-    this.container.className = "threecontainer";
-    document.body.insertBefore(this.container, body.firstChild);
-    
-    this.loaders.obj = new __WEBPACK_IMPORTED_MODULE_0_three__["c" /* ObjectLoader */](loader.manager);
+    this.width = window.innerWidth;
+    this.height = window.innerHeight;
+    this.scene = new __WEBPACK_IMPORTED_MODULE_1__Models_ThreeScene_js__["a" /* default */]();
+    this.config();
   }
-  anim() {
-
+  config() {
+    // Container
+    this.container.appendChild(this.renderer.domElement);
+    this.container.className = this.className;
+    var body = document.body;
+    body.insertBefore(this.container, body.firstChild);
+    // Renderer
+    this.renderer.setClearColor(0x000000);
+    this.renderer.autoClear = false;
+    this.renderer.setPixelRatio(window.devicePixelRatio);
+    this.renderer.setSize(this.width, this.height);
+    this.renderer.gammaInput = true;
+    this.renderer.gammaOutput = true;
+    // Events
+    window.addEventListener('resize', this.resize.bind(this), false);
+    setInterval(this.animate.bind(this), 1000 / 30);
+    // setInterval(function() {
+    //   if (!document.webkitHidden)
+    //     requestAnimationFrame(this.animate.bind(this));
+    // }, 1000 / 30);
+  }
+  animate() {
+    this.scene.animate();
+    this.render();
+  }
+  render() {
+    this.renderer.render(this.scene.scene, this.scene.camera);
   }
   resize() {
-
+    this.width = window.innerWidth;
+    this.height = window.innerHeight;
+    this.renderer.setSize(this.width, this.height);
+    this.scene.resize(this.width, this.height);
   }
 }
-/* unused harmony export default */
+/* harmony export (immutable) */ __webpack_exports__["a"] = ThreeController;
 
 
 
 /***/ }),
 /* 170 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_three__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__BotObject_js__ = __webpack_require__(171);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ArcadeObject_js__ = __webpack_require__(172);
+
+
+
+
+class ThreeScene {
+  constructor() {
+    this.scene = new __WEBPACK_IMPORTED_MODULE_0_three__["p" /* Scene */]();
+    this.camera = new __WEBPACK_IMPORTED_MODULE_0_three__["m" /* PerspectiveCamera */](45, window.innerWidth / window.innerHeight, 1, 10000);
+    this.light = new __WEBPACK_IMPORTED_MODULE_0_three__["n" /* PointLight */](0xbababa, 1, 0);
+    this.hemiLight = new __WEBPACK_IMPORTED_MODULE_0_three__["e" /* HemisphereLight */](0x443333, 0x111122);
+    this.arcade = new __WEBPACK_IMPORTED_MODULE_2__ArcadeObject_js__["a" /* default */]('../../textures/arcade.png', 'arcadeVideo');
+    this.bot = new __WEBPACK_IMPORTED_MODULE_1__BotObject_js__["a" /* default */]('../../obj/Bot.json', '../../textures/cube/4/');
+    this.config();
+    this.attach();
+  }
+  config() {
+    this.camera.position.x = -11;
+    var origin = new __WEBPACK_IMPORTED_MODULE_0_three__["t" /* Vector3 */]();
+    this.camera.lookAt(origin);
+    this.light.position.set(0, 200, 0);
+  }
+  attach() {
+    this.scene.add(this.camera);
+    this.scene.add(this.light);
+    // this.scene.add(this.hemiLight);
+    // this.scene.add(this.arcade.object);
+    this.scene.add(this.bot.object);
+  }
+  animate() {
+    this.bot.animate();
+  }
+  resize(width, height) {
+    this.camera.aspect = width / height;
+    this.camera.updateProjectionMatrix();
+  }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = ThreeScene;
+
+
+
+/***/ }),
+/* 171 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_three__ = __webpack_require__(10);
+
+
+class BotObject {
+  constructor(path, cubeTexturePath, parent = null) {
+    this.parent = parent;
+    this.object = new __WEBPACK_IMPORTED_MODULE_0_three__["k" /* Object3D */]();
+    if (this.parent != null) this.parent.add(this.object);
+    // Loader
+    this.path = path;
+    this.loader = new __WEBPACK_IMPORTED_MODULE_0_three__["l" /* ObjectLoader */](loader.manager);
+    this.loader.load(path, this.onLoaded.bind(this));
+    // Textures
+    this.textures = {};
+    this.textures.arcade = new __WEBPACK_IMPORTED_MODULE_0_three__["s" /* TextureLoader */](loader.manager).load('../../textures/arcade.png');
+    this.textures.reflexion = {};
+    this.textures.reflexion.path = cubeTexturePath;
+    this.textures.reflexion.format = '.png';
+    this.textures.reflexion.urls = [
+      this.textures.reflexion.path + 'px' + this.textures.reflexion.format,
+      this.textures.reflexion.path + 'nx' + this.textures.reflexion.format,
+      this.textures.reflexion.path + 'py' + this.textures.reflexion.format,
+      this.textures.reflexion.path + 'ny' + this.textures.reflexion.format,
+      this.textures.reflexion.path + 'pz' + this.textures.reflexion.format,
+      this.textures.reflexion.path + 'nz' + this.textures.reflexion.format
+    ];
+    this.textures.reflexion.cube = new __WEBPACK_IMPORTED_MODULE_0_three__["c" /* CubeTextureLoader */](loader.manager).load(this.textures.reflexion.urls);
+    // Materials
+    this.materials = {};
+    this.materials.black = new __WEBPACK_IMPORTED_MODULE_0_three__["j" /* MeshStandardMaterial */]({
+      color: 0x000000,
+      roughness: 0.1,
+      metalness: 1,
+      envMap: this.textures.reflexion.cube,
+      envMapIntensity: 0.4,
+      transparent: true,
+      opacity: 0.94
+    });
+    this.materials.white = new __WEBPACK_IMPORTED_MODULE_0_three__["j" /* MeshStandardMaterial */]({
+      color: 0xffffff,
+      roughness: 0.5,
+      metalness: 0.5,
+      envMap: this.textures.reflexion.cube,
+      envMapIntensity: 0.16
+    });
+    this.materials.red = new __WEBPACK_IMPORTED_MODULE_0_three__["j" /* MeshStandardMaterial */]({
+      color: 0xff0024,
+      roughness: 0.1,
+      metalness: 0.3,
+      transparent: true,
+      opacity: 0.8,
+      emissive: 0.5
+    });
+    // Sprites
+    this.materials.edesign = new __WEBPACK_IMPORTED_MODULE_0_three__["i" /* MeshBasicMaterial */]({
+      color: 0x00ff00
+    });
+    this.materials.vfx = new __WEBPACK_IMPORTED_MODULE_0_three__["i" /* MeshBasicMaterial */]({
+      color: 0xff0000
+    });
+    this.materials.arcade = new __WEBPACK_IMPORTED_MODULE_0_three__["i" /* MeshBasicMaterial */]({
+      map: this.textures.arcade
+    });
+    // Animation
+    this.clock = new __WEBPACK_IMPORTED_MODULE_0_three__["b" /* Clock */]();
+    this.actions = [];
+    this.currentAction = null;
+    this.config();
+  }
+  config() {
+    this.textures.reflexion.cube.format = __WEBPACK_IMPORTED_MODULE_0_three__["o" /* RGBFormat */];
+    this.materials.edesign.side = __WEBPACK_IMPORTED_MODULE_0_three__["d" /* DoubleSide */];
+    this.materials.vfx.side = __WEBPACK_IMPORTED_MODULE_0_three__["d" /* DoubleSide */];
+    this.materials.arcade.side = __WEBPACK_IMPORTED_MODULE_0_three__["d" /* DoubleSide */];
+  }
+  animate() {
+    if (typeof this.mixer != "undefined") {
+      this.mixer.update(this.clock.getDelta());
+    }
+  }
+  onLoaded(scene) {
+    // this.bot = object;
+    this.scene = scene;
+    this.bot = this.scene.children[0];
+    this.bot.children[0].material = this.materials.black;
+    this.bot.children[1].material = [
+      this.materials.white,
+      this.materials.red
+    ];
+    this.edesign = this.scene.children[1];
+    this.vfx = this.scene.children[2];
+    this.arcade = this.scene.children[3];
+    this.edesign.material = this.materials.edesign;
+    this.vfx.material = this.materials.vfx;
+    this.arcade.material = this.materials.arcade;
+    this.object.add(this.scene);
+
+    this.mixer = new __WEBPACK_IMPORTED_MODULE_0_three__["a" /* AnimationMixer */](this.scene);
+    var numAnim = this.scene.animations.length;
+    for (var i = 0; i < numAnim; i++) {
+      var newAction = this.mixer.clipAction(this.scene.animations[i]);
+      newAction.setLoop(__WEBPACK_IMPORTED_MODULE_0_three__["h" /* LoopOnce */]);
+      newAction.clampWhenFinished = true;
+      newAction.timeScale = 1;
+      newAction.weight = 0;
+      this.actions.push(newAction);
+    }
+  }
+  playAnimation(index) {
+    this.actions[index].weight = 1;
+    this.actions[index].reset();
+    if (this.currentAction == null){
+      this.actions[index].play();
+      console.log("BOT: Playing Animation: " + index);
+
+    } else {
+      this.actions[index].play();
+      this.currentAction.crossFadeTo(this.actions[index], 1);
+      console.log("BOT: Fading to Animation: " + index);
+    }
+    this.currentAction = this.actions[index];
+  }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = BotObject;
+
+
+
+/***/ }),
+/* 172 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_three__ = __webpack_require__(10);
+
+
+class ArcadeObject {
+  constructor(path, videoId, parent = null) {
+    this.path = path;
+    this.videoId = videoId;
+    this.parent = parent;
+    // Video
+    this.video = document.getElementById(this.videoId);
+    // Loader
+    this.loader = new __WEBPACK_IMPORTED_MODULE_0_three__["s" /* TextureLoader */](loader.manager);
+    // Textures
+    this.mainTexture = this.loader.load(path);
+    this.videoTexture = new __WEBPACK_IMPORTED_MODULE_0_three__["u" /* VideoTexture */](this.video);
+    // Materials
+    this.mainMaterial = new __WEBPACK_IMPORTED_MODULE_0_three__["r" /* SpriteMaterial */]({
+      map: this.mainTexture
+    });
+    this.videoMaterial = new __WEBPACK_IMPORTED_MODULE_0_three__["r" /* SpriteMaterial */]({
+      map: this.videoTexture
+    });
+    // Sprites
+    this.mainSprite = new __WEBPACK_IMPORTED_MODULE_0_three__["q" /* Sprite */](this.mainMaterial);
+    this.videoSprite = new __WEBPACK_IMPORTED_MODULE_0_three__["q" /* Sprite */](this.videoMaterial);
+    // Object
+    this.object = new __WEBPACK_IMPORTED_MODULE_0_three__["k" /* Object3D */]();
+    this.config();
+  }
+  config() {
+    // Textures
+    this.videoTexture.minFilter = __WEBPACK_IMPORTED_MODULE_0_three__["f" /* LinearFilter */];
+    this.videoTexture.magFilter = __WEBPACK_IMPORTED_MODULE_0_three__["f" /* LinearFilter */];
+    this.videoTexture.format = __WEBPACK_IMPORTED_MODULE_0_three__["o" /* RGBFormat */];
+    // Sprites
+    this.mainSprite.scale.set(0.343, 0.859, 1);
+    this.mainSprite.position.set(0, 0, 0);
+    this.videoSprite.scale.set(0.285, 0.16, 1);
+    this.videoSprite.position.set(0.015, 0.16, -0.01);
+    // Object
+    this.object.add(this.mainSprite);
+    this.object.add(this.videoSprite);
+    this.object.scale.set(10, 10, 1);
+    this.object.position.set(5, 0, 0);
+    this.object.rotation.set(0, Math.PI / 2, 0);
+  }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = ArcadeObject;
+
+
+
+/***/ }),
+/* 173 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(171);
+var content = __webpack_require__(174);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -89560,7 +89828,7 @@ var transform;
 var options = {"hmr":true}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(5)(content, options);
+var update = __webpack_require__(6)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -89577,27 +89845,27 @@ if(false) {
 }
 
 /***/ }),
-/* 171 */
+/* 174 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(4)(false);
+exports = module.exports = __webpack_require__(5)(false);
 // imports
 
 
 // module
-exports.push([module.i, "video{\n\tdisplay: none;\n}\n.threecontainer{\n  position: absolute;\n\ttop: 0;\n\tleft: 0;\n\tz-index: -2;\n}\n", ""]);
+exports.push([module.i, "video{\n\tdisplay: none;\n}\n.three{\n  position: absolute;\n\ttop: 0;\n\tleft: 0;\n\tz-index: -2;\n}\n", ""]);
 
 // exports
 
 
 /***/ }),
-/* 172 */
+/* 175 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__vimeo_player__ = __webpack_require__(173);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__vimeo_player__ = __webpack_require__(176);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__vimeo_player___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__vimeo_player__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__css_vimeo_css__ = __webpack_require__(174);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__css_vimeo_css__ = __webpack_require__(177);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__css_vimeo_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__css_vimeo_css__);
 
 
@@ -89673,7 +89941,7 @@ class VimeoController {
 
 
 /***/ }),
-/* 173 */
+/* 176 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, setImmediate) {/*! @vimeo/player v2.2.1 | (c) 2017 Vimeo | MIT License | https://github.com/vimeo/player.js */
@@ -91756,16 +92024,16 @@ return Player;
 })));
 
 //# sourceMappingURL=player.js.map
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10), __webpack_require__(37).setImmediate))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11), __webpack_require__(37).setImmediate))
 
 /***/ }),
-/* 174 */
+/* 177 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(175);
+var content = __webpack_require__(178);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -91773,7 +92041,7 @@ var transform;
 var options = {"hmr":true}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(5)(content, options);
+var update = __webpack_require__(6)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -91790,10 +92058,10 @@ if(false) {
 }
 
 /***/ }),
-/* 175 */
+/* 178 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(4)(false);
+exports = module.exports = __webpack_require__(5)(false);
 // imports
 
 
@@ -91804,13 +92072,13 @@ exports.push([module.i, "#vimeo iframe{\n\tposition: absolute;\n  height: 100%;\
 
 
 /***/ }),
-/* 176 */
+/* 179 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(177);
+var content = __webpack_require__(180);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -91818,7 +92086,7 @@ var transform;
 var options = {"hmr":true}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(5)(content, options);
+var update = __webpack_require__(6)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -91835,10 +92103,10 @@ if(false) {
 }
 
 /***/ }),
-/* 177 */
+/* 180 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(4)(false);
+exports = module.exports = __webpack_require__(5)(false);
 // imports
 
 
@@ -91847,58 +92115,6 @@ exports.push([module.i, "/* Reset CSS\n * --------------------------------------
 
 // exports
 
-
-/***/ }),
-/* 178 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(179);
-if(typeof content === 'string') content = [[module.i, content, '']];
-// Prepare cssTransformation
-var transform;
-
-var options = {"hmr":true}
-options.transform = transform
-// add the styles to the DOM
-var update = __webpack_require__(5)(content, options);
-if(content.locals) module.exports = content.locals;
-// Hot Module Replacement
-if(false) {
-	// When the styles change, update the <style> tags
-	if(!content.locals) {
-		module.hot.accept("!!../../node_modules/css-loader/index.js!./style.css", function() {
-			var newContent = require("!!../../node_modules/css-loader/index.js!./style.css");
-			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-			update(newContent);
-		});
-	}
-	// When the module is disposed, remove the <style> tags
-	module.hot.dispose(function() { update(); });
-}
-
-/***/ }),
-/* 179 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var escape = __webpack_require__(66);
-exports = module.exports = __webpack_require__(4)(false);
-// imports
-
-
-// module
-exports.push([module.i, "/* Custom CSS\n* --------------------------------------- */\n\nbody {\n  font-family: Roboto-Thin, helvetica;\n  color: #fff;\n  background-color: rgba(0, 0, 0, 1);\n}\n\nh1 {\n  font-size: 2.2em;\n  letter-spacing: 15px;\n  padding: 20px 0px;\n}\n\n/* fullpage: */\n\n.info {\n  margin-left: 250px;\n  /*padding-left: 55%;*/\n}\n\n.project h1 {\n  width: 350px;\n  font-size: 1.15em;\n  letter-spacing: 10px;\n  padding: 10px 0px;\n  padding-top: 150px;\n}\n\n.project p {\n  width: 350px;\n  font-size: 0.95em;\n  padding: 10px 0px;\n}\n\n.contact h1 {\n  font-family: Renogare, helvetica;\n  width: 350px;\n  font-size: 1.7em;\n  letter-spacing: 5px;\n}\n\n.contact p {\n  width: 350px;\n  font-size: 1.3em;\n  padding: 20px 0px;\n  letter-spacing: 5px;\n}\n\n.contact .field {\n  width: 400px;\n  font-size: 1.3em;\n  padding: 10px 0px;\n  letter-spacing: 5px;\n}\n\n/*\nAqui comienza para el menu\n*/\n\n.title {\n  font-family: Renogare, helvetica;\n  font-size: 1.3em;\n  display: block;\n}\n\n.title-logo {\n  width: 68%;\n}\n\n#menu {\n  font-family: Roboto-Light, helvetica;\n  position: absolute;\n  top: 25px;\n  left: 40px;\n  z-index: 10;\n}\n\n#menu li {\n  letter-spacing: 3px;\n  color: #fff;\n}\n\n#menu li.active {\n  color: #ddd;\n}\n\n#menu li a {\n  font-size: 0.85em;\n  display: block;\n  width: 150px;\n  text-decoration: none;\n  color: #777;\n  padding: 6px 10px;\n}\n\n#menu li a:hover {\n  color: #aaa;\n}\n\n#menu li.active a {\n  color: #fff;\n}\n\n#menu li.active a:hover {\n  color: #fff;\n}\n\n#help {\n  bottom: 10px;\n  position: absolute;\n  width: 100%;\n}\n\n#scroll_img {\n  display: table;\n  margin: auto;\n  background-image: url(" + escape(__webpack_require__(180)) + ");\n  z-index: 7;\n  bottom: 10px;\n  width: 80px;\n  height: 80px;\n  background-repeat: no-repeat;\n  background-size: contain;\n}\n", ""]);
-
-// exports
-
-
-/***/ }),
-/* 180 */
-/***/ (function(module, exports) {
-
-module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4QUaERIoti1LYgAABvtJREFUeNrtnVuIVlUUx9d2UsfRUUcdxUzS7AZikg8+FUgXkSB0tEFInbygkxAaltFFiKLHeqqXIrpRUGQXRVOr8Za+dDEowqIGzFIw1KzxNo3OrwfX8Vsev2++c77b3NaCw7nuvQ7//16Xvc85+wTpBQJICMHuDxORYSIyTkRGishgPdUuIn+LyDERORNCOJ2rDpciyDDbM4BHgX3kl6+AtcDt2epyKY6U24CdwNEswP8G7NKlNcv5I0ALMM2RLNIygACsB87HAH4qAhgYYBc9Ng14JkbgeWCd1ukAp3VRwCjgdQPoz8DTudxZrmPABuAXU89rQJ27sHSkjAL2GBBftCAmAdJep/W9ZOrbFdXnkh/EEcB2A958A2wxFidAo6n3M2C4W0l+4FYZ0FaUyrWUu/6+SsYtBqx1eiyUUE/Q9Xqj52YnJTchPypIXwA15QBJXddQTaMBvndCspPRCHQAp4DZ+UDKFdzzBX2j7z7gX9XZ4KRcDVTUYr9LUaYaaNYOYavGh+oU5Q+ozhZn4EpgbjB9hQ1JrEPX72Tpmb+RovxzWuYgMMmZyAB0F3CaFD4DmNrFONatKepBXdesnoDFgB7CyTgRGSoiv6YoM7nAc3E5JCK1eg9OiBrFKN39OkXRgwWei0ukc4QTckmqRORa3f4zKYkhhFYReT7L6WdDCIdSeL/Dup4AVHU3GNf0AEKCuisRkTOJCmQeNL0gIgdEZJXuvyoi22LX5JNI5zC9l35PiBQChFpJh4hs0iV+ruz30JeDenoGuwC8Nz+q7bWE9FVxQpwQFyfECXFxQpwQFyfECXFxQpwQFyfExQlxQlycECfExQlxQlycECfExQlxcUKcEBcnxAlx6XuEICLndLu6G/QP0fVZvZd+T0iniJzQ7fpu0B/pPK730r8JCSEgIr/r7kyRynx8aXTM1PVRvRePISLyj4j8JyLTlaRKNIRoc6pk5tnyGKJyWESOastdWm4rMR99NuuhI5L5cMcFGAzs1Q8wv6mg3m9V525goFuIXP64pl1ENuuh64HpFdA7Q0Qm6e6nIYQOnzjgapAOa4t9HxhSxqk1aoAPVdchRz43WA+Yb83vLGPsmGX0zHXkuwZrkwFrsmnVxVpFtD3F1L+xUml2ryUFqDOzAh0H7i5h/bOBE1r3D6rLgU9gJTcCJxW408CiLB26NJ0/AZqAM1rnSWCKW0c6UqYAfxn38iZwXZqP+4EqYGJskppj1hW6pCNlMLANuGgAfRm4B7gJqM1StlbP3Qu8YspdBLYCg3oyGaEnkxJCELWIO0TkLdNvaBeRP+TSgGCbDruIiAySSxPJjBGRiZKZgrxVRJaLyP4QwkWfdrxIS9Htgdrqt5Fctqk1DSwkBrmFJLAYs79EROaIyATJTBFyQS5NYLM9hPBurrIuZbKaUl7rUiZynIQKtvj+dC/dDUQVMKbSoJj0ekxPmLysJw2XzAN+AhbosVABvdEs142q+363EAUGeELT1A7gkXJbirGMNaoT4LFKNITeQsp4/UUROt40t1ykGDIazNjWXmC8M3ElQHXm31LnzPTf5ZiMf775a89eYIQH9eykjNanhdEob3OpgDI6VkeTNgPvAaOdjK4DfJ154eEC8GAJ61+kdUYvNvjzkITAjTYxpQ1oLLQVx/6+EFnGHv/lUXoAxwKfK4BnC4kpJmY0aB3o75Tq3U0VRspw4BMFsh1YkxRIU8daLQvwETDcySiOnLGx7CtvSmzImKdloj9/1juipbGUkcB+Q0rOHr1xUwsMGfs8tS09KfXm5bY28w5wyELGMr0G4AOPGeUjZYT+FDJ6Rr7UpMtiyIiewbe4ZZSfnHrTT2mL3JdxU20mtR3jiBXY+gtwX7tNTJmjSxQzdhYynO9WlAGiDliYpJ8RC/QblYBTukQxI5GbMjFnITDSmZDLw+9PRv2ENK1VLWW/ectkX5LUNvY2S9TPedyH3zMBucGMMe0CalL0NUbpC3BbolaesFyNcXsXgLnusjIgDQCWm5a+RX8amTSm1EZvMSYpo9+ebDX6lgL+zX4W92FJ2R5PaROUz0dEtL3D6HnIg3rXrb0J6DQDgdXFgmXqHmLI6AQWOxHJgFttSNkSxZQi664xbqoTeNjJSAdgk3Eru5KkxHlS292mvsWOcGGWYmPKxylT4myp7eWY4ZZRHCkdZjgkTUpcY4ZZOioxKUF/6TiuNC18swKdL6MaqtdGssI7fqVNiZcZcL/M1tJjqW2Lub7JU9vypcSRbI0+xIkRMSjW6VviRJQ/JY6ed+ywKbG6sh1mOKTZyahsStyprqlKlxbTf1niSFXWUlYYt/R27NNnz6YqnXnpeqkZJY5S26ZCO5EuJbAWoNkQstKtovtdlwAzgZl9IbX9HyEB553WaiXyAAAAAElFTkSuQmCC"
 
 /***/ }),
 /* 181 */
@@ -91915,7 +92131,59 @@ var transform;
 var options = {"hmr":true}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(5)(content, options);
+var update = __webpack_require__(6)(content, options);
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!../../node_modules/css-loader/index.js!./style.css", function() {
+			var newContent = require("!!../../node_modules/css-loader/index.js!./style.css");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 182 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var escape = __webpack_require__(66);
+exports = module.exports = __webpack_require__(5)(false);
+// imports
+
+
+// module
+exports.push([module.i, "/* Custom CSS\n* --------------------------------------- */\n\nbody {\n  font-family: Roboto-Thin, helvetica;\n  color: #fff;\n  background-color: rgba(0, 0, 0, 1);\n}\n\nh1 {\n  font-size: 2.2em;\n  letter-spacing: 15px;\n  padding: 20px 0px;\n}\n\n/* fullpage: */\n\n.info {\n  margin-left: 250px;\n  /*padding-left: 55%;*/\n}\n\n.project h1 {\n  width: 350px;\n  font-size: 1.15em;\n  letter-spacing: 10px;\n  padding: 10px 0px;\n  padding-top: 150px;\n}\n\n.project p {\n  width: 350px;\n  font-size: 0.95em;\n  padding: 10px 0px;\n}\n\n.contact h1 {\n  font-family: Renogare, helvetica;\n  width: 350px;\n  font-size: 1.7em;\n  letter-spacing: 5px;\n}\n\n.contact p {\n  width: 350px;\n  font-size: 1.3em;\n  padding: 20px 0px;\n  letter-spacing: 5px;\n}\n\n.contact .field {\n  width: 400px;\n  font-size: 1.3em;\n  padding: 10px 0px;\n  letter-spacing: 5px;\n}\n\n/*\nAqui comienza para el menu\n*/\n\n.title {\n  font-family: Renogare, helvetica;\n  font-size: 1.3em;\n  display: block;\n}\n\n.title-logo {\n  width: 68%;\n}\n\n#menu {\n  font-family: Roboto-Light, helvetica;\n  position: absolute;\n  top: 25px;\n  left: 40px;\n  z-index: 10;\n}\n\n#menu li {\n  letter-spacing: 3px;\n  color: #fff;\n}\n\n#menu li.active {\n  color: #ddd;\n}\n\n#menu li a {\n  font-size: 0.85em;\n  display: block;\n  width: 150px;\n  text-decoration: none;\n  color: #777;\n  padding: 6px 10px;\n}\n\n#menu li a:hover {\n  color: #aaa;\n}\n\n#menu li.active a {\n  color: #fff;\n}\n\n#menu li.active a:hover {\n  color: #fff;\n}\n\n#help {\n  bottom: 10px;\n  position: absolute;\n  width: 100%;\n}\n\n#scroll_img {\n  display: table;\n  margin: auto;\n  background-image: url(" + escape(__webpack_require__(183)) + ");\n  z-index: 7;\n  bottom: 10px;\n  width: 80px;\n  height: 80px;\n  background-repeat: no-repeat;\n  background-size: contain;\n}\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 183 */
+/***/ (function(module, exports) {
+
+module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4QUaERIoti1LYgAABvtJREFUeNrtnVuIVlUUx9d2UsfRUUcdxUzS7AZikg8+FUgXkSB0tEFInbygkxAaltFFiKLHeqqXIrpRUGQXRVOr8Za+dDEowqIGzFIw1KzxNo3OrwfX8Vsev2++c77b3NaCw7nuvQ7//16Xvc85+wTpBQJICMHuDxORYSIyTkRGishgPdUuIn+LyDERORNCOJ2rDpciyDDbM4BHgX3kl6+AtcDt2epyKY6U24CdwNEswP8G7NKlNcv5I0ALMM2RLNIygACsB87HAH4qAhgYYBc9Ng14JkbgeWCd1ukAp3VRwCjgdQPoz8DTudxZrmPABuAXU89rQJ27sHSkjAL2GBBftCAmAdJep/W9ZOrbFdXnkh/EEcB2A958A2wxFidAo6n3M2C4W0l+4FYZ0FaUyrWUu/6+SsYtBqx1eiyUUE/Q9Xqj52YnJTchPypIXwA15QBJXddQTaMBvndCspPRCHQAp4DZ+UDKFdzzBX2j7z7gX9XZ4KRcDVTUYr9LUaYaaNYOYavGh+oU5Q+ozhZn4EpgbjB9hQ1JrEPX72Tpmb+RovxzWuYgMMmZyAB0F3CaFD4DmNrFONatKepBXdesnoDFgB7CyTgRGSoiv6YoM7nAc3E5JCK1eg9OiBrFKN39OkXRgwWei0ukc4QTckmqRORa3f4zKYkhhFYReT7L6WdDCIdSeL/Dup4AVHU3GNf0AEKCuisRkTOJCmQeNL0gIgdEZJXuvyoi22LX5JNI5zC9l35PiBQChFpJh4hs0iV+ruz30JeDenoGuwC8Nz+q7bWE9FVxQpwQFyfECXFxQpwQFyfECXFxQpwQFyfExQlxQlycECfExQlxQlycECfExQlxcUKcEBcnxAlx6XuEICLndLu6G/QP0fVZvZd+T0iniJzQ7fpu0B/pPK730r8JCSEgIr/r7kyRynx8aXTM1PVRvRePISLyj4j8JyLTlaRKNIRoc6pk5tnyGKJyWESOastdWm4rMR99NuuhI5L5cMcFGAzs1Q8wv6mg3m9V525goFuIXP64pl1ENuuh64HpFdA7Q0Qm6e6nIYQOnzjgapAOa4t9HxhSxqk1aoAPVdchRz43WA+Yb83vLGPsmGX0zHXkuwZrkwFrsmnVxVpFtD3F1L+xUml2ryUFqDOzAh0H7i5h/bOBE1r3D6rLgU9gJTcCJxW408CiLB26NJ0/AZqAM1rnSWCKW0c6UqYAfxn38iZwXZqP+4EqYGJskppj1hW6pCNlMLANuGgAfRm4B7gJqM1StlbP3Qu8YspdBLYCg3oyGaEnkxJCELWIO0TkLdNvaBeRP+TSgGCbDruIiAySSxPJjBGRiZKZgrxVRJaLyP4QwkWfdrxIS9Htgdrqt5Fctqk1DSwkBrmFJLAYs79EROaIyATJTBFyQS5NYLM9hPBurrIuZbKaUl7rUiZynIQKtvj+dC/dDUQVMKbSoJj0ekxPmLysJw2XzAN+AhbosVABvdEs142q+363EAUGeELT1A7gkXJbirGMNaoT4LFKNITeQsp4/UUROt40t1ykGDIazNjWXmC8M3ElQHXm31LnzPTf5ZiMf775a89eYIQH9eykjNanhdEob3OpgDI6VkeTNgPvAaOdjK4DfJ154eEC8GAJ61+kdUYvNvjzkITAjTYxpQ1oLLQVx/6+EFnGHv/lUXoAxwKfK4BnC4kpJmY0aB3o75Tq3U0VRspw4BMFsh1YkxRIU8daLQvwETDcySiOnLGx7CtvSmzImKdloj9/1juipbGUkcB+Q0rOHr1xUwsMGfs8tS09KfXm5bY28w5wyELGMr0G4AOPGeUjZYT+FDJ6Rr7UpMtiyIiewbe4ZZSfnHrTT2mL3JdxU20mtR3jiBXY+gtwX7tNTJmjSxQzdhYynO9WlAGiDliYpJ8RC/QblYBTukQxI5GbMjFnITDSmZDLw+9PRv2ENK1VLWW/ectkX5LUNvY2S9TPedyH3zMBucGMMe0CalL0NUbpC3BbolaesFyNcXsXgLnusjIgDQCWm5a+RX8amTSm1EZvMSYpo9+ebDX6lgL+zX4W92FJ2R5PaROUz0dEtL3D6HnIg3rXrb0J6DQDgdXFgmXqHmLI6AQWOxHJgFttSNkSxZQi664xbqoTeNjJSAdgk3Eru5KkxHlS292mvsWOcGGWYmPKxylT4myp7eWY4ZZRHCkdZjgkTUpcY4ZZOioxKUF/6TiuNC18swKdL6MaqtdGssI7fqVNiZcZcL/M1tJjqW2Lub7JU9vypcSRbI0+xIkRMSjW6VviRJQ/JY6ed+ywKbG6sh1mOKTZyahsStyprqlKlxbTf1niSFXWUlYYt/R27NNnz6YqnXnpeqkZJY5S26ZCO5EuJbAWoNkQstKtovtdlwAzgZl9IbX9HyEB553WaiXyAAAAAElFTkSuQmCC"
+
+/***/ }),
+/* 184 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(185);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// Prepare cssTransformation
+var transform;
+
+var options = {"hmr":true}
+options.transform = transform
+// add the styles to the DOM
+var update = __webpack_require__(6)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -91932,98 +92200,53 @@ if(false) {
 }
 
 /***/ }),
-/* 182 */
+/* 185 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var escape = __webpack_require__(66);
-exports = module.exports = __webpack_require__(4)(false);
+exports = module.exports = __webpack_require__(5)(false);
 // imports
 
 
 // module
-exports.push([module.i, "@CHARSET \"ISO-8859-1\";\n@font-face {\n  font-family: Renogare;\n  src: url(" + escape(__webpack_require__(183)) + ") format(\"truetype\");\n  font-weight: bold;\n}\n\n@font-face {\n  font-family: Roboto-Light;\n  src: url(" + escape(__webpack_require__(184)) + ") format(\"truetype\");\n  font-weight: bold;\n}\n\n@font-face {\n  font-family: Roboto-Thin;\n  src: url(" + escape(__webpack_require__(185)) + ") format(\"truetype\");\n  font-weight: bold;\n}\n", ""]);
+exports.push([module.i, "@CHARSET \"ISO-8859-1\";\n@font-face {\n  font-family: Renogare;\n  src: url(" + escape(__webpack_require__(186)) + ") format(\"truetype\");\n  font-weight: bold;\n}\n\n@font-face {\n  font-family: Roboto-Light;\n  src: url(" + escape(__webpack_require__(187)) + ") format(\"truetype\");\n  font-weight: bold;\n}\n\n@font-face {\n  font-family: Roboto-Thin;\n  src: url(" + escape(__webpack_require__(188)) + ") format(\"truetype\");\n  font-weight: bold;\n}\n", ""]);
 
 // exports
 
-
-/***/ }),
-/* 183 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__.p + "fonts/Renogare.ttf";
-
-/***/ }),
-/* 184 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__.p + "fonts/Roboto-Light.ttf";
-
-/***/ }),
-/* 185 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__.p + "fonts/Roboto-Thin.ttf";
 
 /***/ }),
 /* 186 */
 /***/ (function(module, exports, __webpack_require__) {
 
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(187);
-if(typeof content === 'string') content = [[module.i, content, '']];
-// Prepare cssTransformation
-var transform;
-
-var options = {"hmr":true}
-options.transform = transform
-// add the styles to the DOM
-var update = __webpack_require__(5)(content, options);
-if(content.locals) module.exports = content.locals;
-// Hot Module Replacement
-if(false) {
-	// When the styles change, update the <style> tags
-	if(!content.locals) {
-		module.hot.accept("!!../../node_modules/css-loader/index.js!./effects.css", function() {
-			var newContent = require("!!../../node_modules/css-loader/index.js!./effects.css");
-			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-			update(newContent);
-		});
-	}
-	// When the module is disposed, remove the <style> tags
-	module.hot.dispose(function() { update(); });
-}
+module.exports = __webpack_require__.p + "fonts/Renogare.ttf";
 
 /***/ }),
 /* 187 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(4)(false);
-// imports
-
-
-// module
-exports.push([module.i, ".glitch {\n  position: relative;\n}\n.glitch::before,\n.glitch::after {\n  content: attr(data-text);\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n}\n\n.glitch::before {\n  /* ... anything needed to make it identical */\n  /* variation */\n  left: -10px;\n  transform: scaleX(1.5);\n  clip: rect(2px,120px,7px,0px);\n  /*text-shadow: -1px 0 red;*/\n  /* important: opaque background masks the original */\n  background: black;\n  /*animation: 2s infinite linear alternate-reverse;*/\n}\n.glitch::after {\n  /* ... anything needed to make it identical */\n  /* variation */\n  left: 20px;\n  transform: scaleX(1.5);\n  clip: rect(10px,120px,15px,0px);\n  /*text-shadow: -1px 0 blue;*/\n  /* important: opaque background masks the original */\n  background: black;\n  /*animation: 2s infinite linear alternate-reverse;*/\n}\n", ""]);
-
-// exports
-
+module.exports = __webpack_require__.p + "fonts/Roboto-Light.ttf";
 
 /***/ }),
 /* 188 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "fonts/Roboto-Thin.ttf";
+
+/***/ }),
+/* 189 */
 /***/ (function(module, exports) {
 
 function import$(t,e){var i={}.hasOwnProperty;for(var r in e)i.call(e,r)&&(t[r]=e[r]);return t}var slice$=[].slice;!function(){var t,e,i,r;return t={head:function(t){return'<?xml version="1.0" encoding="utf-8"?><svg xmlns="http://www.w3.org/2000/svg" viewBox="'+t+'">'},wrap:function(t){return"data:image/svg+xml;base64,"+btoa(t)},gradient:function(t,e){var i,r,a,l,n,h,s,d,o,u;for(null==t&&(t=45),null==e&&(e=1),i=slice$.call(arguments,2),r=[this.head("0 0 100 100")],a=4*i.length+1,t=t*Math.PI/180,l=Math.pow(Math.cos(t),2),n=Math.sqrt(l-Math.pow(l,2)),t>.25*Math.PI&&(n=Math.pow(Math.sin(t),2),l=Math.sqrt(n-Math.pow(n,2))),h=100*l,s=100*n,r.push('<defs><linearGradient id="gradient" x1="0" x2="'+l+'" y1="0" y2="'+n+'">'),d=0;a>d;++d)o=d,u=100*o/(a-1),r.push('<stop offset="'+u+'%" stop-color="'+i[o%i.length]+'"/>');return r.push(['</linearGradient></defs>\n<rect x="0" y="0" width="400" height="400" fill="url(#gradient)">\n<animateTransform attributeName="transform" type="translate" from="-'+h+",-"+s+'"\nto="0,0" dur="'+e+'s" repeatCount="indefinite"/></rect></svg>'].join("")),this.wrap(r.join(""))},stripe:function(t,e,i){var r,a;return null==t&&(t="#b4b4b4"),null==e&&(e="#e6e6e6"),null==i&&(i=1),r=[this.head("0 0 100 100")],r=r.concat(['<rect fill="'+e+'" width="100" height="100"/>',"<g><g>",function(){var e,i=[];for(e=0;13>e;++e)a=e,i.push('<polygon fill="'+t+'" '+('points="'+(-90+20*a)+",100 "+(-100+20*a)+",")+("100 "+(-60+20*a)+",0 "+(-50+20*a)+',0 "/>'));return i}().join(""),'</g><animateTransform attributeName="transform" type="translate" ','from="0,0" to="20,0" dur="'+i+'s" repeatCount="indefinite"/></g></svg>'].join("")),this.wrap(r)},bubble:function(t,e,i,r,a,l){var n,h,s,d,o,u,f;for(null==t&&(t="#39d"),null==e&&(e="#9cf"),null==i&&(i=15),null==r&&(r=1),null==a&&(a=6),null==l&&(l=1),n=[this.head("0 0 200 200"),'<rect x="0" y="0" width="200" height="200" fill="'+t+'"/>'],h=0;i>h;++h)s=h,d=-(s/i)*r,o=184*Math.random()+8,u=(.7*Math.random()+.3)*a,f=r*(1+.5*Math.random()),n.push(['<circle cx="'+o+'" cy="0" r="'+u+'" fill="none" stroke="'+e+'" stroke-width="'+l+'">','<animate attributeName="cy" values="190;-10" times="0;1" ','dur="'+f+'s" begin="'+d+'s" repeatCount="indefinite"/>',"</circle>",'<circle cx="'+o+'" cy="0" r="'+u+'" fill="none" stroke="'+e+'" stroke-width="'+l+'">','<animate attributeName="cy" values="390;190" times="0;1" ','dur="'+f+'s" begin="'+d+'s" repeatCount="indefinite"/>',"</circle>"].join(""));return this.wrap(n.join("")+"</svg>")}},e={queue:{},running:!1,main:function(t){var e,i,r,a,l,n,h=this;e=!1,i=[];for(r in a=this.queue)l=a[r],n=l(t),n||i.push(l),e=e||n;for(r in a=this.queue)l=a[r],i.indexOf(l)>=0&&delete this.queue[r];return e?requestAnimationFrame(function(t){return h.main(t)}):this.running=!1},add:function(t,e){var i=this;return this.queue[t]||(this.queue[t]=e),this.running?void 0:(this.running=!0,requestAnimationFrame(function(t){return i.main(t)}))}},i={rainbow:{type:"stroke",path:"M10 10L90 10",stroke:"data:ldbar/res,gradient(0,1,#a551df,#fd51ad,#ff7f82,#ffb874,#ffeb90)"},energy:{type:"fill",path:"M15 5L85 5A5 5 0 0 1 85 15L15 15A5 5 0 0 1 15 5",stroke:"#f00",fill:"data:ldbar/res,gradient(45,2,#4e9,#8fb,#4e9)","fill-dir":"ltr","fill-background":"#444","fill-background-extrude":1},stripe:{type:"fill",path:"M15 5L85 5A5 5 0 0 1 85 15L15 15A5 5 0 0 1 15 5",stroke:"#f00",fill:"data:ldbar/res,stripe(#25b,#58e,1)","fill-dir":"ltr","fill-background":"#ddd","fill-background-extrude":1},text:{type:"fill",img:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="70" height="20" viewBox="0 0 70 20"><text x="35" y="10" text-anchor="middle" dominant-baseline="central" font-family="arial">LOADING</text></svg>',"fill-background-extrude":1.3,"pattern-size":100,"fill-dir":"ltr","img-size":"70,20"},line:{type:"stroke",path:"M10 10L90 10",stroke:"#25b","stroke-width":3,"stroke-trail":"#ddd","stroke-trail-width":1},fan:{type:"stroke",path:"M10 90A40 40 0 0 1 90 90","fill-dir":"btt",fill:"#25b","fill-background":"#ddd","fill-background-extrude":3,"stroke-dir":"normal",stroke:"#25b","stroke-width":"3","stroke-trail":"#ddd","stroke-trail-width":.5},circle:{type:"stroke",path:"M50 10A40 40 0 0 1 50 90A40 40 0 0 1 50 10","fill-dir":"btt",fill:"#25b","fill-background":"#ddd","fill-background-extrude":3,"stroke-dir":"normal",stroke:"#25b","stroke-width":"3","stroke-trail":"#ddd","stroke-trail-width":.5},bubble:{type:"fill",path:"M50 10A40 40 0 0 1 50 90A40 40 0 0 1 50 10","fill-dir":"btt",fill:"data:ldbar/res,bubble(#39d,#cef)","pattern-size":"150","fill-background":"#ddd","fill-background-extrude":2,"stroke-dir":"normal",stroke:"#25b","stroke-width":"3","stroke-trail":"#ddd","stroke-trail-width":.5}},window.ldBar=r=function(r,a){var l,n,h,s,d,o,u,f,c,g,p,w,m,k,b,x,y,v,M,A,q,C,S,B,L=this;return null==a&&(a={}),l={xlink:"http://www.w3.org/1999/xlink"},n="string"==typeof r?document.querySelector(r):r,(h=n.ldBar)?h:(s=n.getAttribute("class"),s.indexOf("ldBar")||n.setAttribute("class",s+" ldBar"),d="ldBar-"+Math.random().toString(16).substring(2),d={key:d,clip:d+"-clip",filter:d+"-filter",pattern:d+"-pattern",mask:d+"-mask",maskPath:d+"-mask-path"},o=function(t,e){var i,r;t=u(t);for(i in e)r=e[i],"attr"!==i&&t.appendChild(o(i,r||{}));return t.attrs(e.attr||{}),t},u=function(t){return document.createElementNS("http://www.w3.org/2000/svg",t)},f=document.body.__proto__.__proto__.__proto__,f.text=function(t){return this.appendChild(document.createTextNode(t))},f.attrs=function(t){var e,i,r,a=[];for(e in t)i=t[e],r=/([^:]+):([^:]+)/.exec(e),a.push(r&&l[r[1]]?this.setAttributeNS(l[r[1]],e,i):this.setAttribute(e,i));return a},f.styles=function(t){var e,i,r=[];for(e in t)i=t[e],r.push(this.style[e]=i);return r},f.append=function(t){var e;return this.appendChild(e=document.createElementNS("http://www.w3.og/2000/svg",t))},f.attr=function(t,e){return null!=e?this.setAttribute(t,e):this.getAttribute(t)},c={type:"stroke",img:"",path:"M10 10L90 10","fill-dir":"btt",fill:"#25b","fill-background":"#ddd","fill-background-extrude":3,"pattern-size":null,"stroke-dir":"normal",stroke:"#25b","stroke-width":"3","stroke-trail":"#ddd","stroke-trail-width":.5,duration:1,easing:"linear",value:0,"img-size":null},c.preset=n.attr("data-preset")||a.preset,null!=c.preset&&import$(c,i[c.preset]),function(){var t,e=[];for(g in t=c)p=t[g],e.push({k:g,v:p});return e}().map(function(t){return[t.k,n.attr("data-"+t.k)]}).filter(function(t){return t[1]}).map(function(t){return c[t[0]]=t[1]}),c.img&&(c.path=null),import$(c,a),w="stroke"===c.type,m=function(e){var i,r;return i=/data:ldbar\/res,([^()]+)\(([^)]+)\)/,r=i.exec(e),r?r=t[r[1]].apply(t,r[2].split(",")):e},c.fill=m(c.fill),c.stroke=m(c.stroke),k={attr:{"xmlns:xlink":"http://www.w3.org/1999/xlink",preserveAspectRatio:"xMidYMid",width:"100%",height:"100%"},defs:{filter:{attr:{id:d.filter,x:-1,y:-1,width:3,height:3},feMorphology:{attr:{operator:+c["fill-background-extrude"]>=0?"dilate":"erode",radius:Math.abs(+c["fill-background-extrude"])}},feColorMatrix:{attr:{values:"0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0",result:"cm"}}},mask:{attr:{id:d.mask},image:{attr:{"xlink:href":c.img,filter:"url(#"+d.filter+")",x:0,y:0,width:100,height:100,preserveAspectRatio:"xMidYMid"}}},g:{mask:{attr:{id:d.maskPath},path:{attr:{d:c.path||"",fill:"#fff",stroke:"#fff",filter:"url(#"+d.filter+")"}}}},clipPath:{attr:{id:d.clip},rect:{attr:{"class":"mask",fill:"#000"}}},pattern:{attr:{id:d.pattern,patternUnits:"userSpaceOnUse",x:0,y:0,width:300,height:300},image:{attr:{x:0,y:0,width:300,height:300}}}}},b=o("svg",k),x=document.createElement("div"),x.setAttribute("class","ldBar-label"),n.appendChild(b),n.appendChild(x),y=[0,0],v=0,this.fit=function(){var t,e,i;return t=y[1].getBBox(),e=1.5*Math.max.apply(null,["stroke-width","stroke-trail-width","fill-background-extrude"].map(function(t){return c[t]})),b.attrs({viewBox:[t.x-e,t.y-e,t.width+2*e,t.height+2*e].join(" ")}),n.style.width||n.styles({width:t.width+2*e+"px"}),n.style.height||n.styles({height:t.height+2*e+"px"}),i=y[0].querySelector("rect"),i?i.attrs({x:t.x-e,y:t.y-e,width:t.width+2*e,height:t.height+2*e}):void 0},c.path?(y[0]=w?o("g",{path:{attr:{d:c.path,fill:"none","class":"baseline"}}}):o("g",{rect:{attr:{x:0,y:0,width:100,height:100,mask:"url(#"+d.maskPath+")",fill:c["fill-background"],"class":"frame"}}}),b.appendChild(y[0]),y[1]=o("g",{path:{attr:{d:c.path,"class":w?"mainline":"solid","clip-path":"fill"===c.type?"url(#"+d.clip+")":""}}}),b.appendChild(y[1]),M=y[0].querySelector(w?"path":"rect"),A=y[1].querySelector("path"),w&&A.attrs({fill:"none"}),q=b.querySelector("pattern image"),C=new Image,C.addEventListener("load",function(){var t,e;return t=(e=c["pattern-size"])?{width:+e,height:+e}:C.width&&C.height?{width:C.width,height:C.height}:{width:300,height:300},b.querySelector("pattern").attrs({width:t.width,height:t.height}),q.attrs({width:t.width,height:t.height})}),/.+\..+|^data:/.exec(w?c.stroke:c.fill)&&(C.src=w?c.stroke:c.fill,q.attrs({"xlink:href":C.src})),w&&(M.attrs({stroke:c["stroke-trail"],"stroke-width":c["stroke-trail-width"]}),A.attrs({"stroke-width":c["stroke-width"],stroke:/.+\..+|^data:/.exec(c.stroke)?"url(#"+d.pattern+")":c.stroke})),c.fill&&!w&&A.attrs({fill:/.+\..+|^data:/.exec(c.fill)?"url(#"+d.pattern+")":c.fill}),v=A.getTotalLength(),this.fit(),this.inited=!0):c.img&&(c["img-size"]?(S=c["img-size"].split(","),B={width:+S[0],height:+S[1]}):B={width:100,height:100},y[0]=o("g",{rect:{attr:{x:0,y:0,width:100,height:100,mask:"url(#"+d.mask+")",fill:c["fill-background"]}}}),b.querySelector("mask image").attrs({width:B.width,height:B.height}),y[1]=o("g",{image:{attr:{width:B.width,height:B.height,x:0,y:0,preserveAspectRatio:"xMidYMid","clip-path":"fill"===c.type?"url(#"+d.clip+")":"","xlink:href":c.img,"class":"solid"}}}),C=new Image,C.addEventListener("load",function(){var t,e;return c["img-size"]?(t=c["img-size"].split(","),e={width:+t[0],height:+t[1]}):e=C.width&&C.height?{width:C.width,height:C.height}:{width:100,height:100},b.querySelector("mask image").attrs({width:e.width,height:e.height}),y[1].querySelector("image").attrs({width:e.width,height:e.height}),L.fit(),L.set(void 0,!1),L.inited=!0}),C.src=c.img,b.appendChild(y[0]),b.appendChild(y[1])),b.attrs({width:"100%",height:"100%"}),this.transition={value:{src:0,des:0},time:{},ease:function(t,e,i,r){return t/=.5*r,1>t?.5*i*t*t+e:(t-=1,.5*-i*(t*(t-2)-1)+e)},handler:function(t){var e,i,r,a,l,n,h,s,d;return null==this.time.src&&(this.time.src=t),e=[this.value.des-this.value.src,.001*(t-this.time.src),+c.duration||1],i=e[0],r=e[1],a=e[2],x.textContent=l=Math.round(this.ease(r,this.value.src,i,a)),w?(n=A,h={"stroke-dasharray":"reverse"===c["stroke-dir"]?"0 "+v*(100-l)*.01+" "+v*l*.01+" 0":.01*l*v+" "+(.01*(100-l)*v+1)}):(s=y[1].getBBox(),d=c["fill-dir"],h="btt"!==d&&d?"ttb"===d?{y:s.y,height:s.height*l*.01,x:s.x,width:s.width}:"ltr"===d?{y:s.y,height:s.height,x:s.x,width:s.width*l*.01}:"rtl"===d?{y:s.y,height:s.height,x:s.x+s.width*(100-l)*.01,width:s.width*l*.01}:void 0:{y:s.y+s.height*(100-l)*.01,height:s.height*l*.01,x:s.x,width:s.width},n=b.querySelector("rect")),n.attrs(h),r>=a?(delete this.time.src,!1):!0},start:function(t,i,r){var a,l=this;return a=this.value,a.src=t,a.des=i,!!(n.offsetWidth||n.offsetHeight||n.getClientRects().length),r&&(n.offsetWidth||n.offsetHeight||n.getClientRects().length)?e.add(d.key,function(t){return l.handler(t)}):(this.time.src=0,void this.handler(1e3))}},this.set=function(t,e){var i,r;return null==e&&(e=!0),i=this.value||0,null!=t?this.value=t:t=this.value,r=this.value,this.transition.start(i,r,e)},this.set(+c.value||0,!1),this)},window.addEventListener("load",function(){return Array.from(document.querySelectorAll(".ldBar")).forEach(function(t){return t.ldBar=new r(t)})},!1)}();
 
 /***/ }),
-/* 189 */
+/* 190 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_animate_css__ = __webpack_require__(190);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_animate_css__ = __webpack_require__(191);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_animate_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_animate_css__);
 
 
@@ -92095,13 +92318,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 /***/ }),
-/* 190 */
+/* 191 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(191);
+var content = __webpack_require__(192);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -92109,7 +92332,7 @@ var transform;
 var options = {"hmr":true}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(5)(content, options);
+var update = __webpack_require__(6)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -92126,10 +92349,10 @@ if(false) {
 }
 
 /***/ }),
-/* 191 */
+/* 192 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(4)(false);
+exports = module.exports = __webpack_require__(5)(false);
 // imports
 
 
@@ -92137,16 +92360,6 @@ exports = module.exports = __webpack_require__(4)(false);
 exports.push([module.i, "@charset \"UTF-8\";\n\n/*!\n * animate.css -http://daneden.me/animate\n * Version - 3.5.1\n * Licensed under the MIT license - http://opensource.org/licenses/MIT\n *\n * Copyright (c) 2016 Daniel Eden\n */\n\n.animated {\n  -webkit-animation-duration: 1s;\n  animation-duration: 1s;\n  -webkit-animation-fill-mode: both;\n  animation-fill-mode: both;\n}\n\n.animated.infinite {\n  -webkit-animation-iteration-count: infinite;\n  animation-iteration-count: infinite;\n}\n\n.animated.hinge {\n  -webkit-animation-duration: 2s;\n  animation-duration: 2s;\n}\n\n.animated.flipOutX,\n.animated.flipOutY,\n.animated.bounceIn,\n.animated.bounceOut {\n  -webkit-animation-duration: .75s;\n  animation-duration: .75s;\n}\n\n@-webkit-keyframes bounce {\n  from, 20%, 53%, 80%, to {\n    -webkit-animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n    -webkit-transform: translate3d(0,0,0);\n    transform: translate3d(0,0,0);\n  }\n\n  40%, 43% {\n    -webkit-animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);\n    animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);\n    -webkit-transform: translate3d(0, -30px, 0);\n    transform: translate3d(0, -30px, 0);\n  }\n\n  70% {\n    -webkit-animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);\n    animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);\n    -webkit-transform: translate3d(0, -15px, 0);\n    transform: translate3d(0, -15px, 0);\n  }\n\n  90% {\n    -webkit-transform: translate3d(0,-4px,0);\n    transform: translate3d(0,-4px,0);\n  }\n}\n\n@keyframes bounce {\n  from, 20%, 53%, 80%, to {\n    -webkit-animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n    -webkit-transform: translate3d(0,0,0);\n    transform: translate3d(0,0,0);\n  }\n\n  40%, 43% {\n    -webkit-animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);\n    animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);\n    -webkit-transform: translate3d(0, -30px, 0);\n    transform: translate3d(0, -30px, 0);\n  }\n\n  70% {\n    -webkit-animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);\n    animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);\n    -webkit-transform: translate3d(0, -15px, 0);\n    transform: translate3d(0, -15px, 0);\n  }\n\n  90% {\n    -webkit-transform: translate3d(0,-4px,0);\n    transform: translate3d(0,-4px,0);\n  }\n}\n\n.bounce {\n  -webkit-animation-name: bounce;\n  animation-name: bounce;\n  -webkit-transform-origin: center bottom;\n  transform-origin: center bottom;\n}\n\n@-webkit-keyframes flash {\n  from, 50%, to {\n    opacity: 1;\n  }\n\n  25%, 75% {\n    opacity: 0;\n  }\n}\n\n@keyframes flash {\n  from, 50%, to {\n    opacity: 1;\n  }\n\n  25%, 75% {\n    opacity: 0;\n  }\n}\n\n.flash {\n  -webkit-animation-name: flash;\n  animation-name: flash;\n}\n\n/* originally authored by Nick Pettit - https://github.com/nickpettit/glide */\n\n@-webkit-keyframes pulse {\n  from {\n    -webkit-transform: scale3d(1, 1, 1);\n    transform: scale3d(1, 1, 1);\n  }\n\n  50% {\n    -webkit-transform: scale3d(1.05, 1.05, 1.05);\n    transform: scale3d(1.05, 1.05, 1.05);\n  }\n\n  to {\n    -webkit-transform: scale3d(1, 1, 1);\n    transform: scale3d(1, 1, 1);\n  }\n}\n\n@keyframes pulse {\n  from {\n    -webkit-transform: scale3d(1, 1, 1);\n    transform: scale3d(1, 1, 1);\n  }\n\n  50% {\n    -webkit-transform: scale3d(1.05, 1.05, 1.05);\n    transform: scale3d(1.05, 1.05, 1.05);\n  }\n\n  to {\n    -webkit-transform: scale3d(1, 1, 1);\n    transform: scale3d(1, 1, 1);\n  }\n}\n\n.pulse {\n  -webkit-animation-name: pulse;\n  animation-name: pulse;\n}\n\n@-webkit-keyframes rubberBand {\n  from {\n    -webkit-transform: scale3d(1, 1, 1);\n    transform: scale3d(1, 1, 1);\n  }\n\n  30% {\n    -webkit-transform: scale3d(1.25, 0.75, 1);\n    transform: scale3d(1.25, 0.75, 1);\n  }\n\n  40% {\n    -webkit-transform: scale3d(0.75, 1.25, 1);\n    transform: scale3d(0.75, 1.25, 1);\n  }\n\n  50% {\n    -webkit-transform: scale3d(1.15, 0.85, 1);\n    transform: scale3d(1.15, 0.85, 1);\n  }\n\n  65% {\n    -webkit-transform: scale3d(.95, 1.05, 1);\n    transform: scale3d(.95, 1.05, 1);\n  }\n\n  75% {\n    -webkit-transform: scale3d(1.05, .95, 1);\n    transform: scale3d(1.05, .95, 1);\n  }\n\n  to {\n    -webkit-transform: scale3d(1, 1, 1);\n    transform: scale3d(1, 1, 1);\n  }\n}\n\n@keyframes rubberBand {\n  from {\n    -webkit-transform: scale3d(1, 1, 1);\n    transform: scale3d(1, 1, 1);\n  }\n\n  30% {\n    -webkit-transform: scale3d(1.25, 0.75, 1);\n    transform: scale3d(1.25, 0.75, 1);\n  }\n\n  40% {\n    -webkit-transform: scale3d(0.75, 1.25, 1);\n    transform: scale3d(0.75, 1.25, 1);\n  }\n\n  50% {\n    -webkit-transform: scale3d(1.15, 0.85, 1);\n    transform: scale3d(1.15, 0.85, 1);\n  }\n\n  65% {\n    -webkit-transform: scale3d(.95, 1.05, 1);\n    transform: scale3d(.95, 1.05, 1);\n  }\n\n  75% {\n    -webkit-transform: scale3d(1.05, .95, 1);\n    transform: scale3d(1.05, .95, 1);\n  }\n\n  to {\n    -webkit-transform: scale3d(1, 1, 1);\n    transform: scale3d(1, 1, 1);\n  }\n}\n\n.rubberBand {\n  -webkit-animation-name: rubberBand;\n  animation-name: rubberBand;\n}\n\n@-webkit-keyframes shake {\n  from, to {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n\n  10%, 30%, 50%, 70%, 90% {\n    -webkit-transform: translate3d(-10px, 0, 0);\n    transform: translate3d(-10px, 0, 0);\n  }\n\n  20%, 40%, 60%, 80% {\n    -webkit-transform: translate3d(10px, 0, 0);\n    transform: translate3d(10px, 0, 0);\n  }\n}\n\n@keyframes shake {\n  from, to {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n\n  10%, 30%, 50%, 70%, 90% {\n    -webkit-transform: translate3d(-10px, 0, 0);\n    transform: translate3d(-10px, 0, 0);\n  }\n\n  20%, 40%, 60%, 80% {\n    -webkit-transform: translate3d(10px, 0, 0);\n    transform: translate3d(10px, 0, 0);\n  }\n}\n\n.shake {\n  -webkit-animation-name: shake;\n  animation-name: shake;\n}\n\n@-webkit-keyframes headShake {\n  0% {\n    -webkit-transform: translateX(0);\n    transform: translateX(0);\n  }\n\n  6.5% {\n    -webkit-transform: translateX(-6px) rotateY(-9deg);\n    transform: translateX(-6px) rotateY(-9deg);\n  }\n\n  18.5% {\n    -webkit-transform: translateX(5px) rotateY(7deg);\n    transform: translateX(5px) rotateY(7deg);\n  }\n\n  31.5% {\n    -webkit-transform: translateX(-3px) rotateY(-5deg);\n    transform: translateX(-3px) rotateY(-5deg);\n  }\n\n  43.5% {\n    -webkit-transform: translateX(2px) rotateY(3deg);\n    transform: translateX(2px) rotateY(3deg);\n  }\n\n  50% {\n    -webkit-transform: translateX(0);\n    transform: translateX(0);\n  }\n}\n\n@keyframes headShake {\n  0% {\n    -webkit-transform: translateX(0);\n    transform: translateX(0);\n  }\n\n  6.5% {\n    -webkit-transform: translateX(-6px) rotateY(-9deg);\n    transform: translateX(-6px) rotateY(-9deg);\n  }\n\n  18.5% {\n    -webkit-transform: translateX(5px) rotateY(7deg);\n    transform: translateX(5px) rotateY(7deg);\n  }\n\n  31.5% {\n    -webkit-transform: translateX(-3px) rotateY(-5deg);\n    transform: translateX(-3px) rotateY(-5deg);\n  }\n\n  43.5% {\n    -webkit-transform: translateX(2px) rotateY(3deg);\n    transform: translateX(2px) rotateY(3deg);\n  }\n\n  50% {\n    -webkit-transform: translateX(0);\n    transform: translateX(0);\n  }\n}\n\n.headShake {\n  -webkit-animation-timing-function: ease-in-out;\n  animation-timing-function: ease-in-out;\n  -webkit-animation-name: headShake;\n  animation-name: headShake;\n}\n\n@-webkit-keyframes swing {\n  20% {\n    -webkit-transform: rotate3d(0, 0, 1, 15deg);\n    transform: rotate3d(0, 0, 1, 15deg);\n  }\n\n  40% {\n    -webkit-transform: rotate3d(0, 0, 1, -10deg);\n    transform: rotate3d(0, 0, 1, -10deg);\n  }\n\n  60% {\n    -webkit-transform: rotate3d(0, 0, 1, 5deg);\n    transform: rotate3d(0, 0, 1, 5deg);\n  }\n\n  80% {\n    -webkit-transform: rotate3d(0, 0, 1, -5deg);\n    transform: rotate3d(0, 0, 1, -5deg);\n  }\n\n  to {\n    -webkit-transform: rotate3d(0, 0, 1, 0deg);\n    transform: rotate3d(0, 0, 1, 0deg);\n  }\n}\n\n@keyframes swing {\n  20% {\n    -webkit-transform: rotate3d(0, 0, 1, 15deg);\n    transform: rotate3d(0, 0, 1, 15deg);\n  }\n\n  40% {\n    -webkit-transform: rotate3d(0, 0, 1, -10deg);\n    transform: rotate3d(0, 0, 1, -10deg);\n  }\n\n  60% {\n    -webkit-transform: rotate3d(0, 0, 1, 5deg);\n    transform: rotate3d(0, 0, 1, 5deg);\n  }\n\n  80% {\n    -webkit-transform: rotate3d(0, 0, 1, -5deg);\n    transform: rotate3d(0, 0, 1, -5deg);\n  }\n\n  to {\n    -webkit-transform: rotate3d(0, 0, 1, 0deg);\n    transform: rotate3d(0, 0, 1, 0deg);\n  }\n}\n\n.swing {\n  -webkit-transform-origin: top center;\n  transform-origin: top center;\n  -webkit-animation-name: swing;\n  animation-name: swing;\n}\n\n@-webkit-keyframes tada {\n  from {\n    -webkit-transform: scale3d(1, 1, 1);\n    transform: scale3d(1, 1, 1);\n  }\n\n  10%, 20% {\n    -webkit-transform: scale3d(.9, .9, .9) rotate3d(0, 0, 1, -3deg);\n    transform: scale3d(.9, .9, .9) rotate3d(0, 0, 1, -3deg);\n  }\n\n  30%, 50%, 70%, 90% {\n    -webkit-transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, 3deg);\n    transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, 3deg);\n  }\n\n  40%, 60%, 80% {\n    -webkit-transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, -3deg);\n    transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, -3deg);\n  }\n\n  to {\n    -webkit-transform: scale3d(1, 1, 1);\n    transform: scale3d(1, 1, 1);\n  }\n}\n\n@keyframes tada {\n  from {\n    -webkit-transform: scale3d(1, 1, 1);\n    transform: scale3d(1, 1, 1);\n  }\n\n  10%, 20% {\n    -webkit-transform: scale3d(.9, .9, .9) rotate3d(0, 0, 1, -3deg);\n    transform: scale3d(.9, .9, .9) rotate3d(0, 0, 1, -3deg);\n  }\n\n  30%, 50%, 70%, 90% {\n    -webkit-transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, 3deg);\n    transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, 3deg);\n  }\n\n  40%, 60%, 80% {\n    -webkit-transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, -3deg);\n    transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, -3deg);\n  }\n\n  to {\n    -webkit-transform: scale3d(1, 1, 1);\n    transform: scale3d(1, 1, 1);\n  }\n}\n\n.tada {\n  -webkit-animation-name: tada;\n  animation-name: tada;\n}\n\n/* originally authored by Nick Pettit - https://github.com/nickpettit/glide */\n\n@-webkit-keyframes wobble {\n  from {\n    -webkit-transform: none;\n    transform: none;\n  }\n\n  15% {\n    -webkit-transform: translate3d(-25%, 0, 0) rotate3d(0, 0, 1, -5deg);\n    transform: translate3d(-25%, 0, 0) rotate3d(0, 0, 1, -5deg);\n  }\n\n  30% {\n    -webkit-transform: translate3d(20%, 0, 0) rotate3d(0, 0, 1, 3deg);\n    transform: translate3d(20%, 0, 0) rotate3d(0, 0, 1, 3deg);\n  }\n\n  45% {\n    -webkit-transform: translate3d(-15%, 0, 0) rotate3d(0, 0, 1, -3deg);\n    transform: translate3d(-15%, 0, 0) rotate3d(0, 0, 1, -3deg);\n  }\n\n  60% {\n    -webkit-transform: translate3d(10%, 0, 0) rotate3d(0, 0, 1, 2deg);\n    transform: translate3d(10%, 0, 0) rotate3d(0, 0, 1, 2deg);\n  }\n\n  75% {\n    -webkit-transform: translate3d(-5%, 0, 0) rotate3d(0, 0, 1, -1deg);\n    transform: translate3d(-5%, 0, 0) rotate3d(0, 0, 1, -1deg);\n  }\n\n  to {\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n@keyframes wobble {\n  from {\n    -webkit-transform: none;\n    transform: none;\n  }\n\n  15% {\n    -webkit-transform: translate3d(-25%, 0, 0) rotate3d(0, 0, 1, -5deg);\n    transform: translate3d(-25%, 0, 0) rotate3d(0, 0, 1, -5deg);\n  }\n\n  30% {\n    -webkit-transform: translate3d(20%, 0, 0) rotate3d(0, 0, 1, 3deg);\n    transform: translate3d(20%, 0, 0) rotate3d(0, 0, 1, 3deg);\n  }\n\n  45% {\n    -webkit-transform: translate3d(-15%, 0, 0) rotate3d(0, 0, 1, -3deg);\n    transform: translate3d(-15%, 0, 0) rotate3d(0, 0, 1, -3deg);\n  }\n\n  60% {\n    -webkit-transform: translate3d(10%, 0, 0) rotate3d(0, 0, 1, 2deg);\n    transform: translate3d(10%, 0, 0) rotate3d(0, 0, 1, 2deg);\n  }\n\n  75% {\n    -webkit-transform: translate3d(-5%, 0, 0) rotate3d(0, 0, 1, -1deg);\n    transform: translate3d(-5%, 0, 0) rotate3d(0, 0, 1, -1deg);\n  }\n\n  to {\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n.wobble {\n  -webkit-animation-name: wobble;\n  animation-name: wobble;\n}\n\n@-webkit-keyframes jello {\n  from, 11.1%, to {\n    -webkit-transform: none;\n    transform: none;\n  }\n\n  22.2% {\n    -webkit-transform: skewX(-12.5deg) skewY(-12.5deg);\n    transform: skewX(-12.5deg) skewY(-12.5deg);\n  }\n\n  33.3% {\n    -webkit-transform: skewX(6.25deg) skewY(6.25deg);\n    transform: skewX(6.25deg) skewY(6.25deg);\n  }\n\n  44.4% {\n    -webkit-transform: skewX(-3.125deg) skewY(-3.125deg);\n    transform: skewX(-3.125deg) skewY(-3.125deg);\n  }\n\n  55.5% {\n    -webkit-transform: skewX(1.5625deg) skewY(1.5625deg);\n    transform: skewX(1.5625deg) skewY(1.5625deg);\n  }\n\n  66.6% {\n    -webkit-transform: skewX(-0.78125deg) skewY(-0.78125deg);\n    transform: skewX(-0.78125deg) skewY(-0.78125deg);\n  }\n\n  77.7% {\n    -webkit-transform: skewX(0.390625deg) skewY(0.390625deg);\n    transform: skewX(0.390625deg) skewY(0.390625deg);\n  }\n\n  88.8% {\n    -webkit-transform: skewX(-0.1953125deg) skewY(-0.1953125deg);\n    transform: skewX(-0.1953125deg) skewY(-0.1953125deg);\n  }\n}\n\n@keyframes jello {\n  from, 11.1%, to {\n    -webkit-transform: none;\n    transform: none;\n  }\n\n  22.2% {\n    -webkit-transform: skewX(-12.5deg) skewY(-12.5deg);\n    transform: skewX(-12.5deg) skewY(-12.5deg);\n  }\n\n  33.3% {\n    -webkit-transform: skewX(6.25deg) skewY(6.25deg);\n    transform: skewX(6.25deg) skewY(6.25deg);\n  }\n\n  44.4% {\n    -webkit-transform: skewX(-3.125deg) skewY(-3.125deg);\n    transform: skewX(-3.125deg) skewY(-3.125deg);\n  }\n\n  55.5% {\n    -webkit-transform: skewX(1.5625deg) skewY(1.5625deg);\n    transform: skewX(1.5625deg) skewY(1.5625deg);\n  }\n\n  66.6% {\n    -webkit-transform: skewX(-0.78125deg) skewY(-0.78125deg);\n    transform: skewX(-0.78125deg) skewY(-0.78125deg);\n  }\n\n  77.7% {\n    -webkit-transform: skewX(0.390625deg) skewY(0.390625deg);\n    transform: skewX(0.390625deg) skewY(0.390625deg);\n  }\n\n  88.8% {\n    -webkit-transform: skewX(-0.1953125deg) skewY(-0.1953125deg);\n    transform: skewX(-0.1953125deg) skewY(-0.1953125deg);\n  }\n}\n\n.jello {\n  -webkit-animation-name: jello;\n  animation-name: jello;\n  -webkit-transform-origin: center;\n  transform-origin: center;\n}\n\n@-webkit-keyframes bounceIn {\n  from, 20%, 40%, 60%, 80%, to {\n    -webkit-animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n  }\n\n  0% {\n    opacity: 0;\n    -webkit-transform: scale3d(.3, .3, .3);\n    transform: scale3d(.3, .3, .3);\n  }\n\n  20% {\n    -webkit-transform: scale3d(1.1, 1.1, 1.1);\n    transform: scale3d(1.1, 1.1, 1.1);\n  }\n\n  40% {\n    -webkit-transform: scale3d(.9, .9, .9);\n    transform: scale3d(.9, .9, .9);\n  }\n\n  60% {\n    opacity: 1;\n    -webkit-transform: scale3d(1.03, 1.03, 1.03);\n    transform: scale3d(1.03, 1.03, 1.03);\n  }\n\n  80% {\n    -webkit-transform: scale3d(.97, .97, .97);\n    transform: scale3d(.97, .97, .97);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: scale3d(1, 1, 1);\n    transform: scale3d(1, 1, 1);\n  }\n}\n\n@keyframes bounceIn {\n  from, 20%, 40%, 60%, 80%, to {\n    -webkit-animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n  }\n\n  0% {\n    opacity: 0;\n    -webkit-transform: scale3d(.3, .3, .3);\n    transform: scale3d(.3, .3, .3);\n  }\n\n  20% {\n    -webkit-transform: scale3d(1.1, 1.1, 1.1);\n    transform: scale3d(1.1, 1.1, 1.1);\n  }\n\n  40% {\n    -webkit-transform: scale3d(.9, .9, .9);\n    transform: scale3d(.9, .9, .9);\n  }\n\n  60% {\n    opacity: 1;\n    -webkit-transform: scale3d(1.03, 1.03, 1.03);\n    transform: scale3d(1.03, 1.03, 1.03);\n  }\n\n  80% {\n    -webkit-transform: scale3d(.97, .97, .97);\n    transform: scale3d(.97, .97, .97);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: scale3d(1, 1, 1);\n    transform: scale3d(1, 1, 1);\n  }\n}\n\n.bounceIn {\n  -webkit-animation-name: bounceIn;\n  animation-name: bounceIn;\n}\n\n@-webkit-keyframes bounceInDown {\n  from, 60%, 75%, 90%, to {\n    -webkit-animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n  }\n\n  0% {\n    opacity: 0;\n    -webkit-transform: translate3d(0, -3000px, 0);\n    transform: translate3d(0, -3000px, 0);\n  }\n\n  60% {\n    opacity: 1;\n    -webkit-transform: translate3d(0, 25px, 0);\n    transform: translate3d(0, 25px, 0);\n  }\n\n  75% {\n    -webkit-transform: translate3d(0, -10px, 0);\n    transform: translate3d(0, -10px, 0);\n  }\n\n  90% {\n    -webkit-transform: translate3d(0, 5px, 0);\n    transform: translate3d(0, 5px, 0);\n  }\n\n  to {\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n@keyframes bounceInDown {\n  from, 60%, 75%, 90%, to {\n    -webkit-animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n  }\n\n  0% {\n    opacity: 0;\n    -webkit-transform: translate3d(0, -3000px, 0);\n    transform: translate3d(0, -3000px, 0);\n  }\n\n  60% {\n    opacity: 1;\n    -webkit-transform: translate3d(0, 25px, 0);\n    transform: translate3d(0, 25px, 0);\n  }\n\n  75% {\n    -webkit-transform: translate3d(0, -10px, 0);\n    transform: translate3d(0, -10px, 0);\n  }\n\n  90% {\n    -webkit-transform: translate3d(0, 5px, 0);\n    transform: translate3d(0, 5px, 0);\n  }\n\n  to {\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n.bounceInDown {\n  -webkit-animation-name: bounceInDown;\n  animation-name: bounceInDown;\n}\n\n@-webkit-keyframes bounceInLeft {\n  from, 60%, 75%, 90%, to {\n    -webkit-animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n  }\n\n  0% {\n    opacity: 0;\n    -webkit-transform: translate3d(-3000px, 0, 0);\n    transform: translate3d(-3000px, 0, 0);\n  }\n\n  60% {\n    opacity: 1;\n    -webkit-transform: translate3d(25px, 0, 0);\n    transform: translate3d(25px, 0, 0);\n  }\n\n  75% {\n    -webkit-transform: translate3d(-10px, 0, 0);\n    transform: translate3d(-10px, 0, 0);\n  }\n\n  90% {\n    -webkit-transform: translate3d(5px, 0, 0);\n    transform: translate3d(5px, 0, 0);\n  }\n\n  to {\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n@keyframes bounceInLeft {\n  from, 60%, 75%, 90%, to {\n    -webkit-animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n  }\n\n  0% {\n    opacity: 0;\n    -webkit-transform: translate3d(-3000px, 0, 0);\n    transform: translate3d(-3000px, 0, 0);\n  }\n\n  60% {\n    opacity: 1;\n    -webkit-transform: translate3d(25px, 0, 0);\n    transform: translate3d(25px, 0, 0);\n  }\n\n  75% {\n    -webkit-transform: translate3d(-10px, 0, 0);\n    transform: translate3d(-10px, 0, 0);\n  }\n\n  90% {\n    -webkit-transform: translate3d(5px, 0, 0);\n    transform: translate3d(5px, 0, 0);\n  }\n\n  to {\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n.bounceInLeft {\n  -webkit-animation-name: bounceInLeft;\n  animation-name: bounceInLeft;\n}\n\n@-webkit-keyframes bounceInRight {\n  from, 60%, 75%, 90%, to {\n    -webkit-animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n  }\n\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(3000px, 0, 0);\n    transform: translate3d(3000px, 0, 0);\n  }\n\n  60% {\n    opacity: 1;\n    -webkit-transform: translate3d(-25px, 0, 0);\n    transform: translate3d(-25px, 0, 0);\n  }\n\n  75% {\n    -webkit-transform: translate3d(10px, 0, 0);\n    transform: translate3d(10px, 0, 0);\n  }\n\n  90% {\n    -webkit-transform: translate3d(-5px, 0, 0);\n    transform: translate3d(-5px, 0, 0);\n  }\n\n  to {\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n@keyframes bounceInRight {\n  from, 60%, 75%, 90%, to {\n    -webkit-animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n  }\n\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(3000px, 0, 0);\n    transform: translate3d(3000px, 0, 0);\n  }\n\n  60% {\n    opacity: 1;\n    -webkit-transform: translate3d(-25px, 0, 0);\n    transform: translate3d(-25px, 0, 0);\n  }\n\n  75% {\n    -webkit-transform: translate3d(10px, 0, 0);\n    transform: translate3d(10px, 0, 0);\n  }\n\n  90% {\n    -webkit-transform: translate3d(-5px, 0, 0);\n    transform: translate3d(-5px, 0, 0);\n  }\n\n  to {\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n.bounceInRight {\n  -webkit-animation-name: bounceInRight;\n  animation-name: bounceInRight;\n}\n\n@-webkit-keyframes bounceInUp {\n  from, 60%, 75%, 90%, to {\n    -webkit-animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n  }\n\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(0, 3000px, 0);\n    transform: translate3d(0, 3000px, 0);\n  }\n\n  60% {\n    opacity: 1;\n    -webkit-transform: translate3d(0, -20px, 0);\n    transform: translate3d(0, -20px, 0);\n  }\n\n  75% {\n    -webkit-transform: translate3d(0, 10px, 0);\n    transform: translate3d(0, 10px, 0);\n  }\n\n  90% {\n    -webkit-transform: translate3d(0, -5px, 0);\n    transform: translate3d(0, -5px, 0);\n  }\n\n  to {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n}\n\n@keyframes bounceInUp {\n  from, 60%, 75%, 90%, to {\n    -webkit-animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n  }\n\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(0, 3000px, 0);\n    transform: translate3d(0, 3000px, 0);\n  }\n\n  60% {\n    opacity: 1;\n    -webkit-transform: translate3d(0, -20px, 0);\n    transform: translate3d(0, -20px, 0);\n  }\n\n  75% {\n    -webkit-transform: translate3d(0, 10px, 0);\n    transform: translate3d(0, 10px, 0);\n  }\n\n  90% {\n    -webkit-transform: translate3d(0, -5px, 0);\n    transform: translate3d(0, -5px, 0);\n  }\n\n  to {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n}\n\n.bounceInUp {\n  -webkit-animation-name: bounceInUp;\n  animation-name: bounceInUp;\n}\n\n@-webkit-keyframes bounceOut {\n  20% {\n    -webkit-transform: scale3d(.9, .9, .9);\n    transform: scale3d(.9, .9, .9);\n  }\n\n  50%, 55% {\n    opacity: 1;\n    -webkit-transform: scale3d(1.1, 1.1, 1.1);\n    transform: scale3d(1.1, 1.1, 1.1);\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: scale3d(.3, .3, .3);\n    transform: scale3d(.3, .3, .3);\n  }\n}\n\n@keyframes bounceOut {\n  20% {\n    -webkit-transform: scale3d(.9, .9, .9);\n    transform: scale3d(.9, .9, .9);\n  }\n\n  50%, 55% {\n    opacity: 1;\n    -webkit-transform: scale3d(1.1, 1.1, 1.1);\n    transform: scale3d(1.1, 1.1, 1.1);\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: scale3d(.3, .3, .3);\n    transform: scale3d(.3, .3, .3);\n  }\n}\n\n.bounceOut {\n  -webkit-animation-name: bounceOut;\n  animation-name: bounceOut;\n}\n\n@-webkit-keyframes bounceOutDown {\n  20% {\n    -webkit-transform: translate3d(0, 10px, 0);\n    transform: translate3d(0, 10px, 0);\n  }\n\n  40%, 45% {\n    opacity: 1;\n    -webkit-transform: translate3d(0, -20px, 0);\n    transform: translate3d(0, -20px, 0);\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(0, 2000px, 0);\n    transform: translate3d(0, 2000px, 0);\n  }\n}\n\n@keyframes bounceOutDown {\n  20% {\n    -webkit-transform: translate3d(0, 10px, 0);\n    transform: translate3d(0, 10px, 0);\n  }\n\n  40%, 45% {\n    opacity: 1;\n    -webkit-transform: translate3d(0, -20px, 0);\n    transform: translate3d(0, -20px, 0);\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(0, 2000px, 0);\n    transform: translate3d(0, 2000px, 0);\n  }\n}\n\n.bounceOutDown {\n  -webkit-animation-name: bounceOutDown;\n  animation-name: bounceOutDown;\n}\n\n@-webkit-keyframes bounceOutLeft {\n  20% {\n    opacity: 1;\n    -webkit-transform: translate3d(20px, 0, 0);\n    transform: translate3d(20px, 0, 0);\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(-2000px, 0, 0);\n    transform: translate3d(-2000px, 0, 0);\n  }\n}\n\n@keyframes bounceOutLeft {\n  20% {\n    opacity: 1;\n    -webkit-transform: translate3d(20px, 0, 0);\n    transform: translate3d(20px, 0, 0);\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(-2000px, 0, 0);\n    transform: translate3d(-2000px, 0, 0);\n  }\n}\n\n.bounceOutLeft {\n  -webkit-animation-name: bounceOutLeft;\n  animation-name: bounceOutLeft;\n}\n\n@-webkit-keyframes bounceOutRight {\n  20% {\n    opacity: 1;\n    -webkit-transform: translate3d(-20px, 0, 0);\n    transform: translate3d(-20px, 0, 0);\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(2000px, 0, 0);\n    transform: translate3d(2000px, 0, 0);\n  }\n}\n\n@keyframes bounceOutRight {\n  20% {\n    opacity: 1;\n    -webkit-transform: translate3d(-20px, 0, 0);\n    transform: translate3d(-20px, 0, 0);\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(2000px, 0, 0);\n    transform: translate3d(2000px, 0, 0);\n  }\n}\n\n.bounceOutRight {\n  -webkit-animation-name: bounceOutRight;\n  animation-name: bounceOutRight;\n}\n\n@-webkit-keyframes bounceOutUp {\n  20% {\n    -webkit-transform: translate3d(0, -10px, 0);\n    transform: translate3d(0, -10px, 0);\n  }\n\n  40%, 45% {\n    opacity: 1;\n    -webkit-transform: translate3d(0, 20px, 0);\n    transform: translate3d(0, 20px, 0);\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(0, -2000px, 0);\n    transform: translate3d(0, -2000px, 0);\n  }\n}\n\n@keyframes bounceOutUp {\n  20% {\n    -webkit-transform: translate3d(0, -10px, 0);\n    transform: translate3d(0, -10px, 0);\n  }\n\n  40%, 45% {\n    opacity: 1;\n    -webkit-transform: translate3d(0, 20px, 0);\n    transform: translate3d(0, 20px, 0);\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(0, -2000px, 0);\n    transform: translate3d(0, -2000px, 0);\n  }\n}\n\n.bounceOutUp {\n  -webkit-animation-name: bounceOutUp;\n  animation-name: bounceOutUp;\n}\n\n@-webkit-keyframes fadeIn {\n  from {\n    opacity: 0;\n  }\n\n  to {\n    opacity: 1;\n  }\n}\n\n@keyframes fadeIn {\n  from {\n    opacity: 0;\n  }\n\n  to {\n    opacity: 1;\n  }\n}\n\n.fadeIn {\n  -webkit-animation-name: fadeIn;\n  animation-name: fadeIn;\n}\n\n@-webkit-keyframes fadeInDown {\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(0, -100%, 0);\n    transform: translate3d(0, -100%, 0);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n@keyframes fadeInDown {\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(0, -100%, 0);\n    transform: translate3d(0, -100%, 0);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n.fadeInDown {\n  -webkit-animation-name: fadeInDown;\n  animation-name: fadeInDown;\n}\n\n@-webkit-keyframes fadeInDownBig {\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(0, -2000px, 0);\n    transform: translate3d(0, -2000px, 0);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n@keyframes fadeInDownBig {\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(0, -2000px, 0);\n    transform: translate3d(0, -2000px, 0);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n.fadeInDownBig {\n  -webkit-animation-name: fadeInDownBig;\n  animation-name: fadeInDownBig;\n}\n\n@-webkit-keyframes fadeInLeft {\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(-100%, 0, 0);\n    transform: translate3d(-100%, 0, 0);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n@keyframes fadeInLeft {\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(-100%, 0, 0);\n    transform: translate3d(-100%, 0, 0);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n.fadeInLeft {\n  -webkit-animation-name: fadeInLeft;\n  animation-name: fadeInLeft;\n}\n\n@-webkit-keyframes fadeInLeftBig {\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(-2000px, 0, 0);\n    transform: translate3d(-2000px, 0, 0);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n@keyframes fadeInLeftBig {\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(-2000px, 0, 0);\n    transform: translate3d(-2000px, 0, 0);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n.fadeInLeftBig {\n  -webkit-animation-name: fadeInLeftBig;\n  animation-name: fadeInLeftBig;\n}\n\n@-webkit-keyframes fadeInRight {\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(100%, 0, 0);\n    transform: translate3d(100%, 0, 0);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n@keyframes fadeInRight {\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(100%, 0, 0);\n    transform: translate3d(100%, 0, 0);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n.fadeInRight {\n  -webkit-animation-name: fadeInRight;\n  animation-name: fadeInRight;\n}\n\n@-webkit-keyframes fadeInRightBig {\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(2000px, 0, 0);\n    transform: translate3d(2000px, 0, 0);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n@keyframes fadeInRightBig {\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(2000px, 0, 0);\n    transform: translate3d(2000px, 0, 0);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n.fadeInRightBig {\n  -webkit-animation-name: fadeInRightBig;\n  animation-name: fadeInRightBig;\n}\n\n@-webkit-keyframes fadeInUp {\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(0, 100%, 0);\n    transform: translate3d(0, 100%, 0);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n@keyframes fadeInUp {\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(0, 100%, 0);\n    transform: translate3d(0, 100%, 0);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n.fadeInUp {\n  -webkit-animation-name: fadeInUp;\n  animation-name: fadeInUp;\n}\n\n@-webkit-keyframes fadeInUpBig {\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(0, 2000px, 0);\n    transform: translate3d(0, 2000px, 0);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n@keyframes fadeInUpBig {\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(0, 2000px, 0);\n    transform: translate3d(0, 2000px, 0);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n.fadeInUpBig {\n  -webkit-animation-name: fadeInUpBig;\n  animation-name: fadeInUpBig;\n}\n\n@-webkit-keyframes fadeOut {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n  }\n}\n\n@keyframes fadeOut {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n  }\n}\n\n.fadeOut {\n  -webkit-animation-name: fadeOut;\n  animation-name: fadeOut;\n}\n\n@-webkit-keyframes fadeOutDown {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(0, 100%, 0);\n    transform: translate3d(0, 100%, 0);\n  }\n}\n\n@keyframes fadeOutDown {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(0, 100%, 0);\n    transform: translate3d(0, 100%, 0);\n  }\n}\n\n.fadeOutDown {\n  -webkit-animation-name: fadeOutDown;\n  animation-name: fadeOutDown;\n}\n\n@-webkit-keyframes fadeOutDownBig {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(0, 2000px, 0);\n    transform: translate3d(0, 2000px, 0);\n  }\n}\n\n@keyframes fadeOutDownBig {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(0, 2000px, 0);\n    transform: translate3d(0, 2000px, 0);\n  }\n}\n\n.fadeOutDownBig {\n  -webkit-animation-name: fadeOutDownBig;\n  animation-name: fadeOutDownBig;\n}\n\n@-webkit-keyframes fadeOutLeft {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(-100%, 0, 0);\n    transform: translate3d(-100%, 0, 0);\n  }\n}\n\n@keyframes fadeOutLeft {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(-100%, 0, 0);\n    transform: translate3d(-100%, 0, 0);\n  }\n}\n\n.fadeOutLeft {\n  -webkit-animation-name: fadeOutLeft;\n  animation-name: fadeOutLeft;\n}\n\n@-webkit-keyframes fadeOutLeftBig {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(-2000px, 0, 0);\n    transform: translate3d(-2000px, 0, 0);\n  }\n}\n\n@keyframes fadeOutLeftBig {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(-2000px, 0, 0);\n    transform: translate3d(-2000px, 0, 0);\n  }\n}\n\n.fadeOutLeftBig {\n  -webkit-animation-name: fadeOutLeftBig;\n  animation-name: fadeOutLeftBig;\n}\n\n@-webkit-keyframes fadeOutRight {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(100%, 0, 0);\n    transform: translate3d(100%, 0, 0);\n  }\n}\n\n@keyframes fadeOutRight {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(100%, 0, 0);\n    transform: translate3d(100%, 0, 0);\n  }\n}\n\n.fadeOutRight {\n  -webkit-animation-name: fadeOutRight;\n  animation-name: fadeOutRight;\n}\n\n@-webkit-keyframes fadeOutRightBig {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(2000px, 0, 0);\n    transform: translate3d(2000px, 0, 0);\n  }\n}\n\n@keyframes fadeOutRightBig {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(2000px, 0, 0);\n    transform: translate3d(2000px, 0, 0);\n  }\n}\n\n.fadeOutRightBig {\n  -webkit-animation-name: fadeOutRightBig;\n  animation-name: fadeOutRightBig;\n}\n\n@-webkit-keyframes fadeOutUp {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(0, -100%, 0);\n    transform: translate3d(0, -100%, 0);\n  }\n}\n\n@keyframes fadeOutUp {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(0, -100%, 0);\n    transform: translate3d(0, -100%, 0);\n  }\n}\n\n.fadeOutUp {\n  -webkit-animation-name: fadeOutUp;\n  animation-name: fadeOutUp;\n}\n\n@-webkit-keyframes fadeOutUpBig {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(0, -2000px, 0);\n    transform: translate3d(0, -2000px, 0);\n  }\n}\n\n@keyframes fadeOutUpBig {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(0, -2000px, 0);\n    transform: translate3d(0, -2000px, 0);\n  }\n}\n\n.fadeOutUpBig {\n  -webkit-animation-name: fadeOutUpBig;\n  animation-name: fadeOutUpBig;\n}\n\n@-webkit-keyframes flip {\n  from {\n    -webkit-transform: perspective(400px) rotate3d(0, 1, 0, -360deg);\n    transform: perspective(400px) rotate3d(0, 1, 0, -360deg);\n    -webkit-animation-timing-function: ease-out;\n    animation-timing-function: ease-out;\n  }\n\n  40% {\n    -webkit-transform: perspective(400px) translate3d(0, 0, 150px) rotate3d(0, 1, 0, -190deg);\n    transform: perspective(400px) translate3d(0, 0, 150px) rotate3d(0, 1, 0, -190deg);\n    -webkit-animation-timing-function: ease-out;\n    animation-timing-function: ease-out;\n  }\n\n  50% {\n    -webkit-transform: perspective(400px) translate3d(0, 0, 150px) rotate3d(0, 1, 0, -170deg);\n    transform: perspective(400px) translate3d(0, 0, 150px) rotate3d(0, 1, 0, -170deg);\n    -webkit-animation-timing-function: ease-in;\n    animation-timing-function: ease-in;\n  }\n\n  80% {\n    -webkit-transform: perspective(400px) scale3d(.95, .95, .95);\n    transform: perspective(400px) scale3d(.95, .95, .95);\n    -webkit-animation-timing-function: ease-in;\n    animation-timing-function: ease-in;\n  }\n\n  to {\n    -webkit-transform: perspective(400px);\n    transform: perspective(400px);\n    -webkit-animation-timing-function: ease-in;\n    animation-timing-function: ease-in;\n  }\n}\n\n@keyframes flip {\n  from {\n    -webkit-transform: perspective(400px) rotate3d(0, 1, 0, -360deg);\n    transform: perspective(400px) rotate3d(0, 1, 0, -360deg);\n    -webkit-animation-timing-function: ease-out;\n    animation-timing-function: ease-out;\n  }\n\n  40% {\n    -webkit-transform: perspective(400px) translate3d(0, 0, 150px) rotate3d(0, 1, 0, -190deg);\n    transform: perspective(400px) translate3d(0, 0, 150px) rotate3d(0, 1, 0, -190deg);\n    -webkit-animation-timing-function: ease-out;\n    animation-timing-function: ease-out;\n  }\n\n  50% {\n    -webkit-transform: perspective(400px) translate3d(0, 0, 150px) rotate3d(0, 1, 0, -170deg);\n    transform: perspective(400px) translate3d(0, 0, 150px) rotate3d(0, 1, 0, -170deg);\n    -webkit-animation-timing-function: ease-in;\n    animation-timing-function: ease-in;\n  }\n\n  80% {\n    -webkit-transform: perspective(400px) scale3d(.95, .95, .95);\n    transform: perspective(400px) scale3d(.95, .95, .95);\n    -webkit-animation-timing-function: ease-in;\n    animation-timing-function: ease-in;\n  }\n\n  to {\n    -webkit-transform: perspective(400px);\n    transform: perspective(400px);\n    -webkit-animation-timing-function: ease-in;\n    animation-timing-function: ease-in;\n  }\n}\n\n.animated.flip {\n  -webkit-backface-visibility: visible;\n  backface-visibility: visible;\n  -webkit-animation-name: flip;\n  animation-name: flip;\n}\n\n@-webkit-keyframes flipInX {\n  from {\n    -webkit-transform: perspective(400px) rotate3d(1, 0, 0, 90deg);\n    transform: perspective(400px) rotate3d(1, 0, 0, 90deg);\n    -webkit-animation-timing-function: ease-in;\n    animation-timing-function: ease-in;\n    opacity: 0;\n  }\n\n  40% {\n    -webkit-transform: perspective(400px) rotate3d(1, 0, 0, -20deg);\n    transform: perspective(400px) rotate3d(1, 0, 0, -20deg);\n    -webkit-animation-timing-function: ease-in;\n    animation-timing-function: ease-in;\n  }\n\n  60% {\n    -webkit-transform: perspective(400px) rotate3d(1, 0, 0, 10deg);\n    transform: perspective(400px) rotate3d(1, 0, 0, 10deg);\n    opacity: 1;\n  }\n\n  80% {\n    -webkit-transform: perspective(400px) rotate3d(1, 0, 0, -5deg);\n    transform: perspective(400px) rotate3d(1, 0, 0, -5deg);\n  }\n\n  to {\n    -webkit-transform: perspective(400px);\n    transform: perspective(400px);\n  }\n}\n\n@keyframes flipInX {\n  from {\n    -webkit-transform: perspective(400px) rotate3d(1, 0, 0, 90deg);\n    transform: perspective(400px) rotate3d(1, 0, 0, 90deg);\n    -webkit-animation-timing-function: ease-in;\n    animation-timing-function: ease-in;\n    opacity: 0;\n  }\n\n  40% {\n    -webkit-transform: perspective(400px) rotate3d(1, 0, 0, -20deg);\n    transform: perspective(400px) rotate3d(1, 0, 0, -20deg);\n    -webkit-animation-timing-function: ease-in;\n    animation-timing-function: ease-in;\n  }\n\n  60% {\n    -webkit-transform: perspective(400px) rotate3d(1, 0, 0, 10deg);\n    transform: perspective(400px) rotate3d(1, 0, 0, 10deg);\n    opacity: 1;\n  }\n\n  80% {\n    -webkit-transform: perspective(400px) rotate3d(1, 0, 0, -5deg);\n    transform: perspective(400px) rotate3d(1, 0, 0, -5deg);\n  }\n\n  to {\n    -webkit-transform: perspective(400px);\n    transform: perspective(400px);\n  }\n}\n\n.flipInX {\n  -webkit-backface-visibility: visible !important;\n  backface-visibility: visible !important;\n  -webkit-animation-name: flipInX;\n  animation-name: flipInX;\n}\n\n@-webkit-keyframes flipInY {\n  from {\n    -webkit-transform: perspective(400px) rotate3d(0, 1, 0, 90deg);\n    transform: perspective(400px) rotate3d(0, 1, 0, 90deg);\n    -webkit-animation-timing-function: ease-in;\n    animation-timing-function: ease-in;\n    opacity: 0;\n  }\n\n  40% {\n    -webkit-transform: perspective(400px) rotate3d(0, 1, 0, -20deg);\n    transform: perspective(400px) rotate3d(0, 1, 0, -20deg);\n    -webkit-animation-timing-function: ease-in;\n    animation-timing-function: ease-in;\n  }\n\n  60% {\n    -webkit-transform: perspective(400px) rotate3d(0, 1, 0, 10deg);\n    transform: perspective(400px) rotate3d(0, 1, 0, 10deg);\n    opacity: 1;\n  }\n\n  80% {\n    -webkit-transform: perspective(400px) rotate3d(0, 1, 0, -5deg);\n    transform: perspective(400px) rotate3d(0, 1, 0, -5deg);\n  }\n\n  to {\n    -webkit-transform: perspective(400px);\n    transform: perspective(400px);\n  }\n}\n\n@keyframes flipInY {\n  from {\n    -webkit-transform: perspective(400px) rotate3d(0, 1, 0, 90deg);\n    transform: perspective(400px) rotate3d(0, 1, 0, 90deg);\n    -webkit-animation-timing-function: ease-in;\n    animation-timing-function: ease-in;\n    opacity: 0;\n  }\n\n  40% {\n    -webkit-transform: perspective(400px) rotate3d(0, 1, 0, -20deg);\n    transform: perspective(400px) rotate3d(0, 1, 0, -20deg);\n    -webkit-animation-timing-function: ease-in;\n    animation-timing-function: ease-in;\n  }\n\n  60% {\n    -webkit-transform: perspective(400px) rotate3d(0, 1, 0, 10deg);\n    transform: perspective(400px) rotate3d(0, 1, 0, 10deg);\n    opacity: 1;\n  }\n\n  80% {\n    -webkit-transform: perspective(400px) rotate3d(0, 1, 0, -5deg);\n    transform: perspective(400px) rotate3d(0, 1, 0, -5deg);\n  }\n\n  to {\n    -webkit-transform: perspective(400px);\n    transform: perspective(400px);\n  }\n}\n\n.flipInY {\n  -webkit-backface-visibility: visible !important;\n  backface-visibility: visible !important;\n  -webkit-animation-name: flipInY;\n  animation-name: flipInY;\n}\n\n@-webkit-keyframes flipOutX {\n  from {\n    -webkit-transform: perspective(400px);\n    transform: perspective(400px);\n  }\n\n  30% {\n    -webkit-transform: perspective(400px) rotate3d(1, 0, 0, -20deg);\n    transform: perspective(400px) rotate3d(1, 0, 0, -20deg);\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform: perspective(400px) rotate3d(1, 0, 0, 90deg);\n    transform: perspective(400px) rotate3d(1, 0, 0, 90deg);\n    opacity: 0;\n  }\n}\n\n@keyframes flipOutX {\n  from {\n    -webkit-transform: perspective(400px);\n    transform: perspective(400px);\n  }\n\n  30% {\n    -webkit-transform: perspective(400px) rotate3d(1, 0, 0, -20deg);\n    transform: perspective(400px) rotate3d(1, 0, 0, -20deg);\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform: perspective(400px) rotate3d(1, 0, 0, 90deg);\n    transform: perspective(400px) rotate3d(1, 0, 0, 90deg);\n    opacity: 0;\n  }\n}\n\n.flipOutX {\n  -webkit-animation-name: flipOutX;\n  animation-name: flipOutX;\n  -webkit-backface-visibility: visible !important;\n  backface-visibility: visible !important;\n}\n\n@-webkit-keyframes flipOutY {\n  from {\n    -webkit-transform: perspective(400px);\n    transform: perspective(400px);\n  }\n\n  30% {\n    -webkit-transform: perspective(400px) rotate3d(0, 1, 0, -15deg);\n    transform: perspective(400px) rotate3d(0, 1, 0, -15deg);\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform: perspective(400px) rotate3d(0, 1, 0, 90deg);\n    transform: perspective(400px) rotate3d(0, 1, 0, 90deg);\n    opacity: 0;\n  }\n}\n\n@keyframes flipOutY {\n  from {\n    -webkit-transform: perspective(400px);\n    transform: perspective(400px);\n  }\n\n  30% {\n    -webkit-transform: perspective(400px) rotate3d(0, 1, 0, -15deg);\n    transform: perspective(400px) rotate3d(0, 1, 0, -15deg);\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform: perspective(400px) rotate3d(0, 1, 0, 90deg);\n    transform: perspective(400px) rotate3d(0, 1, 0, 90deg);\n    opacity: 0;\n  }\n}\n\n.flipOutY {\n  -webkit-backface-visibility: visible !important;\n  backface-visibility: visible !important;\n  -webkit-animation-name: flipOutY;\n  animation-name: flipOutY;\n}\n\n@-webkit-keyframes lightSpeedIn {\n  from {\n    -webkit-transform: translate3d(100%, 0, 0) skewX(-30deg);\n    transform: translate3d(100%, 0, 0) skewX(-30deg);\n    opacity: 0;\n  }\n\n  60% {\n    -webkit-transform: skewX(20deg);\n    transform: skewX(20deg);\n    opacity: 1;\n  }\n\n  80% {\n    -webkit-transform: skewX(-5deg);\n    transform: skewX(-5deg);\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform: none;\n    transform: none;\n    opacity: 1;\n  }\n}\n\n@keyframes lightSpeedIn {\n  from {\n    -webkit-transform: translate3d(100%, 0, 0) skewX(-30deg);\n    transform: translate3d(100%, 0, 0) skewX(-30deg);\n    opacity: 0;\n  }\n\n  60% {\n    -webkit-transform: skewX(20deg);\n    transform: skewX(20deg);\n    opacity: 1;\n  }\n\n  80% {\n    -webkit-transform: skewX(-5deg);\n    transform: skewX(-5deg);\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform: none;\n    transform: none;\n    opacity: 1;\n  }\n}\n\n.lightSpeedIn {\n  -webkit-animation-name: lightSpeedIn;\n  animation-name: lightSpeedIn;\n  -webkit-animation-timing-function: ease-out;\n  animation-timing-function: ease-out;\n}\n\n@-webkit-keyframes lightSpeedOut {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform: translate3d(100%, 0, 0) skewX(30deg);\n    transform: translate3d(100%, 0, 0) skewX(30deg);\n    opacity: 0;\n  }\n}\n\n@keyframes lightSpeedOut {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform: translate3d(100%, 0, 0) skewX(30deg);\n    transform: translate3d(100%, 0, 0) skewX(30deg);\n    opacity: 0;\n  }\n}\n\n.lightSpeedOut {\n  -webkit-animation-name: lightSpeedOut;\n  animation-name: lightSpeedOut;\n  -webkit-animation-timing-function: ease-in;\n  animation-timing-function: ease-in;\n}\n\n@-webkit-keyframes rotateIn {\n  from {\n    -webkit-transform-origin: center;\n    transform-origin: center;\n    -webkit-transform: rotate3d(0, 0, 1, -200deg);\n    transform: rotate3d(0, 0, 1, -200deg);\n    opacity: 0;\n  }\n\n  to {\n    -webkit-transform-origin: center;\n    transform-origin: center;\n    -webkit-transform: none;\n    transform: none;\n    opacity: 1;\n  }\n}\n\n@keyframes rotateIn {\n  from {\n    -webkit-transform-origin: center;\n    transform-origin: center;\n    -webkit-transform: rotate3d(0, 0, 1, -200deg);\n    transform: rotate3d(0, 0, 1, -200deg);\n    opacity: 0;\n  }\n\n  to {\n    -webkit-transform-origin: center;\n    transform-origin: center;\n    -webkit-transform: none;\n    transform: none;\n    opacity: 1;\n  }\n}\n\n.rotateIn {\n  -webkit-animation-name: rotateIn;\n  animation-name: rotateIn;\n}\n\n@-webkit-keyframes rotateInDownLeft {\n  from {\n    -webkit-transform-origin: left bottom;\n    transform-origin: left bottom;\n    -webkit-transform: rotate3d(0, 0, 1, -45deg);\n    transform: rotate3d(0, 0, 1, -45deg);\n    opacity: 0;\n  }\n\n  to {\n    -webkit-transform-origin: left bottom;\n    transform-origin: left bottom;\n    -webkit-transform: none;\n    transform: none;\n    opacity: 1;\n  }\n}\n\n@keyframes rotateInDownLeft {\n  from {\n    -webkit-transform-origin: left bottom;\n    transform-origin: left bottom;\n    -webkit-transform: rotate3d(0, 0, 1, -45deg);\n    transform: rotate3d(0, 0, 1, -45deg);\n    opacity: 0;\n  }\n\n  to {\n    -webkit-transform-origin: left bottom;\n    transform-origin: left bottom;\n    -webkit-transform: none;\n    transform: none;\n    opacity: 1;\n  }\n}\n\n.rotateInDownLeft {\n  -webkit-animation-name: rotateInDownLeft;\n  animation-name: rotateInDownLeft;\n}\n\n@-webkit-keyframes rotateInDownRight {\n  from {\n    -webkit-transform-origin: right bottom;\n    transform-origin: right bottom;\n    -webkit-transform: rotate3d(0, 0, 1, 45deg);\n    transform: rotate3d(0, 0, 1, 45deg);\n    opacity: 0;\n  }\n\n  to {\n    -webkit-transform-origin: right bottom;\n    transform-origin: right bottom;\n    -webkit-transform: none;\n    transform: none;\n    opacity: 1;\n  }\n}\n\n@keyframes rotateInDownRight {\n  from {\n    -webkit-transform-origin: right bottom;\n    transform-origin: right bottom;\n    -webkit-transform: rotate3d(0, 0, 1, 45deg);\n    transform: rotate3d(0, 0, 1, 45deg);\n    opacity: 0;\n  }\n\n  to {\n    -webkit-transform-origin: right bottom;\n    transform-origin: right bottom;\n    -webkit-transform: none;\n    transform: none;\n    opacity: 1;\n  }\n}\n\n.rotateInDownRight {\n  -webkit-animation-name: rotateInDownRight;\n  animation-name: rotateInDownRight;\n}\n\n@-webkit-keyframes rotateInUpLeft {\n  from {\n    -webkit-transform-origin: left bottom;\n    transform-origin: left bottom;\n    -webkit-transform: rotate3d(0, 0, 1, 45deg);\n    transform: rotate3d(0, 0, 1, 45deg);\n    opacity: 0;\n  }\n\n  to {\n    -webkit-transform-origin: left bottom;\n    transform-origin: left bottom;\n    -webkit-transform: none;\n    transform: none;\n    opacity: 1;\n  }\n}\n\n@keyframes rotateInUpLeft {\n  from {\n    -webkit-transform-origin: left bottom;\n    transform-origin: left bottom;\n    -webkit-transform: rotate3d(0, 0, 1, 45deg);\n    transform: rotate3d(0, 0, 1, 45deg);\n    opacity: 0;\n  }\n\n  to {\n    -webkit-transform-origin: left bottom;\n    transform-origin: left bottom;\n    -webkit-transform: none;\n    transform: none;\n    opacity: 1;\n  }\n}\n\n.rotateInUpLeft {\n  -webkit-animation-name: rotateInUpLeft;\n  animation-name: rotateInUpLeft;\n}\n\n@-webkit-keyframes rotateInUpRight {\n  from {\n    -webkit-transform-origin: right bottom;\n    transform-origin: right bottom;\n    -webkit-transform: rotate3d(0, 0, 1, -90deg);\n    transform: rotate3d(0, 0, 1, -90deg);\n    opacity: 0;\n  }\n\n  to {\n    -webkit-transform-origin: right bottom;\n    transform-origin: right bottom;\n    -webkit-transform: none;\n    transform: none;\n    opacity: 1;\n  }\n}\n\n@keyframes rotateInUpRight {\n  from {\n    -webkit-transform-origin: right bottom;\n    transform-origin: right bottom;\n    -webkit-transform: rotate3d(0, 0, 1, -90deg);\n    transform: rotate3d(0, 0, 1, -90deg);\n    opacity: 0;\n  }\n\n  to {\n    -webkit-transform-origin: right bottom;\n    transform-origin: right bottom;\n    -webkit-transform: none;\n    transform: none;\n    opacity: 1;\n  }\n}\n\n.rotateInUpRight {\n  -webkit-animation-name: rotateInUpRight;\n  animation-name: rotateInUpRight;\n}\n\n@-webkit-keyframes rotateOut {\n  from {\n    -webkit-transform-origin: center;\n    transform-origin: center;\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform-origin: center;\n    transform-origin: center;\n    -webkit-transform: rotate3d(0, 0, 1, 200deg);\n    transform: rotate3d(0, 0, 1, 200deg);\n    opacity: 0;\n  }\n}\n\n@keyframes rotateOut {\n  from {\n    -webkit-transform-origin: center;\n    transform-origin: center;\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform-origin: center;\n    transform-origin: center;\n    -webkit-transform: rotate3d(0, 0, 1, 200deg);\n    transform: rotate3d(0, 0, 1, 200deg);\n    opacity: 0;\n  }\n}\n\n.rotateOut {\n  -webkit-animation-name: rotateOut;\n  animation-name: rotateOut;\n}\n\n@-webkit-keyframes rotateOutDownLeft {\n  from {\n    -webkit-transform-origin: left bottom;\n    transform-origin: left bottom;\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform-origin: left bottom;\n    transform-origin: left bottom;\n    -webkit-transform: rotate3d(0, 0, 1, 45deg);\n    transform: rotate3d(0, 0, 1, 45deg);\n    opacity: 0;\n  }\n}\n\n@keyframes rotateOutDownLeft {\n  from {\n    -webkit-transform-origin: left bottom;\n    transform-origin: left bottom;\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform-origin: left bottom;\n    transform-origin: left bottom;\n    -webkit-transform: rotate3d(0, 0, 1, 45deg);\n    transform: rotate3d(0, 0, 1, 45deg);\n    opacity: 0;\n  }\n}\n\n.rotateOutDownLeft {\n  -webkit-animation-name: rotateOutDownLeft;\n  animation-name: rotateOutDownLeft;\n}\n\n@-webkit-keyframes rotateOutDownRight {\n  from {\n    -webkit-transform-origin: right bottom;\n    transform-origin: right bottom;\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform-origin: right bottom;\n    transform-origin: right bottom;\n    -webkit-transform: rotate3d(0, 0, 1, -45deg);\n    transform: rotate3d(0, 0, 1, -45deg);\n    opacity: 0;\n  }\n}\n\n@keyframes rotateOutDownRight {\n  from {\n    -webkit-transform-origin: right bottom;\n    transform-origin: right bottom;\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform-origin: right bottom;\n    transform-origin: right bottom;\n    -webkit-transform: rotate3d(0, 0, 1, -45deg);\n    transform: rotate3d(0, 0, 1, -45deg);\n    opacity: 0;\n  }\n}\n\n.rotateOutDownRight {\n  -webkit-animation-name: rotateOutDownRight;\n  animation-name: rotateOutDownRight;\n}\n\n@-webkit-keyframes rotateOutUpLeft {\n  from {\n    -webkit-transform-origin: left bottom;\n    transform-origin: left bottom;\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform-origin: left bottom;\n    transform-origin: left bottom;\n    -webkit-transform: rotate3d(0, 0, 1, -45deg);\n    transform: rotate3d(0, 0, 1, -45deg);\n    opacity: 0;\n  }\n}\n\n@keyframes rotateOutUpLeft {\n  from {\n    -webkit-transform-origin: left bottom;\n    transform-origin: left bottom;\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform-origin: left bottom;\n    transform-origin: left bottom;\n    -webkit-transform: rotate3d(0, 0, 1, -45deg);\n    transform: rotate3d(0, 0, 1, -45deg);\n    opacity: 0;\n  }\n}\n\n.rotateOutUpLeft {\n  -webkit-animation-name: rotateOutUpLeft;\n  animation-name: rotateOutUpLeft;\n}\n\n@-webkit-keyframes rotateOutUpRight {\n  from {\n    -webkit-transform-origin: right bottom;\n    transform-origin: right bottom;\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform-origin: right bottom;\n    transform-origin: right bottom;\n    -webkit-transform: rotate3d(0, 0, 1, 90deg);\n    transform: rotate3d(0, 0, 1, 90deg);\n    opacity: 0;\n  }\n}\n\n@keyframes rotateOutUpRight {\n  from {\n    -webkit-transform-origin: right bottom;\n    transform-origin: right bottom;\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform-origin: right bottom;\n    transform-origin: right bottom;\n    -webkit-transform: rotate3d(0, 0, 1, 90deg);\n    transform: rotate3d(0, 0, 1, 90deg);\n    opacity: 0;\n  }\n}\n\n.rotateOutUpRight {\n  -webkit-animation-name: rotateOutUpRight;\n  animation-name: rotateOutUpRight;\n}\n\n@-webkit-keyframes hinge {\n  0% {\n    -webkit-transform-origin: top left;\n    transform-origin: top left;\n    -webkit-animation-timing-function: ease-in-out;\n    animation-timing-function: ease-in-out;\n  }\n\n  20%, 60% {\n    -webkit-transform: rotate3d(0, 0, 1, 80deg);\n    transform: rotate3d(0, 0, 1, 80deg);\n    -webkit-transform-origin: top left;\n    transform-origin: top left;\n    -webkit-animation-timing-function: ease-in-out;\n    animation-timing-function: ease-in-out;\n  }\n\n  40%, 80% {\n    -webkit-transform: rotate3d(0, 0, 1, 60deg);\n    transform: rotate3d(0, 0, 1, 60deg);\n    -webkit-transform-origin: top left;\n    transform-origin: top left;\n    -webkit-animation-timing-function: ease-in-out;\n    animation-timing-function: ease-in-out;\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform: translate3d(0, 700px, 0);\n    transform: translate3d(0, 700px, 0);\n    opacity: 0;\n  }\n}\n\n@keyframes hinge {\n  0% {\n    -webkit-transform-origin: top left;\n    transform-origin: top left;\n    -webkit-animation-timing-function: ease-in-out;\n    animation-timing-function: ease-in-out;\n  }\n\n  20%, 60% {\n    -webkit-transform: rotate3d(0, 0, 1, 80deg);\n    transform: rotate3d(0, 0, 1, 80deg);\n    -webkit-transform-origin: top left;\n    transform-origin: top left;\n    -webkit-animation-timing-function: ease-in-out;\n    animation-timing-function: ease-in-out;\n  }\n\n  40%, 80% {\n    -webkit-transform: rotate3d(0, 0, 1, 60deg);\n    transform: rotate3d(0, 0, 1, 60deg);\n    -webkit-transform-origin: top left;\n    transform-origin: top left;\n    -webkit-animation-timing-function: ease-in-out;\n    animation-timing-function: ease-in-out;\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform: translate3d(0, 700px, 0);\n    transform: translate3d(0, 700px, 0);\n    opacity: 0;\n  }\n}\n\n.hinge {\n  -webkit-animation-name: hinge;\n  animation-name: hinge;\n}\n\n/* originally authored by Nick Pettit - https://github.com/nickpettit/glide */\n\n@-webkit-keyframes rollIn {\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(-100%, 0, 0) rotate3d(0, 0, 1, -120deg);\n    transform: translate3d(-100%, 0, 0) rotate3d(0, 0, 1, -120deg);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n@keyframes rollIn {\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(-100%, 0, 0) rotate3d(0, 0, 1, -120deg);\n    transform: translate3d(-100%, 0, 0) rotate3d(0, 0, 1, -120deg);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n.rollIn {\n  -webkit-animation-name: rollIn;\n  animation-name: rollIn;\n}\n\n/* originally authored by Nick Pettit - https://github.com/nickpettit/glide */\n\n@-webkit-keyframes rollOut {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(100%, 0, 0) rotate3d(0, 0, 1, 120deg);\n    transform: translate3d(100%, 0, 0) rotate3d(0, 0, 1, 120deg);\n  }\n}\n\n@keyframes rollOut {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(100%, 0, 0) rotate3d(0, 0, 1, 120deg);\n    transform: translate3d(100%, 0, 0) rotate3d(0, 0, 1, 120deg);\n  }\n}\n\n.rollOut {\n  -webkit-animation-name: rollOut;\n  animation-name: rollOut;\n}\n\n@-webkit-keyframes zoomIn {\n  from {\n    opacity: 0;\n    -webkit-transform: scale3d(.3, .3, .3);\n    transform: scale3d(.3, .3, .3);\n  }\n\n  50% {\n    opacity: 1;\n  }\n}\n\n@keyframes zoomIn {\n  from {\n    opacity: 0;\n    -webkit-transform: scale3d(.3, .3, .3);\n    transform: scale3d(.3, .3, .3);\n  }\n\n  50% {\n    opacity: 1;\n  }\n}\n\n.zoomIn {\n  -webkit-animation-name: zoomIn;\n  animation-name: zoomIn;\n}\n\n@-webkit-keyframes zoomInDown {\n  from {\n    opacity: 0;\n    -webkit-transform: scale3d(.1, .1, .1) translate3d(0, -1000px, 0);\n    transform: scale3d(.1, .1, .1) translate3d(0, -1000px, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n    animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n  }\n\n  60% {\n    opacity: 1;\n    -webkit-transform: scale3d(.475, .475, .475) translate3d(0, 60px, 0);\n    transform: scale3d(.475, .475, .475) translate3d(0, 60px, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n    animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n  }\n}\n\n@keyframes zoomInDown {\n  from {\n    opacity: 0;\n    -webkit-transform: scale3d(.1, .1, .1) translate3d(0, -1000px, 0);\n    transform: scale3d(.1, .1, .1) translate3d(0, -1000px, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n    animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n  }\n\n  60% {\n    opacity: 1;\n    -webkit-transform: scale3d(.475, .475, .475) translate3d(0, 60px, 0);\n    transform: scale3d(.475, .475, .475) translate3d(0, 60px, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n    animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n  }\n}\n\n.zoomInDown {\n  -webkit-animation-name: zoomInDown;\n  animation-name: zoomInDown;\n}\n\n@-webkit-keyframes zoomInLeft {\n  from {\n    opacity: 0;\n    -webkit-transform: scale3d(.1, .1, .1) translate3d(-1000px, 0, 0);\n    transform: scale3d(.1, .1, .1) translate3d(-1000px, 0, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n    animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n  }\n\n  60% {\n    opacity: 1;\n    -webkit-transform: scale3d(.475, .475, .475) translate3d(10px, 0, 0);\n    transform: scale3d(.475, .475, .475) translate3d(10px, 0, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n    animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n  }\n}\n\n@keyframes zoomInLeft {\n  from {\n    opacity: 0;\n    -webkit-transform: scale3d(.1, .1, .1) translate3d(-1000px, 0, 0);\n    transform: scale3d(.1, .1, .1) translate3d(-1000px, 0, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n    animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n  }\n\n  60% {\n    opacity: 1;\n    -webkit-transform: scale3d(.475, .475, .475) translate3d(10px, 0, 0);\n    transform: scale3d(.475, .475, .475) translate3d(10px, 0, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n    animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n  }\n}\n\n.zoomInLeft {\n  -webkit-animation-name: zoomInLeft;\n  animation-name: zoomInLeft;\n}\n\n@-webkit-keyframes zoomInRight {\n  from {\n    opacity: 0;\n    -webkit-transform: scale3d(.1, .1, .1) translate3d(1000px, 0, 0);\n    transform: scale3d(.1, .1, .1) translate3d(1000px, 0, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n    animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n  }\n\n  60% {\n    opacity: 1;\n    -webkit-transform: scale3d(.475, .475, .475) translate3d(-10px, 0, 0);\n    transform: scale3d(.475, .475, .475) translate3d(-10px, 0, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n    animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n  }\n}\n\n@keyframes zoomInRight {\n  from {\n    opacity: 0;\n    -webkit-transform: scale3d(.1, .1, .1) translate3d(1000px, 0, 0);\n    transform: scale3d(.1, .1, .1) translate3d(1000px, 0, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n    animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n  }\n\n  60% {\n    opacity: 1;\n    -webkit-transform: scale3d(.475, .475, .475) translate3d(-10px, 0, 0);\n    transform: scale3d(.475, .475, .475) translate3d(-10px, 0, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n    animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n  }\n}\n\n.zoomInRight {\n  -webkit-animation-name: zoomInRight;\n  animation-name: zoomInRight;\n}\n\n@-webkit-keyframes zoomInUp {\n  from {\n    opacity: 0;\n    -webkit-transform: scale3d(.1, .1, .1) translate3d(0, 1000px, 0);\n    transform: scale3d(.1, .1, .1) translate3d(0, 1000px, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n    animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n  }\n\n  60% {\n    opacity: 1;\n    -webkit-transform: scale3d(.475, .475, .475) translate3d(0, -60px, 0);\n    transform: scale3d(.475, .475, .475) translate3d(0, -60px, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n    animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n  }\n}\n\n@keyframes zoomInUp {\n  from {\n    opacity: 0;\n    -webkit-transform: scale3d(.1, .1, .1) translate3d(0, 1000px, 0);\n    transform: scale3d(.1, .1, .1) translate3d(0, 1000px, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n    animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n  }\n\n  60% {\n    opacity: 1;\n    -webkit-transform: scale3d(.475, .475, .475) translate3d(0, -60px, 0);\n    transform: scale3d(.475, .475, .475) translate3d(0, -60px, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n    animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n  }\n}\n\n.zoomInUp {\n  -webkit-animation-name: zoomInUp;\n  animation-name: zoomInUp;\n}\n\n@-webkit-keyframes zoomOut {\n  from {\n    opacity: 1;\n  }\n\n  50% {\n    opacity: 0;\n    -webkit-transform: scale3d(.3, .3, .3);\n    transform: scale3d(.3, .3, .3);\n  }\n\n  to {\n    opacity: 0;\n  }\n}\n\n@keyframes zoomOut {\n  from {\n    opacity: 1;\n  }\n\n  50% {\n    opacity: 0;\n    -webkit-transform: scale3d(.3, .3, .3);\n    transform: scale3d(.3, .3, .3);\n  }\n\n  to {\n    opacity: 0;\n  }\n}\n\n.zoomOut {\n  -webkit-animation-name: zoomOut;\n  animation-name: zoomOut;\n}\n\n@-webkit-keyframes zoomOutDown {\n  40% {\n    opacity: 1;\n    -webkit-transform: scale3d(.475, .475, .475) translate3d(0, -60px, 0);\n    transform: scale3d(.475, .475, .475) translate3d(0, -60px, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n    animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: scale3d(.1, .1, .1) translate3d(0, 2000px, 0);\n    transform: scale3d(.1, .1, .1) translate3d(0, 2000px, 0);\n    -webkit-transform-origin: center bottom;\n    transform-origin: center bottom;\n    -webkit-animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n    animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n  }\n}\n\n@keyframes zoomOutDown {\n  40% {\n    opacity: 1;\n    -webkit-transform: scale3d(.475, .475, .475) translate3d(0, -60px, 0);\n    transform: scale3d(.475, .475, .475) translate3d(0, -60px, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n    animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: scale3d(.1, .1, .1) translate3d(0, 2000px, 0);\n    transform: scale3d(.1, .1, .1) translate3d(0, 2000px, 0);\n    -webkit-transform-origin: center bottom;\n    transform-origin: center bottom;\n    -webkit-animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n    animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n  }\n}\n\n.zoomOutDown {\n  -webkit-animation-name: zoomOutDown;\n  animation-name: zoomOutDown;\n}\n\n@-webkit-keyframes zoomOutLeft {\n  40% {\n    opacity: 1;\n    -webkit-transform: scale3d(.475, .475, .475) translate3d(42px, 0, 0);\n    transform: scale3d(.475, .475, .475) translate3d(42px, 0, 0);\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: scale(.1) translate3d(-2000px, 0, 0);\n    transform: scale(.1) translate3d(-2000px, 0, 0);\n    -webkit-transform-origin: left center;\n    transform-origin: left center;\n  }\n}\n\n@keyframes zoomOutLeft {\n  40% {\n    opacity: 1;\n    -webkit-transform: scale3d(.475, .475, .475) translate3d(42px, 0, 0);\n    transform: scale3d(.475, .475, .475) translate3d(42px, 0, 0);\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: scale(.1) translate3d(-2000px, 0, 0);\n    transform: scale(.1) translate3d(-2000px, 0, 0);\n    -webkit-transform-origin: left center;\n    transform-origin: left center;\n  }\n}\n\n.zoomOutLeft {\n  -webkit-animation-name: zoomOutLeft;\n  animation-name: zoomOutLeft;\n}\n\n@-webkit-keyframes zoomOutRight {\n  40% {\n    opacity: 1;\n    -webkit-transform: scale3d(.475, .475, .475) translate3d(-42px, 0, 0);\n    transform: scale3d(.475, .475, .475) translate3d(-42px, 0, 0);\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: scale(.1) translate3d(2000px, 0, 0);\n    transform: scale(.1) translate3d(2000px, 0, 0);\n    -webkit-transform-origin: right center;\n    transform-origin: right center;\n  }\n}\n\n@keyframes zoomOutRight {\n  40% {\n    opacity: 1;\n    -webkit-transform: scale3d(.475, .475, .475) translate3d(-42px, 0, 0);\n    transform: scale3d(.475, .475, .475) translate3d(-42px, 0, 0);\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: scale(.1) translate3d(2000px, 0, 0);\n    transform: scale(.1) translate3d(2000px, 0, 0);\n    -webkit-transform-origin: right center;\n    transform-origin: right center;\n  }\n}\n\n.zoomOutRight {\n  -webkit-animation-name: zoomOutRight;\n  animation-name: zoomOutRight;\n}\n\n@-webkit-keyframes zoomOutUp {\n  40% {\n    opacity: 1;\n    -webkit-transform: scale3d(.475, .475, .475) translate3d(0, 60px, 0);\n    transform: scale3d(.475, .475, .475) translate3d(0, 60px, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n    animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: scale3d(.1, .1, .1) translate3d(0, -2000px, 0);\n    transform: scale3d(.1, .1, .1) translate3d(0, -2000px, 0);\n    -webkit-transform-origin: center bottom;\n    transform-origin: center bottom;\n    -webkit-animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n    animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n  }\n}\n\n@keyframes zoomOutUp {\n  40% {\n    opacity: 1;\n    -webkit-transform: scale3d(.475, .475, .475) translate3d(0, 60px, 0);\n    transform: scale3d(.475, .475, .475) translate3d(0, 60px, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n    animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: scale3d(.1, .1, .1) translate3d(0, -2000px, 0);\n    transform: scale3d(.1, .1, .1) translate3d(0, -2000px, 0);\n    -webkit-transform-origin: center bottom;\n    transform-origin: center bottom;\n    -webkit-animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n    animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n  }\n}\n\n.zoomOutUp {\n  -webkit-animation-name: zoomOutUp;\n  animation-name: zoomOutUp;\n}\n\n@-webkit-keyframes slideInDown {\n  from {\n    -webkit-transform: translate3d(0, -100%, 0);\n    transform: translate3d(0, -100%, 0);\n    visibility: visible;\n  }\n\n  to {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n}\n\n@keyframes slideInDown {\n  from {\n    -webkit-transform: translate3d(0, -100%, 0);\n    transform: translate3d(0, -100%, 0);\n    visibility: visible;\n  }\n\n  to {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n}\n\n.slideInDown {\n  -webkit-animation-name: slideInDown;\n  animation-name: slideInDown;\n}\n\n@-webkit-keyframes slideInLeft {\n  from {\n    -webkit-transform: translate3d(-100%, 0, 0);\n    transform: translate3d(-100%, 0, 0);\n    visibility: visible;\n  }\n\n  to {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n}\n\n@keyframes slideInLeft {\n  from {\n    -webkit-transform: translate3d(-100%, 0, 0);\n    transform: translate3d(-100%, 0, 0);\n    visibility: visible;\n  }\n\n  to {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n}\n\n.slideInLeft {\n  -webkit-animation-name: slideInLeft;\n  animation-name: slideInLeft;\n}\n\n@-webkit-keyframes slideInRight {\n  from {\n    -webkit-transform: translate3d(100%, 0, 0);\n    transform: translate3d(100%, 0, 0);\n    visibility: visible;\n  }\n\n  to {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n}\n\n@keyframes slideInRight {\n  from {\n    -webkit-transform: translate3d(100%, 0, 0);\n    transform: translate3d(100%, 0, 0);\n    visibility: visible;\n  }\n\n  to {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n}\n\n.slideInRight {\n  -webkit-animation-name: slideInRight;\n  animation-name: slideInRight;\n}\n\n@-webkit-keyframes slideInUp {\n  from {\n    -webkit-transform: translate3d(0, 100%, 0);\n    transform: translate3d(0, 100%, 0);\n    visibility: visible;\n  }\n\n  to {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n}\n\n@keyframes slideInUp {\n  from {\n    -webkit-transform: translate3d(0, 100%, 0);\n    transform: translate3d(0, 100%, 0);\n    visibility: visible;\n  }\n\n  to {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n}\n\n.slideInUp {\n  -webkit-animation-name: slideInUp;\n  animation-name: slideInUp;\n}\n\n@-webkit-keyframes slideOutDown {\n  from {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n\n  to {\n    visibility: hidden;\n    -webkit-transform: translate3d(0, 100%, 0);\n    transform: translate3d(0, 100%, 0);\n  }\n}\n\n@keyframes slideOutDown {\n  from {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n\n  to {\n    visibility: hidden;\n    -webkit-transform: translate3d(0, 100%, 0);\n    transform: translate3d(0, 100%, 0);\n  }\n}\n\n.slideOutDown {\n  -webkit-animation-name: slideOutDown;\n  animation-name: slideOutDown;\n}\n\n@-webkit-keyframes slideOutLeft {\n  from {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n\n  to {\n    visibility: hidden;\n    -webkit-transform: translate3d(-100%, 0, 0);\n    transform: translate3d(-100%, 0, 0);\n  }\n}\n\n@keyframes slideOutLeft {\n  from {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n\n  to {\n    visibility: hidden;\n    -webkit-transform: translate3d(-100%, 0, 0);\n    transform: translate3d(-100%, 0, 0);\n  }\n}\n\n.slideOutLeft {\n  -webkit-animation-name: slideOutLeft;\n  animation-name: slideOutLeft;\n}\n\n@-webkit-keyframes slideOutRight {\n  from {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n\n  to {\n    visibility: hidden;\n    -webkit-transform: translate3d(100%, 0, 0);\n    transform: translate3d(100%, 0, 0);\n  }\n}\n\n@keyframes slideOutRight {\n  from {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n\n  to {\n    visibility: hidden;\n    -webkit-transform: translate3d(100%, 0, 0);\n    transform: translate3d(100%, 0, 0);\n  }\n}\n\n.slideOutRight {\n  -webkit-animation-name: slideOutRight;\n  animation-name: slideOutRight;\n}\n\n@-webkit-keyframes slideOutUp {\n  from {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n\n  to {\n    visibility: hidden;\n    -webkit-transform: translate3d(0, -100%, 0);\n    transform: translate3d(0, -100%, 0);\n  }\n}\n\n@keyframes slideOutUp {\n  from {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n\n  to {\n    visibility: hidden;\n    -webkit-transform: translate3d(0, -100%, 0);\n    transform: translate3d(0, -100%, 0);\n  }\n}\n\n.slideOutUp {\n  -webkit-animation-name: slideOutUp;\n  animation-name: slideOutUp;\n}\n", ""]);
 
 // exports
-
-
-/***/ }),
-/* 192 */
-/***/ (function(module, exports) {
-
-settings = {
-  debug: true
-};
-module.exports = settings;
 
 
 /***/ })
