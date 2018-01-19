@@ -11469,8 +11469,8 @@ WebGLManager.prototype.destroy = function ()
 
 "use strict";
 /* unused harmony export WebGLRenderTargetCube */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "z", function() { return WebGLRenderTarget; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "A", function() { return WebGLRenderer; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "B", function() { return WebGLRenderTarget; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "C", function() { return WebGLRenderer; });
 /* unused harmony export ShaderLib */
 /* unused harmony export UniformsLib */
 /* unused harmony export UniformsUtils */
@@ -11479,7 +11479,7 @@ WebGLManager.prototype.destroy = function ()
 /* unused harmony export Fog */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "t", function() { return Scene; });
 /* unused harmony export LensFlare */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "u", function() { return Sprite; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "v", function() { return Sprite; });
 /* unused harmony export LOD */
 /* unused harmony export SkinnedMesh */
 /* unused harmony export Skeleton */
@@ -11490,7 +11490,7 @@ WebGLManager.prototype.destroy = function ()
 /* unused harmony export Line */
 /* unused harmony export Points */
 /* unused harmony export Group */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "y", function() { return VideoTexture; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "A", function() { return VideoTexture; });
 /* unused harmony export DataTexture */
 /* unused harmony export CompressedTexture */
 /* unused harmony export CubeTexture */
@@ -11500,7 +11500,7 @@ WebGLManager.prototype.destroy = function ()
 /* unused harmony export CompressedTextureLoader */
 /* unused harmony export DataTextureLoader */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return CubeTextureLoader; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "w", function() { return TextureLoader; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "x", function() { return TextureLoader; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "n", function() { return ObjectLoader; });
 /* unused harmony export MaterialLoader */
 /* unused harmony export BufferGeometryLoader */
@@ -11549,7 +11549,7 @@ WebGLManager.prototype.destroy = function ()
 /* unused harmony export AnimationObjectGroup */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return AnimationMixer; });
 /* unused harmony export AnimationClip */
-/* unused harmony export Uniform */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "y", function() { return Uniform; });
 /* unused harmony export InstancedBufferGeometry */
 /* unused harmony export BufferGeometry */
 /* unused harmony export Geometry */
@@ -11583,7 +11583,7 @@ WebGLManager.prototype.destroy = function ()
 /* unused harmony export Line3 */
 /* unused harmony export Euler */
 /* unused harmony export Vector4 */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "x", function() { return Vector3; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "z", function() { return Vector3; });
 /* unused harmony export Vector2 */
 /* unused harmony export Quaternion */
 /* unused harmony export Color */
@@ -11656,9 +11656,9 @@ WebGLManager.prototype.destroy = function ()
 /* unused harmony export BoxGeometry */
 /* unused harmony export BoxBufferGeometry */
 /* unused harmony export ShadowMaterial */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "v", function() { return SpriteMaterial; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "w", function() { return SpriteMaterial; });
 /* unused harmony export RawShaderMaterial */
-/* unused harmony export ShaderMaterial */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "u", function() { return ShaderMaterial; });
 /* unused harmony export PointsMaterial */
 /* unused harmony export MeshPhysicalMaterial */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return MeshStandardMaterial; });
@@ -89677,13 +89677,12 @@ class ThreeController {
     this.className = properties.className;
     this.verbose = properties.verbose;
     this.editor = properties.editor;
-    this.renderer = new __WEBPACK_IMPORTED_MODULE_0_three__["A" /* WebGLRenderer */]({
+    this.renderer = new __WEBPACK_IMPORTED_MODULE_0_three__["C" /* WebGLRenderer */]({
       antialias: false
     });
     this.width = window.innerWidth;
     this.height = window.innerHeight;
     this.renderplane = new __WEBPACK_IMPORTED_MODULE_2__Models_RenderPlane_js__["a" /* default */](this.width, this.height);
-    console.log(this.renderplane.rt);
     this.scene = new __WEBPACK_IMPORTED_MODULE_1__Models_Scene_js__["a" /* default */]();
     this.config();
   }
@@ -89713,7 +89712,6 @@ class ThreeController {
     this.render();
   }
   render() {
-    // this.renderer.render(this.scene.scene, this.scene.camera);
     this.renderer.render(this.scene.scene, this.scene.camera, this.renderplane.rt, true);
     this.renderer.render(this.renderplane.scene, this.renderplane.camera);
   }
@@ -89745,14 +89743,14 @@ class Scene {
     this.camera = new __WEBPACK_IMPORTED_MODULE_0_three__["p" /* PerspectiveCamera */](45, window.innerWidth / window.innerHeight, 1, 10000);
     this.light = new __WEBPACK_IMPORTED_MODULE_0_three__["r" /* PointLight */](0xfffafa, 1, 0, 2);
     this.hemiLight = new __WEBPACK_IMPORTED_MODULE_0_three__["f" /* HemisphereLight */](0x404040, 0x1f1f1f);
-    this.bot = new __WEBPACK_IMPORTED_MODULE_1__BotObject_js__["a" /* default */]('../../obj/Bot.json', '../../textures/cube/nice/');
+    this.bot = new __WEBPACK_IMPORTED_MODULE_1__BotObject_js__["a" /* default */]('/obj/bot.json', '/textures/cube/nice/', '/textures/arcade.png');
     this.config();
     this.attach();
   }
   config() {
     this.scene.fog = this.fog;
     this.camera.position.x = -6.17403;
-    var origin = new __WEBPACK_IMPORTED_MODULE_0_three__["x" /* Vector3 */]();
+    var origin = new __WEBPACK_IMPORTED_MODULE_0_three__["z" /* Vector3 */]();
     this.camera.lookAt(origin);
     this.light.position.set(-80, -40, -55);
   }
@@ -89785,7 +89783,7 @@ class Scene {
 
 
 class BotObject {
-  constructor(path, cubeTexturePath, parent = null) {
+  constructor(path, cubeTexturePath, arcadePath, parent = null) {
     this.parent = parent;
     // Object
     this.object = new __WEBPACK_IMPORTED_MODULE_0_three__["m" /* Object3D */]();
@@ -89793,10 +89791,11 @@ class BotObject {
     // Loader
     this.path = path;
     this.loader = new __WEBPACK_IMPORTED_MODULE_0_three__["n" /* ObjectLoader */](loader.manager);
-    this.loader.load(path, this.onLoaded.bind(this));
+    this.loader.load(this.path, this.onLoaded.bind(this));
     // Textures
     this.textures = {};
-    this.textures.arcade = new __WEBPACK_IMPORTED_MODULE_0_three__["w" /* TextureLoader */](loader.manager).load('../../textures/arcade.png');
+    this.textures.arcade = {};
+    this.textures.arcade.path = arcadePath;
     this.textures.reflexion = {};
     this.textures.reflexion.path = cubeTexturePath;
     this.textures.reflexion.format = '.jpg';
@@ -89851,7 +89850,7 @@ class BotObject {
     this.currentAction = null;
     this.config();
     // Arcade
-    this.arcadeObject = new __WEBPACK_IMPORTED_MODULE_1__ArcadeObject_js__["a" /* default */]('../../textures/arcade.png', 'arcadeVideo');
+    this.arcadeObject = new __WEBPACK_IMPORTED_MODULE_1__ArcadeObject_js__["a" /* default */](this.textures.arcade.path, 'arcadeVideo');
   }
   config() {
     this.textures.reflexion.cube.format = __WEBPACK_IMPORTED_MODULE_0_three__["s" /* RGBFormat */];
@@ -89907,10 +89906,9 @@ class BotObject {
     this.currentAction = this.actions[index];
   }
   appearObjets(index) {
-    console.log("Aperaing objecets" + index);
+    // console.log("Aperaing objecets" + index);
     this.materials.vfx.opacity = (index == 2) ? 1.0:0.0;
     this.materials.edesign.opacity = (index == 1) ? 1.0:0.0;
-    console.log(this.materials.edesign.opacity);
   }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = BotObject;
@@ -89933,20 +89931,20 @@ class ArcadeObject {
     // Video
     this.video = document.getElementById(this.videoId);
     // Loader
-    this.loader = new __WEBPACK_IMPORTED_MODULE_0_three__["w" /* TextureLoader */](loader.manager);
+    this.loader = new __WEBPACK_IMPORTED_MODULE_0_three__["x" /* TextureLoader */](loader.manager);
     // Textures
     this.mainTexture = this.loader.load(path);
-    this.videoTexture = new __WEBPACK_IMPORTED_MODULE_0_three__["y" /* VideoTexture */](this.video);
+    this.videoTexture = new __WEBPACK_IMPORTED_MODULE_0_three__["A" /* VideoTexture */](this.video);
     // Materials
-    this.mainMaterial = new __WEBPACK_IMPORTED_MODULE_0_three__["v" /* SpriteMaterial */]({
+    this.mainMaterial = new __WEBPACK_IMPORTED_MODULE_0_three__["w" /* SpriteMaterial */]({
       map: this.mainTexture
     });
-    this.videoMaterial = new __WEBPACK_IMPORTED_MODULE_0_three__["v" /* SpriteMaterial */]({
+    this.videoMaterial = new __WEBPACK_IMPORTED_MODULE_0_three__["w" /* SpriteMaterial */]({
       map: this.videoTexture
     });
     // Sprites
-    this.mainSprite = new __WEBPACK_IMPORTED_MODULE_0_three__["u" /* Sprite */](this.mainMaterial);
-    this.videoSprite = new __WEBPACK_IMPORTED_MODULE_0_three__["u" /* Sprite */](this.videoMaterial);
+    this.mainSprite = new __WEBPACK_IMPORTED_MODULE_0_three__["v" /* Sprite */](this.mainMaterial);
+    this.videoSprite = new __WEBPACK_IMPORTED_MODULE_0_three__["v" /* Sprite */](this.videoMaterial);
     // Object
     this.object = new __WEBPACK_IMPORTED_MODULE_0_three__["m" /* Object3D */]();
     this.config();
@@ -89990,7 +89988,7 @@ class RenderPlane {
     this.width = width * this.resolution;
     this.height = height * this.resolution;
     console.log("Render Target resolution: ", this.width, this.height);
-    this.rt = new __WEBPACK_IMPORTED_MODULE_0_three__["z" /* WebGLRenderTarget */](this.width, this.height, {
+    this.rt = new __WEBPACK_IMPORTED_MODULE_0_three__["B" /* WebGLRenderTarget */](this.width, this.height, {
       minFilter: __WEBPACK_IMPORTED_MODULE_0_three__["g" /* LinearFilter */],
       magFilter: __WEBPACK_IMPORTED_MODULE_0_three__["g" /* LinearFilter */],
       format: __WEBPACK_IMPORTED_MODULE_0_three__["s" /* RGBFormat */]
@@ -90001,32 +89999,14 @@ class RenderPlane {
     this.scene.add(this.plane);
   }
   onloaded(data) {
-    this.material = new __WEBPACK_IMPORTED_MODULE_0_three__["k" /* MeshBasicMaterial */]({
-      color: 0xffffff,
-      map: this.rt
+    this.material = new __WEBPACK_IMPORTED_MODULE_0_three__["u" /* ShaderMaterial */]({
+      uniforms: {
+        tex: new __WEBPACK_IMPORTED_MODULE_0_three__["y" /* Uniform */](this.rt.texture)
+      },
+      vertexShader: data.ortho.vertex,
+      fragmentShader: data.ortho.fragment,
+      depthWrite: false
     });
-    this.material.side = __WEBPACK_IMPORTED_MODULE_0_three__["d" /* DoubleSide */];
-    // this.material = new THREE.ShaderMaterial({
-    //   uniforms: {
-    //     tBase: {
-    //       type: "t",
-    //       value: 0,
-    //       texture: this.rt
-    //     },
-    //     tGlow: {
-    //       type: "t",
-    //       value: 1,
-    //       texture: this.rt
-    //     },
-    //     glowStrength: {
-    //       type: "f",
-    //       value: 0.95
-    //     }
-    //   },
-    //   vertexShader: data.ortho.vertex,
-    //   fragmentShader: data.composite.fragment,
-    //   depthWrite: false
-    // });
     this.plane = new __WEBPACK_IMPORTED_MODULE_0_three__["j" /* Mesh */](new __WEBPACK_IMPORTED_MODULE_0_three__["q" /* PlaneGeometry */](1, 1), this.material);
     this.camera = new __WEBPACK_IMPORTED_MODULE_0_three__["o" /* OrthographicCamera */](1 / -2, 1 / 2, 1 / 2, 1 / -2, 0.00001, 1000.0);
     this.scene = new __WEBPACK_IMPORTED_MODULE_0_three__["t" /* Scene */]();
@@ -92496,7 +92476,7 @@ exports = module.exports = __webpack_require__(4)(false);
 
 
 // module
-exports.push([module.i, "@keyframes glitch {\n  0% {\n    clip: rect(2px, 200px, 30px, 0px); }\n  1.25% {\n    clip: rect(5px, 200px, 18px, 0px); }\n  2.5% {\n    clip: rect(1px, 200px, 26px, 0px); }\n  3.75% {\n    clip: rect(5px, 200px, 18px, 0px); }\n  5% {\n    clip: rect(5px, 200px, 5px, 0px); }\n  6.25% {\n    clip: rect(1px, 200px, 16px, 0px); }\n  7.5% {\n    clip: rect(5px, 200px, 11px, 0px); }\n  8.75% {\n    clip: rect(2px, 200px, 23px, 0px); }\n  10% {\n    clip: rect(4px, 200px, 15px, 0px); }\n  11.25% {\n    clip: rect(1px, 200px, 22px, 0px); }\n  12.5% {\n    clip: rect(4px, 200px, 27px, 0px); }\n  13.75% {\n    clip: rect(1px, 200px, 14px, 0px); }\n  15% {\n    clip: rect(1px, 200px, 5px, 0px); }\n  16.25% {\n    clip: rect(4px, 200px, 20px, 0px); }\n  17.5% {\n    clip: rect(3px, 200px, 8px, 0px); }\n  18.75% {\n    clip: rect(1px, 200px, 12px, 0px); }\n  20% {\n    clip: rect(3px, 200px, 24px, 0px); }\n  21.25% {\n    clip: rect(4px, 200px, 4px, 0px); }\n  22.5% {\n    clip: rect(1px, 200px, 2px, 0px); }\n  23.75% {\n    clip: rect(4px, 200px, 9px, 0px); }\n  25% {\n    clip: rect(1px, 200px, 24px, 0px); }\n  26.25% {\n    clip: rect(1px, 200px, 3px, 0px); }\n  27.5% {\n    clip: rect(3px, 200px, 23px, 0px); }\n  28.75% {\n    clip: rect(2px, 200px, 22px, 0px); }\n  30% {\n    clip: rect(1px, 200px, 1px, 0px); }\n  31.25% {\n    clip: rect(2px, 200px, 16px, 0px); }\n  32.5% {\n    clip: rect(2px, 200px, 10px, 0px); }\n  33.75% {\n    clip: rect(4px, 200px, 2px, 0px); }\n  35% {\n    clip: rect(4px, 200px, 29px, 0px); }\n  36.25% {\n    clip: rect(5px, 200px, 1px, 0px); }\n  37.5% {\n    clip: rect(2px, 200px, 10px, 0px); }\n  38.75% {\n    clip: rect(5px, 200px, 11px, 0px); }\n  40% {\n    clip: rect(1px, 200px, 4px, 0px); }\n  41.25% {\n    clip: rect(2px, 200px, 21px, 0px); }\n  42.5% {\n    clip: rect(5px, 200px, 20px, 0px); }\n  43.75% {\n    clip: rect(3px, 200px, 23px, 0px); }\n  45% {\n    clip: rect(3px, 200px, 25px, 0px); }\n  46.25% {\n    clip: rect(3px, 200px, 25px, 0px); }\n  47.5% {\n    clip: rect(4px, 200px, 3px, 0px); }\n  48.75% {\n    clip: rect(2px, 200px, 11px, 0px); }\n  50% {\n    clip: rect(4px, 200px, 23px, 0px); }\n  51.25% {\n    clip: rect(3px, 200px, 10px, 0px); }\n  52.5% {\n    clip: rect(2px, 200px, 28px, 0px); }\n  53.75% {\n    clip: rect(1px, 200px, 3px, 0px); }\n  55% {\n    clip: rect(2px, 200px, 10px, 0px); }\n  56.25% {\n    clip: rect(3px, 200px, 20px, 0px); }\n  57.5% {\n    clip: rect(4px, 200px, 19px, 0px); }\n  58.75% {\n    clip: rect(2px, 200px, 13px, 0px); }\n  60% {\n    clip: rect(1px, 200px, 24px, 0px); }\n  61.25% {\n    clip: rect(2px, 200px, 10px, 0px); }\n  62.5% {\n    clip: rect(3px, 200px, 17px, 0px); }\n  63.75% {\n    clip: rect(5px, 200px, 13px, 0px); }\n  65% {\n    clip: rect(2px, 200px, 7px, 0px); }\n  66.25% {\n    clip: rect(4px, 200px, 18px, 0px); }\n  67.5% {\n    clip: rect(5px, 200px, 13px, 0px); }\n  68.75% {\n    clip: rect(5px, 200px, 16px, 0px); }\n  70% {\n    clip: rect(3px, 200px, 5px, 0px); }\n  71.25% {\n    clip: rect(1px, 200px, 20px, 0px); }\n  72.5% {\n    clip: rect(3px, 200px, 17px, 0px); }\n  73.75% {\n    clip: rect(5px, 200px, 10px, 0px); }\n  75% {\n    clip: rect(5px, 200px, 14px, 0px); }\n  76.25% {\n    clip: rect(2px, 200px, 23px, 0px); }\n  77.5% {\n    clip: rect(1px, 200px, 22px, 0px); }\n  78.75% {\n    clip: rect(2px, 200px, 22px, 0px); }\n  80% {\n    clip: rect(5px, 200px, 2px, 0px); }\n  81.25% {\n    clip: rect(5px, 200px, 8px, 0px); }\n  82.5% {\n    clip: rect(1px, 200px, 18px, 0px); }\n  83.75% {\n    clip: rect(4px, 200px, 29px, 0px); }\n  85% {\n    clip: rect(2px, 200px, 17px, 0px); }\n  86.25% {\n    clip: rect(3px, 200px, 15px, 0px); }\n  87.5% {\n    clip: rect(4px, 200px, 15px, 0px); }\n  88.75% {\n    clip: rect(1px, 200px, 14px, 0px); }\n  90% {\n    clip: rect(3px, 200px, 19px, 0px); }\n  91.25% {\n    clip: rect(1px, 200px, 2px, 0px); }\n  92.5% {\n    clip: rect(4px, 200px, 13px, 0px); }\n  93.75% {\n    clip: rect(2px, 200px, 6px, 0px); }\n  95% {\n    clip: rect(3px, 200px, 24px, 0px); }\n  96.25% {\n    clip: rect(3px, 200px, 8px, 0px); }\n  97.5% {\n    clip: rect(1px, 200px, 12px, 0px); }\n  98.75% {\n    clip: rect(3px, 200px, 21px, 0px); }\n  100% {\n    clip: rect(3px, 200px, 3px, 0px); } }\n\n.glitch {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  background-color: transparent;\n  position: absolute;\n  clip: rect(0, 180px, 0, 0);\n  animation: glitch 3s infinite alternate-reverse; }\n", ""]);
+exports.push([module.i, "@keyframes glitch {\n  0% {\n    clip: rect(4px, 200px, 23px, 0px); }\n  1.25% {\n    clip: rect(4px, 200px, 17px, 0px); }\n  2.5% {\n    clip: rect(4px, 200px, 28px, 0px); }\n  3.75% {\n    clip: rect(3px, 200px, 23px, 0px); }\n  5% {\n    clip: rect(2px, 200px, 12px, 0px); }\n  6.25% {\n    clip: rect(3px, 200px, 14px, 0px); }\n  7.5% {\n    clip: rect(4px, 200px, 22px, 0px); }\n  8.75% {\n    clip: rect(1px, 200px, 12px, 0px); }\n  10% {\n    clip: rect(1px, 200px, 28px, 0px); }\n  11.25% {\n    clip: rect(3px, 200px, 15px, 0px); }\n  12.5% {\n    clip: rect(4px, 200px, 23px, 0px); }\n  13.75% {\n    clip: rect(3px, 200px, 15px, 0px); }\n  15% {\n    clip: rect(2px, 200px, 25px, 0px); }\n  16.25% {\n    clip: rect(3px, 200px, 12px, 0px); }\n  17.5% {\n    clip: rect(1px, 200px, 27px, 0px); }\n  18.75% {\n    clip: rect(1px, 200px, 27px, 0px); }\n  20% {\n    clip: rect(5px, 200px, 6px, 0px); }\n  21.25% {\n    clip: rect(3px, 200px, 18px, 0px); }\n  22.5% {\n    clip: rect(1px, 200px, 7px, 0px); }\n  23.75% {\n    clip: rect(5px, 200px, 13px, 0px); }\n  25% {\n    clip: rect(3px, 200px, 12px, 0px); }\n  26.25% {\n    clip: rect(4px, 200px, 9px, 0px); }\n  27.5% {\n    clip: rect(4px, 200px, 16px, 0px); }\n  28.75% {\n    clip: rect(3px, 200px, 21px, 0px); }\n  30% {\n    clip: rect(3px, 200px, 20px, 0px); }\n  31.25% {\n    clip: rect(3px, 200px, 28px, 0px); }\n  32.5% {\n    clip: rect(2px, 200px, 14px, 0px); }\n  33.75% {\n    clip: rect(4px, 200px, 16px, 0px); }\n  35% {\n    clip: rect(2px, 200px, 22px, 0px); }\n  36.25% {\n    clip: rect(5px, 200px, 8px, 0px); }\n  37.5% {\n    clip: rect(1px, 200px, 16px, 0px); }\n  38.75% {\n    clip: rect(2px, 200px, 2px, 0px); }\n  40% {\n    clip: rect(4px, 200px, 27px, 0px); }\n  41.25% {\n    clip: rect(3px, 200px, 5px, 0px); }\n  42.5% {\n    clip: rect(4px, 200px, 15px, 0px); }\n  43.75% {\n    clip: rect(4px, 200px, 30px, 0px); }\n  45% {\n    clip: rect(2px, 200px, 15px, 0px); }\n  46.25% {\n    clip: rect(5px, 200px, 5px, 0px); }\n  47.5% {\n    clip: rect(5px, 200px, 25px, 0px); }\n  48.75% {\n    clip: rect(3px, 200px, 20px, 0px); }\n  50% {\n    clip: rect(3px, 200px, 25px, 0px); }\n  51.25% {\n    clip: rect(2px, 200px, 21px, 0px); }\n  52.5% {\n    clip: rect(5px, 200px, 10px, 0px); }\n  53.75% {\n    clip: rect(2px, 200px, 19px, 0px); }\n  55% {\n    clip: rect(1px, 200px, 17px, 0px); }\n  56.25% {\n    clip: rect(2px, 200px, 2px, 0px); }\n  57.5% {\n    clip: rect(5px, 200px, 17px, 0px); }\n  58.75% {\n    clip: rect(4px, 200px, 16px, 0px); }\n  60% {\n    clip: rect(5px, 200px, 29px, 0px); }\n  61.25% {\n    clip: rect(2px, 200px, 3px, 0px); }\n  62.5% {\n    clip: rect(2px, 200px, 8px, 0px); }\n  63.75% {\n    clip: rect(2px, 200px, 30px, 0px); }\n  65% {\n    clip: rect(5px, 200px, 30px, 0px); }\n  66.25% {\n    clip: rect(3px, 200px, 29px, 0px); }\n  67.5% {\n    clip: rect(3px, 200px, 18px, 0px); }\n  68.75% {\n    clip: rect(5px, 200px, 4px, 0px); }\n  70% {\n    clip: rect(3px, 200px, 2px, 0px); }\n  71.25% {\n    clip: rect(5px, 200px, 24px, 0px); }\n  72.5% {\n    clip: rect(3px, 200px, 9px, 0px); }\n  73.75% {\n    clip: rect(3px, 200px, 5px, 0px); }\n  75% {\n    clip: rect(5px, 200px, 16px, 0px); }\n  76.25% {\n    clip: rect(3px, 200px, 21px, 0px); }\n  77.5% {\n    clip: rect(5px, 200px, 1px, 0px); }\n  78.75% {\n    clip: rect(2px, 200px, 2px, 0px); }\n  80% {\n    clip: rect(5px, 200px, 5px, 0px); }\n  81.25% {\n    clip: rect(1px, 200px, 25px, 0px); }\n  82.5% {\n    clip: rect(2px, 200px, 4px, 0px); }\n  83.75% {\n    clip: rect(1px, 200px, 20px, 0px); }\n  85% {\n    clip: rect(5px, 200px, 18px, 0px); }\n  86.25% {\n    clip: rect(2px, 200px, 23px, 0px); }\n  87.5% {\n    clip: rect(1px, 200px, 7px, 0px); }\n  88.75% {\n    clip: rect(2px, 200px, 25px, 0px); }\n  90% {\n    clip: rect(3px, 200px, 27px, 0px); }\n  91.25% {\n    clip: rect(2px, 200px, 4px, 0px); }\n  92.5% {\n    clip: rect(2px, 200px, 17px, 0px); }\n  93.75% {\n    clip: rect(3px, 200px, 26px, 0px); }\n  95% {\n    clip: rect(4px, 200px, 4px, 0px); }\n  96.25% {\n    clip: rect(1px, 200px, 22px, 0px); }\n  97.5% {\n    clip: rect(2px, 200px, 28px, 0px); }\n  98.75% {\n    clip: rect(3px, 200px, 11px, 0px); }\n  100% {\n    clip: rect(5px, 200px, 14px, 0px); } }\n\n.glitch {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  background-color: transparent;\n  position: absolute;\n  clip: rect(0, 180px, 0, 0);\n  animation: glitch 3s infinite alternate-reverse; }\n", ""]);
 
 // exports
 
