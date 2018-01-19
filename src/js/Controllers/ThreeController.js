@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import ThreeScene from '../Models/ThreeScene.js';
+import Scene from '../Models/Scene.js';
+import RenderPlane from '../Models/RenderPlane.js';
 import css from '../../css/three.css';
 
 export default class ThreeController {
@@ -13,7 +14,8 @@ export default class ThreeController {
     });
     this.width = window.innerWidth;
     this.height = window.innerHeight;
-    this.scene = new ThreeScene();
+    this.renderplane = new RenderPlane(this.width, this.height);
+    this.scene = new Scene();
     this.config();
   }
   config() {
@@ -42,7 +44,8 @@ export default class ThreeController {
     this.render();
   }
   render() {
-    this.renderer.render(this.scene.scene, this.scene.camera);
+    this.renderer.render(this.scene.scene, this.scene.camera, this.renderplane.rt, true);
+    this.renderer.render(this.renderplane.scene, this.renderplane.camera);
   }
   resize() {
     this.width = window.innerWidth;

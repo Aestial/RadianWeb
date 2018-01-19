@@ -37,8 +37,11 @@ export default class ArcadeObject {
     this.videoSprite.scale.set(0.285, 0.16, 1);
     this.videoSprite.position.set(0.17, 0.001, -0.015);
     // Object
+    this.attach();
+    this.object.scale.set(5, 5, 1);
+  }
+  attach(){
     this.object.add(this.mainSprite);
     this.object.add(this.videoSprite);
-    this.object.scale.set(5, 5, 1);
   }
 }

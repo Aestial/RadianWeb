@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import ArcadeObject from './ArcadeObject.js';
 
 export default class BotObject {
-  constructor(path, cubeTexturePath, parent = null) {
+  constructor(path, cubeTexturePath, arcadePath, parent = null) {
     this.parent = parent;
     // Object
     this.object = new THREE.Object3D();
@@ -10,10 +10,11 @@ export default class BotObject {
     // Loader
     this.path = path;
     this.loader = new THREE.ObjectLoader(loader.manager);
-    this.loader.load(path, this.onLoaded.bind(this));
+    this.loader.load(this.path, this.onLoaded.bind(this));
     // Textures
     this.textures = {};
-    this.textures.arcade = new THREE.TextureLoader(loader.manager).load('../../textures/arcade.png');
+    this.textures.arcade = {};
+    this.textures.arcade.path = arcadePath;
     this.textures.reflexion = {};
     this.textures.reflexion.path = cubeTexturePath;
     this.textures.reflexion.format = '.jpg';
@@ -68,7 +69,7 @@ export default class BotObject {
     this.currentAction = null;
     this.config();
     // Arcade
-    this.arcadeObject = new ArcadeObject('../../textures/arcade.png', 'arcadeVideo');
+    this.arcadeObject = new ArcadeObject(this.textures.arcade.path, 'arcadeVideo');
   }
   config() {
     this.textures.reflexion.cube.format = THREE.RGBFormat;
@@ -124,9 +125,8 @@ export default class BotObject {
     this.currentAction = this.actions[index];
   }
   appearObjets(index) {
-    console.log("Aperaing objecets" + index);
+    // console.log("Aperaing objecets" + index);
     this.materials.vfx.opacity = (index == 2) ? 1.0:0.0;
     this.materials.edesign.opacity = (index == 1) ? 1.0:0.0;
-    console.log(this.materials.edesign.opacity);
   }
 }

@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 67);
+/******/ 	return __webpack_require__(__webpack_require__.s = 68);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -81,7 +81,7 @@
 var core = module.exports = Object.assign(__webpack_require__(1), __webpack_require__(6), {
     // utils
     utils: __webpack_require__(3),
-    ticker: __webpack_require__(100),
+    ticker: __webpack_require__(101),
 
     // display
     DisplayObject:          __webpack_require__(38),
@@ -89,17 +89,17 @@ var core = module.exports = Object.assign(__webpack_require__(1), __webpack_requ
 
     // sprites
     Sprite:                 __webpack_require__(42),
-    ParticleContainer:      __webpack_require__(104),
-    SpriteRenderer:         __webpack_require__(105),
-    ParticleRenderer:       __webpack_require__(109),
+    ParticleContainer:      __webpack_require__(105),
+    SpriteRenderer:         __webpack_require__(106),
+    ParticleRenderer:       __webpack_require__(110),
 
     // text
-    Text:                   __webpack_require__(112),
+    Text:                   __webpack_require__(113),
 
     // primitives
-    Graphics:               __webpack_require__(113),
+    Graphics:               __webpack_require__(114),
     GraphicsData:           __webpack_require__(50),
-    GraphicsRenderer:       __webpack_require__(114),
+    GraphicsRenderer:       __webpack_require__(115),
 
     // textures
     Texture:                __webpack_require__(12),
@@ -109,7 +109,7 @@ var core = module.exports = Object.assign(__webpack_require__(1), __webpack_requ
     TextureUvs:             __webpack_require__(40),
 
     // renderers - canvas
-    CanvasRenderer:         __webpack_require__(117),
+    CanvasRenderer:         __webpack_require__(118),
     CanvasGraphics:         __webpack_require__(29),
     CanvasBuffer:           __webpack_require__(27),
 
@@ -409,8 +409,8 @@ var utils = module.exports = {
     _uid: 0,
     _saidHello: false,
 
-    EventEmitter:   __webpack_require__(9),
-    pluginTarget:   __webpack_require__(98),
+    EventEmitter:   __webpack_require__(10),
+    pluginTarget:   __webpack_require__(99),
     async:          __webpack_require__(36),
 
     /**
@@ -816,7 +816,7 @@ var singleton = null;
 var	singletonCounter = 0;
 var	stylesInsertedAtTop = [];
 
-var	fixUrls = __webpack_require__(73);
+var	fixUrls = __webpack_require__(74);
 
 module.exports = function(list, options) {
 	if (typeof DEBUG !== "undefined" && DEBUG) {
@@ -1150,11 +1150,11 @@ module.exports = {
     Matrix:     __webpack_require__(34),
     GroupD8:    __webpack_require__(35),
 
-    Circle:     __webpack_require__(94),
-    Ellipse:    __webpack_require__(95),
-    Polygon:    __webpack_require__(96),
+    Circle:     __webpack_require__(95),
+    Ellipse:    __webpack_require__(96),
+    Polygon:    __webpack_require__(97),
     Rectangle:  __webpack_require__(24),
-    RoundedRectangle: __webpack_require__(97)
+    RoundedRectangle: __webpack_require__(98)
 };
 
 
@@ -11465,328 +11465,32 @@ WebGLManager.prototype.destroy = function ()
 
 /***/ }),
 /* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var has = Object.prototype.hasOwnProperty;
-
-//
-// We store our EE objects in a plain object whose properties are event names.
-// If `Object.create(null)` is not supported we prefix the event names with a
-// `~` to make sure that the built-in object properties are not overridden or
-// used as an attack vector.
-// We also assume that `Object.create(null)` is available when the event name
-// is an ES6 Symbol.
-//
-var prefix = typeof Object.create !== 'function' ? '~' : false;
-
-/**
- * Representation of a single EventEmitter function.
- *
- * @param {Function} fn Event handler to be called.
- * @param {Mixed} context Context for function execution.
- * @param {Boolean} [once=false] Only emit once
- * @api private
- */
-function EE(fn, context, once) {
-  this.fn = fn;
-  this.context = context;
-  this.once = once || false;
-}
-
-/**
- * Minimal EventEmitter interface that is molded against the Node.js
- * EventEmitter interface.
- *
- * @constructor
- * @api public
- */
-function EventEmitter() { /* Nothing to set */ }
-
-/**
- * Hold the assigned EventEmitters by name.
- *
- * @type {Object}
- * @private
- */
-EventEmitter.prototype._events = undefined;
-
-/**
- * Return an array listing the events for which the emitter has registered
- * listeners.
- *
- * @returns {Array}
- * @api public
- */
-EventEmitter.prototype.eventNames = function eventNames() {
-  var events = this._events
-    , names = []
-    , name;
-
-  if (!events) return names;
-
-  for (name in events) {
-    if (has.call(events, name)) names.push(prefix ? name.slice(1) : name);
-  }
-
-  if (Object.getOwnPropertySymbols) {
-    return names.concat(Object.getOwnPropertySymbols(events));
-  }
-
-  return names;
-};
-
-/**
- * Return a list of assigned event listeners.
- *
- * @param {String} event The events that should be listed.
- * @param {Boolean} exists We only need to know if there are listeners.
- * @returns {Array|Boolean}
- * @api public
- */
-EventEmitter.prototype.listeners = function listeners(event, exists) {
-  var evt = prefix ? prefix + event : event
-    , available = this._events && this._events[evt];
-
-  if (exists) return !!available;
-  if (!available) return [];
-  if (available.fn) return [available.fn];
-
-  for (var i = 0, l = available.length, ee = new Array(l); i < l; i++) {
-    ee[i] = available[i].fn;
-  }
-
-  return ee;
-};
-
-/**
- * Emit an event to all registered event listeners.
- *
- * @param {String} event The name of the event.
- * @returns {Boolean} Indication if we've emitted an event.
- * @api public
- */
-EventEmitter.prototype.emit = function emit(event, a1, a2, a3, a4, a5) {
-  var evt = prefix ? prefix + event : event;
-
-  if (!this._events || !this._events[evt]) return false;
-
-  var listeners = this._events[evt]
-    , len = arguments.length
-    , args
-    , i;
-
-  if ('function' === typeof listeners.fn) {
-    if (listeners.once) this.removeListener(event, listeners.fn, undefined, true);
-
-    switch (len) {
-      case 1: return listeners.fn.call(listeners.context), true;
-      case 2: return listeners.fn.call(listeners.context, a1), true;
-      case 3: return listeners.fn.call(listeners.context, a1, a2), true;
-      case 4: return listeners.fn.call(listeners.context, a1, a2, a3), true;
-      case 5: return listeners.fn.call(listeners.context, a1, a2, a3, a4), true;
-      case 6: return listeners.fn.call(listeners.context, a1, a2, a3, a4, a5), true;
-    }
-
-    for (i = 1, args = new Array(len -1); i < len; i++) {
-      args[i - 1] = arguments[i];
-    }
-
-    listeners.fn.apply(listeners.context, args);
-  } else {
-    var length = listeners.length
-      , j;
-
-    for (i = 0; i < length; i++) {
-      if (listeners[i].once) this.removeListener(event, listeners[i].fn, undefined, true);
-
-      switch (len) {
-        case 1: listeners[i].fn.call(listeners[i].context); break;
-        case 2: listeners[i].fn.call(listeners[i].context, a1); break;
-        case 3: listeners[i].fn.call(listeners[i].context, a1, a2); break;
-        default:
-          if (!args) for (j = 1, args = new Array(len -1); j < len; j++) {
-            args[j - 1] = arguments[j];
-          }
-
-          listeners[i].fn.apply(listeners[i].context, args);
-      }
-    }
-  }
-
-  return true;
-};
-
-/**
- * Register a new EventListener for the given event.
- *
- * @param {String} event Name of the event.
- * @param {Function} fn Callback function.
- * @param {Mixed} [context=this] The context of the function.
- * @api public
- */
-EventEmitter.prototype.on = function on(event, fn, context) {
-  var listener = new EE(fn, context || this)
-    , evt = prefix ? prefix + event : event;
-
-  if (!this._events) this._events = prefix ? {} : Object.create(null);
-  if (!this._events[evt]) this._events[evt] = listener;
-  else {
-    if (!this._events[evt].fn) this._events[evt].push(listener);
-    else this._events[evt] = [
-      this._events[evt], listener
-    ];
-  }
-
-  return this;
-};
-
-/**
- * Add an EventListener that's only called once.
- *
- * @param {String} event Name of the event.
- * @param {Function} fn Callback function.
- * @param {Mixed} [context=this] The context of the function.
- * @api public
- */
-EventEmitter.prototype.once = function once(event, fn, context) {
-  var listener = new EE(fn, context || this, true)
-    , evt = prefix ? prefix + event : event;
-
-  if (!this._events) this._events = prefix ? {} : Object.create(null);
-  if (!this._events[evt]) this._events[evt] = listener;
-  else {
-    if (!this._events[evt].fn) this._events[evt].push(listener);
-    else this._events[evt] = [
-      this._events[evt], listener
-    ];
-  }
-
-  return this;
-};
-
-/**
- * Remove event listeners.
- *
- * @param {String} event The event we want to remove.
- * @param {Function} fn The listener that we need to find.
- * @param {Mixed} context Only remove listeners matching this context.
- * @param {Boolean} once Only remove once listeners.
- * @api public
- */
-EventEmitter.prototype.removeListener = function removeListener(event, fn, context, once) {
-  var evt = prefix ? prefix + event : event;
-
-  if (!this._events || !this._events[evt]) return this;
-
-  var listeners = this._events[evt]
-    , events = [];
-
-  if (fn) {
-    if (listeners.fn) {
-      if (
-           listeners.fn !== fn
-        || (once && !listeners.once)
-        || (context && listeners.context !== context)
-      ) {
-        events.push(listeners);
-      }
-    } else {
-      for (var i = 0, length = listeners.length; i < length; i++) {
-        if (
-             listeners[i].fn !== fn
-          || (once && !listeners[i].once)
-          || (context && listeners[i].context !== context)
-        ) {
-          events.push(listeners[i]);
-        }
-      }
-    }
-  }
-
-  //
-  // Reset the array, or remove it completely if we have no more listeners.
-  //
-  if (events.length) {
-    this._events[evt] = events.length === 1 ? events[0] : events;
-  } else {
-    delete this._events[evt];
-  }
-
-  return this;
-};
-
-/**
- * Remove all listeners or only the listeners for the specified event.
- *
- * @param {String} event The event want to remove all listeners for.
- * @api public
- */
-EventEmitter.prototype.removeAllListeners = function removeAllListeners(event) {
-  if (!this._events) return this;
-
-  if (event) delete this._events[prefix ? prefix + event : event];
-  else this._events = prefix ? {} : Object.create(null);
-
-  return this;
-};
-
-//
-// Alias methods names because people roll like that.
-//
-EventEmitter.prototype.off = EventEmitter.prototype.removeListener;
-EventEmitter.prototype.addListener = EventEmitter.prototype.on;
-
-//
-// This function doesn't apply anymore.
-//
-EventEmitter.prototype.setMaxListeners = function setMaxListeners() {
-  return this;
-};
-
-//
-// Expose the prefix.
-//
-EventEmitter.prefixed = prefix;
-
-//
-// Expose the module.
-//
-if (true) {
-  module.exports = EventEmitter;
-}
-
-
-/***/ }),
-/* 10 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* unused harmony export WebGLRenderTargetCube */
-/* unused harmony export WebGLRenderTarget */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "w", function() { return WebGLRenderer; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "z", function() { return WebGLRenderTarget; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "A", function() { return WebGLRenderer; });
 /* unused harmony export ShaderLib */
 /* unused harmony export UniformsLib */
 /* unused harmony export UniformsUtils */
 /* unused harmony export ShaderChunk */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return FogExp2; });
 /* unused harmony export Fog */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "q", function() { return Scene; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "t", function() { return Scene; });
 /* unused harmony export LensFlare */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "r", function() { return Sprite; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "u", function() { return Sprite; });
 /* unused harmony export LOD */
 /* unused harmony export SkinnedMesh */
 /* unused harmony export Skeleton */
 /* unused harmony export Bone */
-/* unused harmony export Mesh */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return Mesh; });
 /* unused harmony export LineSegments */
 /* unused harmony export LineLoop */
 /* unused harmony export Line */
 /* unused harmony export Points */
 /* unused harmony export Group */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "v", function() { return VideoTexture; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "y", function() { return VideoTexture; });
 /* unused harmony export DataTexture */
 /* unused harmony export CompressedTexture */
 /* unused harmony export CubeTexture */
@@ -11796,8 +11500,8 @@ if (true) {
 /* unused harmony export CompressedTextureLoader */
 /* unused harmony export DataTextureLoader */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return CubeTextureLoader; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "t", function() { return TextureLoader; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "m", function() { return ObjectLoader; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "w", function() { return TextureLoader; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "n", function() { return ObjectLoader; });
 /* unused harmony export MaterialLoader */
 /* unused harmony export BufferGeometryLoader */
 /* unused harmony export DefaultLoadingManager */
@@ -11813,7 +11517,7 @@ if (true) {
 /* unused harmony export AudioLoader */
 /* unused harmony export SpotLightShadow */
 /* unused harmony export SpotLight */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "o", function() { return PointLight; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "r", function() { return PointLight; });
 /* unused harmony export RectAreaLight */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return HemisphereLight; });
 /* unused harmony export DirectionalLightShadow */
@@ -11822,8 +11526,8 @@ if (true) {
 /* unused harmony export LightShadow */
 /* unused harmony export Light */
 /* unused harmony export StereoCamera */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "n", function() { return PerspectiveCamera; });
-/* unused harmony export OrthographicCamera */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "p", function() { return PerspectiveCamera; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "o", function() { return OrthographicCamera; });
 /* unused harmony export CubeCamera */
 /* unused harmony export ArrayCamera */
 /* unused harmony export Camera */
@@ -11854,7 +11558,7 @@ if (true) {
 /* unused harmony export InterleavedBuffer */
 /* unused harmony export InstancedBufferAttribute */
 /* unused harmony export Face3 */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return Object3D; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "m", function() { return Object3D; });
 /* unused harmony export Raycaster */
 /* unused harmony export Layers */
 /* unused harmony export EventDispatcher */
@@ -11879,7 +11583,7 @@ if (true) {
 /* unused harmony export Line3 */
 /* unused harmony export Euler */
 /* unused harmony export Vector4 */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "u", function() { return Vector3; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "x", function() { return Vector3; });
 /* unused harmony export Vector2 */
 /* unused harmony export Quaternion */
 /* unused harmony export Color */
@@ -11934,7 +11638,7 @@ if (true) {
 /* unused harmony export SphereBufferGeometry */
 /* unused harmony export RingGeometry */
 /* unused harmony export RingBufferGeometry */
-/* unused harmony export PlaneGeometry */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "q", function() { return PlaneGeometry; });
 /* unused harmony export PlaneBufferGeometry */
 /* unused harmony export LatheGeometry */
 /* unused harmony export LatheBufferGeometry */
@@ -11952,19 +11656,19 @@ if (true) {
 /* unused harmony export BoxGeometry */
 /* unused harmony export BoxBufferGeometry */
 /* unused harmony export ShadowMaterial */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "s", function() { return SpriteMaterial; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "v", function() { return SpriteMaterial; });
 /* unused harmony export RawShaderMaterial */
 /* unused harmony export ShaderMaterial */
 /* unused harmony export PointsMaterial */
 /* unused harmony export MeshPhysicalMaterial */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return MeshStandardMaterial; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return MeshStandardMaterial; });
 /* unused harmony export MeshPhongMaterial */
 /* unused harmony export MeshToonMaterial */
 /* unused harmony export MeshNormalMaterial */
 /* unused harmony export MeshLambertMaterial */
 /* unused harmony export MeshDepthMaterial */
 /* unused harmony export MeshDistanceMaterial */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return MeshBasicMaterial; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return MeshBasicMaterial; });
 /* unused harmony export LineDashedMaterial */
 /* unused harmony export LineBasicMaterial */
 /* unused harmony export Material */
@@ -12075,7 +11779,7 @@ if (true) {
 /* unused harmony export UnsignedShort565Type */
 /* unused harmony export UnsignedInt248Type */
 /* unused harmony export AlphaFormat */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "p", function() { return RGBFormat; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "s", function() { return RGBFormat; });
 /* unused harmony export RGBAFormat */
 /* unused harmony export LuminanceFormat */
 /* unused harmony export LuminanceAlphaFormat */
@@ -57741,6 +57445,302 @@ function CanvasRenderer() {
 
 
 /***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var has = Object.prototype.hasOwnProperty;
+
+//
+// We store our EE objects in a plain object whose properties are event names.
+// If `Object.create(null)` is not supported we prefix the event names with a
+// `~` to make sure that the built-in object properties are not overridden or
+// used as an attack vector.
+// We also assume that `Object.create(null)` is available when the event name
+// is an ES6 Symbol.
+//
+var prefix = typeof Object.create !== 'function' ? '~' : false;
+
+/**
+ * Representation of a single EventEmitter function.
+ *
+ * @param {Function} fn Event handler to be called.
+ * @param {Mixed} context Context for function execution.
+ * @param {Boolean} [once=false] Only emit once
+ * @api private
+ */
+function EE(fn, context, once) {
+  this.fn = fn;
+  this.context = context;
+  this.once = once || false;
+}
+
+/**
+ * Minimal EventEmitter interface that is molded against the Node.js
+ * EventEmitter interface.
+ *
+ * @constructor
+ * @api public
+ */
+function EventEmitter() { /* Nothing to set */ }
+
+/**
+ * Hold the assigned EventEmitters by name.
+ *
+ * @type {Object}
+ * @private
+ */
+EventEmitter.prototype._events = undefined;
+
+/**
+ * Return an array listing the events for which the emitter has registered
+ * listeners.
+ *
+ * @returns {Array}
+ * @api public
+ */
+EventEmitter.prototype.eventNames = function eventNames() {
+  var events = this._events
+    , names = []
+    , name;
+
+  if (!events) return names;
+
+  for (name in events) {
+    if (has.call(events, name)) names.push(prefix ? name.slice(1) : name);
+  }
+
+  if (Object.getOwnPropertySymbols) {
+    return names.concat(Object.getOwnPropertySymbols(events));
+  }
+
+  return names;
+};
+
+/**
+ * Return a list of assigned event listeners.
+ *
+ * @param {String} event The events that should be listed.
+ * @param {Boolean} exists We only need to know if there are listeners.
+ * @returns {Array|Boolean}
+ * @api public
+ */
+EventEmitter.prototype.listeners = function listeners(event, exists) {
+  var evt = prefix ? prefix + event : event
+    , available = this._events && this._events[evt];
+
+  if (exists) return !!available;
+  if (!available) return [];
+  if (available.fn) return [available.fn];
+
+  for (var i = 0, l = available.length, ee = new Array(l); i < l; i++) {
+    ee[i] = available[i].fn;
+  }
+
+  return ee;
+};
+
+/**
+ * Emit an event to all registered event listeners.
+ *
+ * @param {String} event The name of the event.
+ * @returns {Boolean} Indication if we've emitted an event.
+ * @api public
+ */
+EventEmitter.prototype.emit = function emit(event, a1, a2, a3, a4, a5) {
+  var evt = prefix ? prefix + event : event;
+
+  if (!this._events || !this._events[evt]) return false;
+
+  var listeners = this._events[evt]
+    , len = arguments.length
+    , args
+    , i;
+
+  if ('function' === typeof listeners.fn) {
+    if (listeners.once) this.removeListener(event, listeners.fn, undefined, true);
+
+    switch (len) {
+      case 1: return listeners.fn.call(listeners.context), true;
+      case 2: return listeners.fn.call(listeners.context, a1), true;
+      case 3: return listeners.fn.call(listeners.context, a1, a2), true;
+      case 4: return listeners.fn.call(listeners.context, a1, a2, a3), true;
+      case 5: return listeners.fn.call(listeners.context, a1, a2, a3, a4), true;
+      case 6: return listeners.fn.call(listeners.context, a1, a2, a3, a4, a5), true;
+    }
+
+    for (i = 1, args = new Array(len -1); i < len; i++) {
+      args[i - 1] = arguments[i];
+    }
+
+    listeners.fn.apply(listeners.context, args);
+  } else {
+    var length = listeners.length
+      , j;
+
+    for (i = 0; i < length; i++) {
+      if (listeners[i].once) this.removeListener(event, listeners[i].fn, undefined, true);
+
+      switch (len) {
+        case 1: listeners[i].fn.call(listeners[i].context); break;
+        case 2: listeners[i].fn.call(listeners[i].context, a1); break;
+        case 3: listeners[i].fn.call(listeners[i].context, a1, a2); break;
+        default:
+          if (!args) for (j = 1, args = new Array(len -1); j < len; j++) {
+            args[j - 1] = arguments[j];
+          }
+
+          listeners[i].fn.apply(listeners[i].context, args);
+      }
+    }
+  }
+
+  return true;
+};
+
+/**
+ * Register a new EventListener for the given event.
+ *
+ * @param {String} event Name of the event.
+ * @param {Function} fn Callback function.
+ * @param {Mixed} [context=this] The context of the function.
+ * @api public
+ */
+EventEmitter.prototype.on = function on(event, fn, context) {
+  var listener = new EE(fn, context || this)
+    , evt = prefix ? prefix + event : event;
+
+  if (!this._events) this._events = prefix ? {} : Object.create(null);
+  if (!this._events[evt]) this._events[evt] = listener;
+  else {
+    if (!this._events[evt].fn) this._events[evt].push(listener);
+    else this._events[evt] = [
+      this._events[evt], listener
+    ];
+  }
+
+  return this;
+};
+
+/**
+ * Add an EventListener that's only called once.
+ *
+ * @param {String} event Name of the event.
+ * @param {Function} fn Callback function.
+ * @param {Mixed} [context=this] The context of the function.
+ * @api public
+ */
+EventEmitter.prototype.once = function once(event, fn, context) {
+  var listener = new EE(fn, context || this, true)
+    , evt = prefix ? prefix + event : event;
+
+  if (!this._events) this._events = prefix ? {} : Object.create(null);
+  if (!this._events[evt]) this._events[evt] = listener;
+  else {
+    if (!this._events[evt].fn) this._events[evt].push(listener);
+    else this._events[evt] = [
+      this._events[evt], listener
+    ];
+  }
+
+  return this;
+};
+
+/**
+ * Remove event listeners.
+ *
+ * @param {String} event The event we want to remove.
+ * @param {Function} fn The listener that we need to find.
+ * @param {Mixed} context Only remove listeners matching this context.
+ * @param {Boolean} once Only remove once listeners.
+ * @api public
+ */
+EventEmitter.prototype.removeListener = function removeListener(event, fn, context, once) {
+  var evt = prefix ? prefix + event : event;
+
+  if (!this._events || !this._events[evt]) return this;
+
+  var listeners = this._events[evt]
+    , events = [];
+
+  if (fn) {
+    if (listeners.fn) {
+      if (
+           listeners.fn !== fn
+        || (once && !listeners.once)
+        || (context && listeners.context !== context)
+      ) {
+        events.push(listeners);
+      }
+    } else {
+      for (var i = 0, length = listeners.length; i < length; i++) {
+        if (
+             listeners[i].fn !== fn
+          || (once && !listeners[i].once)
+          || (context && listeners[i].context !== context)
+        ) {
+          events.push(listeners[i]);
+        }
+      }
+    }
+  }
+
+  //
+  // Reset the array, or remove it completely if we have no more listeners.
+  //
+  if (events.length) {
+    this._events[evt] = events.length === 1 ? events[0] : events;
+  } else {
+    delete this._events[evt];
+  }
+
+  return this;
+};
+
+/**
+ * Remove all listeners or only the listeners for the specified event.
+ *
+ * @param {String} event The event want to remove all listeners for.
+ * @api public
+ */
+EventEmitter.prototype.removeAllListeners = function removeAllListeners(event) {
+  if (!this._events) return this;
+
+  if (event) delete this._events[prefix ? prefix + event : event];
+  else this._events = prefix ? {} : Object.create(null);
+
+  return this;
+};
+
+//
+// Alias methods names because people roll like that.
+//
+EventEmitter.prototype.off = EventEmitter.prototype.removeListener;
+EventEmitter.prototype.addListener = EventEmitter.prototype.on;
+
+//
+// This function doesn't apply anymore.
+//
+EventEmitter.prototype.setMaxListeners = function setMaxListeners() {
+  return this;
+};
+
+//
+// Expose the prefix.
+//
+EventEmitter.prefixed = prefix;
+
+//
+// Expose the module.
+//
+if (true) {
+  module.exports = EventEmitter;
+}
+
+
+/***/ }),
 /* 11 */
 /***/ (function(module, exports) {
 
@@ -57774,7 +57774,7 @@ module.exports = g;
 var BaseTexture = __webpack_require__(14),
     VideoBaseTexture = __webpack_require__(39),
     TextureUvs = __webpack_require__(40),
-    EventEmitter = __webpack_require__(9),
+    EventEmitter = __webpack_require__(10),
     math = __webpack_require__(6),
     utils = __webpack_require__(3);
 
@@ -58291,7 +58291,7 @@ ObjectRenderer.prototype.render = function (object) // jshint unused:false
 
 var utils = __webpack_require__(3),
     CONST = __webpack_require__(1),
-    EventEmitter = __webpack_require__(9);
+    EventEmitter = __webpack_require__(10);
 
 /**
  * A texture stores the information that represents an image. All textures have a base texture.
@@ -58733,7 +58733,7 @@ var math = __webpack_require__(6),
     utils = __webpack_require__(3),
     CONST = __webpack_require__(1),
     //StencilManager = require('../managers/StencilManager'),
-    StencilMaskStack = __webpack_require__(102);
+    StencilMaskStack = __webpack_require__(103);
 
 /**
  * @author Mat Groves http://matgroves.com/ @Doormat23
@@ -59705,10 +59705,10 @@ Container.prototype.destroy = function (destroyChildren)
 
 var SystemRenderer = __webpack_require__(44),
     ShaderManager = __webpack_require__(45),
-    MaskManager = __webpack_require__(106),
-    StencilManager = __webpack_require__(107),
+    MaskManager = __webpack_require__(107),
+    StencilManager = __webpack_require__(108),
     FilterManager = __webpack_require__(41),
-    BlendModeManager = __webpack_require__(108),
+    BlendModeManager = __webpack_require__(109),
     RenderTarget = __webpack_require__(15),
     ObjectRenderer = __webpack_require__(13),
     FXAAFilter = __webpack_require__(49),
@@ -61082,14 +61082,14 @@ Object.defineProperties(BlurXFilter.prototype, {
 /* eslint global-require: 0 */
 
 
-module.exports = __webpack_require__(151);
+module.exports = __webpack_require__(152);
 module.exports.Resource = __webpack_require__(32);
 module.exports.middleware = {
     caching: {
-        memory: __webpack_require__(152)
+        memory: __webpack_require__(153)
     },
     parsing: {
-        blob: __webpack_require__(153)
+        blob: __webpack_require__(154)
     }
 };
 
@@ -63012,17 +63012,17 @@ CanvasGraphics.updateGraphicsTint = function (graphics)
  * @license     {@link https://github.com/pixijs/pixi.js/blob/master/LICENSE|MIT License}
  */
 
-__webpack_require__(119);
 __webpack_require__(120);
 __webpack_require__(121);
+__webpack_require__(122);
 
 /**
  * @namespace PIXI.extras
  */
 module.exports = {
-    MovieClip:      __webpack_require__(122),
-    TilingSprite:   __webpack_require__(123),
-    BitmapText:     __webpack_require__(124)
+    MovieClip:      __webpack_require__(123),
+    TilingSprite:   __webpack_require__(124),
+    BitmapText:     __webpack_require__(125)
 };
 
 
@@ -64041,17 +64041,17 @@ function setExtMap(map, extname, val) {
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {// run the polyfills
-__webpack_require__(89);
+__webpack_require__(90);
 
 var core = module.exports = __webpack_require__(0);
 
 // add core plugins.
 core.extras         = __webpack_require__(30);
 core.filters        = __webpack_require__(51);
-core.interaction    = __webpack_require__(147);
-core.loaders        = __webpack_require__(149);
+core.interaction    = __webpack_require__(148);
+core.loaders        = __webpack_require__(150);
 core.mesh           = __webpack_require__(64);
-core.accessibility  = __webpack_require__(159);
+core.accessibility  = __webpack_require__(160);
 
 // export a premade loader instance
 /**
@@ -64064,7 +64064,7 @@ core.accessibility  = __webpack_require__(159);
 core.loader = new core.loaders.Loader();
 
 // mixin the deprecation features.
-Object.assign(core, __webpack_require__(161));
+Object.assign(core, __webpack_require__(162));
 
 // Always export pixi globally.
 global.PIXI = core;
@@ -66010,7 +66010,7 @@ exports._unrefActive = exports.active = function(item) {
 };
 
 // setimmediate attaches itself to the global object
-__webpack_require__(99);
+__webpack_require__(100);
 exports.setImmediate = setImmediate;
 exports.clearImmediate = clearImmediate;
 
@@ -66021,7 +66021,7 @@ exports.clearImmediate = clearImmediate;
 
 var math = __webpack_require__(6),
     RenderTexture = __webpack_require__(26),
-    EventEmitter = __webpack_require__(9),
+    EventEmitter = __webpack_require__(10),
     CONST = __webpack_require__(1),
     _tempMatrix = new math.Matrix(),
     _tempDisplayObjectParent = {worldTransform:new math.Matrix(), worldAlpha:1, children:[]};
@@ -66916,7 +66916,7 @@ TextureUvs.prototype.set = function (frame, baseFrame, rotate)
 var WebGLManager = __webpack_require__(8),
     RenderTarget = __webpack_require__(15),
     CONST = __webpack_require__(1),
-    Quad = __webpack_require__(103),
+    Quad = __webpack_require__(104),
     math =  __webpack_require__(6);
 
 /**
@@ -68200,7 +68200,7 @@ CanvasTinter.tintMethod = CanvasTinter.canUseMultiply ? CanvasTinter.tintWithMul
 var utils = __webpack_require__(3),
     math = __webpack_require__(6),
     CONST = __webpack_require__(1),
-    EventEmitter = __webpack_require__(9);
+    EventEmitter = __webpack_require__(10);
 
 /**
  * The CanvasRenderer draws the scene and all its content onto a 2d canvas. This renderer should be used for browsers that do not support webGL.
@@ -69038,31 +69038,31 @@ GraphicsData.prototype.destroy = function () {
  * @namespace PIXI.filters
  */
 module.exports = {
-    AsciiFilter:        __webpack_require__(125),
-    BloomFilter:        __webpack_require__(126),
-    BlurFilter:         __webpack_require__(127),
+    AsciiFilter:        __webpack_require__(126),
+    BloomFilter:        __webpack_require__(127),
+    BlurFilter:         __webpack_require__(128),
     BlurXFilter:        __webpack_require__(20),
     BlurYFilter:        __webpack_require__(31),
-    BlurDirFilter:      __webpack_require__(128),
-    ColorMatrixFilter:  __webpack_require__(129),
-    ColorStepFilter:    __webpack_require__(130),
-    ConvolutionFilter:  __webpack_require__(131),
-    CrossHatchFilter:   __webpack_require__(132),
-    DisplacementFilter: __webpack_require__(133),
-    DotScreenFilter:    __webpack_require__(134),
-    GrayFilter:         __webpack_require__(135),
-    DropShadowFilter:   __webpack_require__(136),
-    InvertFilter:       __webpack_require__(138),
-    NoiseFilter:        __webpack_require__(139),
-    PixelateFilter:     __webpack_require__(140),
-    RGBSplitFilter:     __webpack_require__(141),
-    ShockwaveFilter:    __webpack_require__(142),
-    SepiaFilter:        __webpack_require__(143),
-    SmartBlurFilter:    __webpack_require__(144),
-    TiltShiftFilter:    __webpack_require__(145),
+    BlurDirFilter:      __webpack_require__(129),
+    ColorMatrixFilter:  __webpack_require__(130),
+    ColorStepFilter:    __webpack_require__(131),
+    ConvolutionFilter:  __webpack_require__(132),
+    CrossHatchFilter:   __webpack_require__(133),
+    DisplacementFilter: __webpack_require__(134),
+    DotScreenFilter:    __webpack_require__(135),
+    GrayFilter:         __webpack_require__(136),
+    DropShadowFilter:   __webpack_require__(137),
+    InvertFilter:       __webpack_require__(139),
+    NoiseFilter:        __webpack_require__(140),
+    PixelateFilter:     __webpack_require__(141),
+    RGBSplitFilter:     __webpack_require__(142),
+    ShockwaveFilter:    __webpack_require__(143),
+    SepiaFilter:        __webpack_require__(144),
+    SmartBlurFilter:    __webpack_require__(145),
+    TiltShiftFilter:    __webpack_require__(146),
     TiltShiftXFilter:   __webpack_require__(52),
     TiltShiftYFilter:   __webpack_require__(54),
-    TwistFilter:        __webpack_require__(146)
+    TwistFilter:        __webpack_require__(147)
 };
 
 
@@ -70471,10 +70471,10 @@ module.exports = function ()
  */
 module.exports = {
     Mesh:           __webpack_require__(22),
-    Plane:           __webpack_require__(155),
-    Rope:           __webpack_require__(156),
-    MeshRenderer:   __webpack_require__(157),
-    MeshShader:     __webpack_require__(158)
+    Plane:           __webpack_require__(156),
+    Rope:           __webpack_require__(157),
+    MeshRenderer:   __webpack_require__(158),
+    MeshShader:     __webpack_require__(159)
 };
 
 
@@ -70530,6 +70530,148 @@ module.exports = accessibleTarget;
 
 /***/ }),
 /* 66 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
+/**
+ * ShaderLoader.js v1.0
+ * An asynchronous shader loader for WebGL using AJAX with jQuery.
+ *
+ * Copyright (c) 2013 - 2014 Andre Cruz / http://andre-cruz.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+/*
+ * Dependencies: jQuery
+ * Documentation: https://github.com/codecruzer/webgl-shader-loader-js
+ */
+ // Dependencies import:
+
+
+var SHADER_LOADER = SHADER_LOADER || {};
+
+let loader;
+/* harmony default export */ __webpack_exports__["a"] = (loader = SHADER_LOADER || {});
+
+/**
+ * Loads all shaders from an external file that are included in the
+ * DOM as script elements. See comments in ShaderLoader.js for documentation.
+ *
+ * @param {Function} Callback invoked when all shaders have loaded with signature
+ * function (data) {}
+ */
+SHADER_LOADER.load = function(onShadersLoaded) {
+  /**
+   * Checks if there are any shaders still pending to load.
+   * If there are none remaining, then invoke the onShadersLoaded
+   * callback.
+   *
+   */
+  var checkForRemaining = function() {
+    if (unloadedRemaining <= 0 &&
+      onShadersLoaded) {
+      onShadersLoaded(loadedShaders);
+    }
+  };
+
+  /**
+   * Loads an external shader file asynchronously using AJAX
+   *
+   * @param {Object} The shader script tag from the DOM
+   * @param {String} The type of shader [vertex|fragment]
+   */
+  var loadShaderFile = function(shaderElement, type) {
+    /**
+     * Processes a shader that comes back from
+     * the AJAX and stores it in the Shaders
+     * Object for later on
+     *
+     * @param {Object} The jQuery XHR object
+     * @param {String} The response text, e.g. success, error
+     */
+    var onComplete = function onComplete(jqXHR, textStatus) {
+      --unloadedRemaining;
+
+      if (!loadedShaders[name]) {
+        loadedShaders[name] = {
+          vertex: "",
+          fragment: ""
+        };
+      }
+
+      loadedShaders[name][type] = jqXHR.responseText;
+
+      checkForRemaining();
+    };
+
+    var element = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(shaderElement);
+    var url = element.data("src");
+    var name = element.data("name");
+
+    __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
+      url: url,
+      dataType: "text",
+      context: {
+        name: name,
+        type: type
+      },
+      complete: onComplete
+    });
+  };
+
+  /************************
+   * Load the shaders here *
+   ************************/
+
+  var loadedShaders = {};
+
+  // Get all of the shaders from the DOM
+  var vertexShaders = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('script[type="x-shader/x-vertex"]');
+  var fragmentShaders = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('script[type="x-shader/x-fragment"]');
+
+  var unloadedRemaining = vertexShaders.length + fragmentShaders.length;
+
+  // Load vertex shaders
+  var shader;
+  var i, shaderCount;
+  for (i = 0, shaderCount = vertexShaders.length; i < shaderCount; ++i) {
+    shader = vertexShaders[i];
+    loadShaderFile(shader, "vertex");
+  }
+
+  // Load fragment shaders
+  for (i = 0, shaderCount = fragmentShaders.length; i < shaderCount; ++i) {
+    shader = fragmentShaders[i];
+    loadShaderFile(shader, "fragment");
+  }
+
+  // Check if we're still waiting for any shaders to load, in case they already
+  // finished or if there were none.
+  checkForRemaining();
+};
+
+
+/***/ }),
+/* 67 */
 /***/ (function(module, exports) {
 
 module.exports = function escape(url) {
@@ -70548,28 +70690,28 @@ module.exports = function escape(url) {
 
 
 /***/ }),
-/* 67 */
+/* 68 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Controllers_BowserController_js__ = __webpack_require__(68);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Controllers_ContactController_js__ = __webpack_require__(74);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__Controllers_FullPageController_js__ = __webpack_require__(77);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__Controllers_LoaderController_js__ = __webpack_require__(83);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__Controllers_PixiController_js__ = __webpack_require__(88);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Controllers_BowserController_js__ = __webpack_require__(69);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Controllers_ContactController_js__ = __webpack_require__(75);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__Controllers_FullPageController_js__ = __webpack_require__(78);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__Controllers_LoaderController_js__ = __webpack_require__(84);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__Controllers_PixiController_js__ = __webpack_require__(89);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__Controllers_PopupController_js__ = __webpack_require__(167);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__Controllers_ThreeController_js__ = __webpack_require__(170);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__Controllers_VimeoController_js__ = __webpack_require__(176);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__Controllers_VimeoController_js__ = __webpack_require__(177);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_jquery__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_8_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__css_reset_css__ = __webpack_require__(180);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__css_reset_css__ = __webpack_require__(181);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__css_reset_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_9__css_reset_css__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__css_style_css__ = __webpack_require__(182);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__css_style_css__ = __webpack_require__(183);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__css_style_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_10__css_style_css__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__css_fonts_css__ = __webpack_require__(185);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__css_fonts_css__ = __webpack_require__(186);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__css_fonts_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_11__css_fonts_css__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__css_glitch_scss__ = __webpack_require__(190);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__css_glitch_scss__ = __webpack_require__(191);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__css_glitch_scss___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_12__css_glitch_scss__);
 
 
@@ -70585,16 +70727,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 
-// import effects from '../css/effects.css';
 
-__webpack_require__(192);
 __webpack_require__(193);
-// require('./Libraries/ShaderLoader.js');
+__webpack_require__(194);
 
-//var settings = require('./settings.js');
-var settings = {
-  debug: false
-};
+var settings = __webpack_require__(197);
 var debug = settings.debug;
 
 var init = function() {
@@ -70639,13 +70776,13 @@ window.addEventListener('load', init, false);
 
 
 /***/ }),
-/* 68 */
+/* 69 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bowser__ = __webpack_require__(69);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bowser__ = __webpack_require__(70);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bowser___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bowser__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__css_bowser_css__ = __webpack_require__(71);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__css_bowser_css__ = __webpack_require__(72);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__css_bowser_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__css_bowser_css__);
 
 
@@ -70684,7 +70821,7 @@ class BowserController {
 
 
 /***/ }),
-/* 69 */
+/* 70 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -70695,7 +70832,7 @@ class BowserController {
 
 !function (root, name, definition) {
   if (typeof module != 'undefined' && module.exports) module.exports = definition()
-  else if (true) __webpack_require__(70)(name, definition)
+  else if (true) __webpack_require__(71)(name, definition)
   else root[name] = definition()
 }(this, 'bowser', function () {
   /**
@@ -71310,7 +71447,7 @@ class BowserController {
 
 
 /***/ }),
-/* 70 */
+/* 71 */
 /***/ (function(module, exports) {
 
 module.exports = function() {
@@ -71319,13 +71456,13 @@ module.exports = function() {
 
 
 /***/ }),
-/* 71 */
+/* 72 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(72);
+var content = __webpack_require__(73);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -71350,7 +71487,7 @@ if(false) {
 }
 
 /***/ }),
-/* 72 */
+/* 73 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(4)(false);
@@ -71364,7 +71501,7 @@ exports.push([module.i, "", ""]);
 
 
 /***/ }),
-/* 73 */
+/* 74 */
 /***/ (function(module, exports) {
 
 
@@ -71459,13 +71596,13 @@ module.exports = function (css) {
 
 
 /***/ }),
-/* 74 */
+/* 75 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__css_contact_css__ = __webpack_require__(75);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__css_contact_css__ = __webpack_require__(76);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__css_contact_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__css_contact_css__);
 
 
@@ -71521,13 +71658,13 @@ class ContactController {
 
 
 /***/ }),
-/* 75 */
+/* 76 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(76);
+var content = __webpack_require__(77);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -71552,7 +71689,7 @@ if(false) {
 }
 
 /***/ }),
-/* 76 */
+/* 77 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(4)(false);
@@ -71566,17 +71703,17 @@ exports.push([module.i, "input, textarea {\n  z-index: 9;\n  color: #eee;\n  fon
 
 
 /***/ }),
-/* 77 */
+/* 78 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_fullpage_js_dist_jquery_fullpage__ = __webpack_require__(78);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_fullpage_js_dist_jquery_fullpage__ = __webpack_require__(79);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_fullpage_js_dist_jquery_fullpage___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_fullpage_js_dist_jquery_fullpage__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_fullpage_js_dist_jquery_fullpage_css__ = __webpack_require__(79);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_fullpage_js_dist_jquery_fullpage_css__ = __webpack_require__(80);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_fullpage_js_dist_jquery_fullpage_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_fullpage_js_dist_jquery_fullpage_css__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__css_fullPageFX_css__ = __webpack_require__(81);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__css_fullPageFX_css__ = __webpack_require__(82);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__css_fullPageFX_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__css_fullPageFX_css__);
 
 
@@ -71630,7 +71767,7 @@ class FullPageController {
 
 
 /***/ }),
-/* 78 */
+/* 79 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -74495,13 +74632,13 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
 
 
 /***/ }),
-/* 79 */
+/* 80 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(80);
+var content = __webpack_require__(81);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -74526,7 +74663,7 @@ if(false) {
 }
 
 /***/ }),
-/* 80 */
+/* 81 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(4)(false);
@@ -74540,13 +74677,13 @@ exports.push([module.i, "/*!\r\n * fullPage 2.9.5\r\n * https://github.com/alvar
 
 
 /***/ }),
-/* 81 */
+/* 82 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(82);
+var content = __webpack_require__(83);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -74571,7 +74708,7 @@ if(false) {
 }
 
 /***/ }),
-/* 82 */
+/* 83 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(4)(false);
@@ -74585,16 +74722,16 @@ exports.push([module.i, "/* fullPage.js Mods -> Fading Transition\n/* ----------
 
 
 /***/ }),
-/* 83 */
+/* 84 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_three__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__css_loader_css__ = __webpack_require__(84);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_three__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__css_loader_css__ = __webpack_require__(85);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__css_loader_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__css_loader_css__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__css_loading_bar_css__ = __webpack_require__(86);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__css_loading_bar_css__ = __webpack_require__(87);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__css_loading_bar_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__css_loading_bar_css__);
 
 
@@ -74654,13 +74791,13 @@ class LoaderController {
 
 
 /***/ }),
-/* 84 */
+/* 85 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(85);
+var content = __webpack_require__(86);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -74685,7 +74822,7 @@ if(false) {
 }
 
 /***/ }),
-/* 85 */
+/* 86 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(4)(false);
@@ -74699,13 +74836,13 @@ exports.push([module.i, "#loadScreen{\n\t/* DEBUG: ----- */\n\t/* display: none;
 
 
 /***/ }),
-/* 86 */
+/* 87 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(87);
+var content = __webpack_require__(88);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -74730,7 +74867,7 @@ if(false) {
 }
 
 /***/ }),
-/* 87 */
+/* 88 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(4)(false);
@@ -74744,13 +74881,13 @@ exports.push([module.i, ".ldBar{position:relative}.ldBar.label-center>.ldBar-lab
 
 
 /***/ }),
-/* 88 */
+/* 89 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_pixi_js__ = __webpack_require__(33);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_pixi_js___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_pixi_js__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Models_PixiShader_js__ = __webpack_require__(162);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Models_PixiShader_js__ = __webpack_require__(163);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__css_pixi_css__ = __webpack_require__(164);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__css_pixi_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__css_pixi_css__);
 
@@ -74812,16 +74949,16 @@ class PixiController {
 
 
 /***/ }),
-/* 89 */
+/* 90 */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(90);
-__webpack_require__(92);
+__webpack_require__(91);
 __webpack_require__(93);
+__webpack_require__(94);
 
 
 /***/ }),
-/* 90 */
+/* 91 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // References:
@@ -74830,12 +74967,12 @@ __webpack_require__(93);
 
 if (!Object.assign)
 {
-    Object.assign = __webpack_require__(91);
+    Object.assign = __webpack_require__(92);
 }
 
 
 /***/ }),
-/* 91 */
+/* 92 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -74932,7 +75069,7 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 
 
 /***/ }),
-/* 92 */
+/* 93 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {// References:
@@ -75005,7 +75142,7 @@ if (!global.cancelAnimationFrame) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11)))
 
 /***/ }),
-/* 93 */
+/* 94 */
 /***/ (function(module, exports) {
 
 // References:
@@ -75025,7 +75162,7 @@ if (!Math.sign)
 
 
 /***/ }),
-/* 94 */
+/* 95 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Rectangle = __webpack_require__(24),
@@ -75117,7 +75254,7 @@ Circle.prototype.getBounds = function ()
 
 
 /***/ }),
-/* 95 */
+/* 96 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Rectangle = __webpack_require__(24),
@@ -75216,7 +75353,7 @@ Ellipse.prototype.getBounds = function ()
 
 
 /***/ }),
-/* 96 */
+/* 97 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Point = __webpack_require__(23),
@@ -75323,7 +75460,7 @@ Polygon.prototype.contains = function (x, y)
 
 
 /***/ }),
-/* 97 */
+/* 98 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var CONST = __webpack_require__(1);
@@ -75419,7 +75556,7 @@ RoundedRectangle.prototype.contains = function (x, y)
 
 
 /***/ }),
-/* 98 */
+/* 99 */
 /***/ (function(module, exports) {
 
 /**
@@ -75493,7 +75630,7 @@ module.exports = {
 
 
 /***/ }),
-/* 99 */
+/* 100 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, process) {(function (global, undefined) {
@@ -75686,10 +75823,10 @@ module.exports = {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11), __webpack_require__(25)))
 
 /***/ }),
-/* 100 */
+/* 101 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Ticker = __webpack_require__(101);
+var Ticker = __webpack_require__(102);
 
 /**
  * The shared ticker instance used by {@link PIXI.extras.MovieClip}.
@@ -75746,11 +75883,11 @@ module.exports = {
 
 
 /***/ }),
-/* 101 */
+/* 102 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var CONST = __webpack_require__(1),
-    EventEmitter = __webpack_require__(9),
+    EventEmitter = __webpack_require__(10),
     // Internal event used by composed emitter
     TICK = 'tick';
 
@@ -76105,7 +76242,7 @@ module.exports = Ticker;
 
 
 /***/ }),
-/* 102 */
+/* 103 */
 /***/ (function(module, exports) {
 
 /**
@@ -76142,7 +76279,7 @@ module.exports = StencilMaskStack;
 
 
 /***/ }),
-/* 103 */
+/* 104 */
 /***/ (function(module, exports) {
 
 /**
@@ -76301,7 +76438,7 @@ module.exports = Quad;
 
 
 /***/ }),
-/* 104 */
+/* 105 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Container = __webpack_require__(16),
@@ -76624,7 +76761,7 @@ ParticleContainer.prototype.destroy = function () {
 
 
 /***/ }),
-/* 105 */
+/* 106 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var ObjectRenderer = __webpack_require__(13),
@@ -77101,7 +77238,7 @@ SpriteRenderer.prototype.destroy = function ()
 
 
 /***/ }),
-/* 106 */
+/* 107 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var WebGLManager = __webpack_require__(8),
@@ -77220,7 +77357,7 @@ MaskManager.prototype.popStencilMask = function (target, maskData)
 
 
 /***/ }),
-/* 107 */
+/* 108 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var WebGLManager = __webpack_require__(8),
@@ -77570,7 +77707,7 @@ WebGLMaskManager.prototype.popMask = function (maskData)
 
 
 /***/ }),
-/* 108 */
+/* 109 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var WebGLManager = __webpack_require__(8);
@@ -77618,13 +77755,13 @@ BlendModeManager.prototype.setBlendMode = function (blendMode)
 
 
 /***/ }),
-/* 109 */
+/* 110 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var ObjectRenderer = __webpack_require__(13),
     WebGLRenderer = __webpack_require__(17),
-    ParticleShader = __webpack_require__(110),
-    ParticleBuffer = __webpack_require__(111),
+    ParticleShader = __webpack_require__(111),
+    ParticleBuffer = __webpack_require__(112),
     math            = __webpack_require__(6);
 
 /**
@@ -78098,7 +78235,7 @@ ParticleRenderer.prototype.destroy = function ()
 
 
 /***/ }),
-/* 110 */
+/* 111 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var TextureShader = __webpack_require__(18);
@@ -78180,7 +78317,7 @@ module.exports = ParticleShader;
 
 
 /***/ }),
-/* 111 */
+/* 112 */
 /***/ (function(module, exports) {
 
 
@@ -78404,7 +78541,7 @@ ParticleBuffer.prototype.destroy = function ()
 
 
 /***/ }),
-/* 112 */
+/* 113 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Sprite = __webpack_require__(42),
@@ -79105,7 +79242,7 @@ Text.prototype.destroy = function (destroyBaseTexture)
 
 
 /***/ }),
-/* 113 */
+/* 114 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Container = __webpack_require__(16),
@@ -80294,7 +80431,7 @@ Graphics.prototype.destroy = function () {
 
 
 /***/ }),
-/* 114 */
+/* 115 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var utils = __webpack_require__(3),
@@ -80302,8 +80439,8 @@ var utils = __webpack_require__(3),
     CONST = __webpack_require__(1),
     ObjectRenderer = __webpack_require__(13),
     WebGLRenderer = __webpack_require__(17),
-    WebGLGraphicsData = __webpack_require__(115),
-    earcut = __webpack_require__(116);
+    WebGLGraphicsData = __webpack_require__(116),
+    earcut = __webpack_require__(117);
 
 /**
  * Renders the graphics object.
@@ -81203,7 +81340,7 @@ GraphicsRenderer.prototype.buildPoly = function (graphicsData, webGLData)
 
 
 /***/ }),
-/* 115 */
+/* 116 */
 /***/ (function(module, exports) {
 
 /**
@@ -81325,7 +81462,7 @@ WebGLGraphicsData.prototype.destroy = function () {
 
 
 /***/ }),
-/* 116 */
+/* 117 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -81982,11 +82119,11 @@ earcut.flatten = function (data) {
 
 
 /***/ }),
-/* 117 */
+/* 118 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var SystemRenderer = __webpack_require__(44),
-    CanvasMaskManager = __webpack_require__(118),
+    CanvasMaskManager = __webpack_require__(119),
     utils = __webpack_require__(3),
     math = __webpack_require__(6),
     CONST = __webpack_require__(1);
@@ -82254,7 +82391,7 @@ CanvasRenderer.prototype._mapBlendModes = function ()
 
 
 /***/ }),
-/* 118 */
+/* 119 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var CanvasGraphics = __webpack_require__(29);
@@ -82320,7 +82457,7 @@ CanvasMaskManager.prototype.destroy = function () {};
 
 
 /***/ }),
-/* 119 */
+/* 120 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var core = __webpack_require__(0),
@@ -82596,7 +82733,7 @@ DisplayObject.prototype._cacheAsBitmapDestroy = function ()
 
 
 /***/ }),
-/* 120 */
+/* 121 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var core = __webpack_require__(0);
@@ -82630,7 +82767,7 @@ core.Container.prototype.getChildByName = function (name)
 
 
 /***/ }),
-/* 121 */
+/* 122 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var core = __webpack_require__(0);
@@ -82664,7 +82801,7 @@ core.DisplayObject.prototype.getGlobalPosition = function (point)
 
 
 /***/ }),
-/* 122 */
+/* 123 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var core = __webpack_require__(0);
@@ -82988,7 +83125,7 @@ MovieClip.fromImages = function (images)
 };
 
 /***/ }),
-/* 123 */
+/* 124 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var core = __webpack_require__(0),
@@ -83444,7 +83581,7 @@ TilingSprite.fromImage = function (imageId, width, height, crossorigin, scaleMod
 
 
 /***/ }),
-/* 124 */
+/* 125 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var core = __webpack_require__(0);
@@ -83836,7 +83973,7 @@ BitmapText.fonts = {};
 
 
 /***/ }),
-/* 125 */
+/* 126 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(__dirname) {var core = __webpack_require__(0);
@@ -83898,7 +84035,7 @@ Object.defineProperties(AsciiFilter.prototype, {
 /* WEBPACK VAR INJECTION */}.call(exports, "/"))
 
 /***/ }),
-/* 126 */
+/* 127 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var core = __webpack_require__(0),
@@ -84003,7 +84140,7 @@ Object.defineProperties(BloomFilter.prototype, {
 
 
 /***/ }),
-/* 127 */
+/* 128 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var core = __webpack_require__(0),
@@ -84117,7 +84254,7 @@ Object.defineProperties(BlurFilter.prototype, {
 
 
 /***/ }),
-/* 128 */
+/* 129 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(__dirname) {var core = __webpack_require__(0);
@@ -84264,7 +84401,7 @@ Object.defineProperties(BlurDirFilter.prototype, {
 /* WEBPACK VAR INJECTION */}.call(exports, "/"))
 
 /***/ }),
-/* 129 */
+/* 130 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(__dirname) {var core = __webpack_require__(0);
@@ -84805,7 +84942,7 @@ Object.defineProperties(ColorMatrixFilter.prototype, {
 /* WEBPACK VAR INJECTION */}.call(exports, "/"))
 
 /***/ }),
-/* 130 */
+/* 131 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(__dirname) {var core = __webpack_require__(0);
@@ -84859,7 +84996,7 @@ Object.defineProperties(ColorStepFilter.prototype, {
 /* WEBPACK VAR INJECTION */}.call(exports, "/"))
 
 /***/ }),
-/* 131 */
+/* 132 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(__dirname) {var core = __webpack_require__(0);
@@ -84955,7 +85092,7 @@ Object.defineProperties(ConvolutionFilter.prototype, {
 /* WEBPACK VAR INJECTION */}.call(exports, "/"))
 
 /***/ }),
-/* 132 */
+/* 133 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(__dirname) {var core = __webpack_require__(0);
@@ -84986,7 +85123,7 @@ module.exports = CrossHatchFilter;
 /* WEBPACK VAR INJECTION */}.call(exports, "/"))
 
 /***/ }),
-/* 133 */
+/* 134 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(__dirname) {var core = __webpack_require__(0);
@@ -85075,7 +85212,7 @@ Object.defineProperties(DisplacementFilter.prototype, {
 /* WEBPACK VAR INJECTION */}.call(exports, "/"))
 
 /***/ }),
-/* 134 */
+/* 135 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(__dirname) {var core = __webpack_require__(0);
@@ -85152,7 +85289,7 @@ Object.defineProperties(DotScreenFilter.prototype, {
 /* WEBPACK VAR INJECTION */}.call(exports, "/"))
 
 /***/ }),
-/* 135 */
+/* 136 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(__dirname) {var core = __webpack_require__(0);
@@ -85206,12 +85343,12 @@ Object.defineProperties(GrayFilter.prototype, {
 /* WEBPACK VAR INJECTION */}.call(exports, "/"))
 
 /***/ }),
-/* 136 */
+/* 137 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var core = __webpack_require__(0),
     BlurXFilter = __webpack_require__(20),
-    BlurYTintFilter = __webpack_require__(137);
+    BlurYTintFilter = __webpack_require__(138);
 
 /**
  * The DropShadowFilter applies a Gaussian blur to an object.
@@ -85403,7 +85540,7 @@ Object.defineProperties(DropShadowFilter.prototype, {
 
 
 /***/ }),
-/* 137 */
+/* 138 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(__dirname) {var core = __webpack_require__(0);
@@ -85499,7 +85636,7 @@ Object.defineProperties(BlurYTintFilter.prototype, {
 /* WEBPACK VAR INJECTION */}.call(exports, "/"))
 
 /***/ }),
-/* 138 */
+/* 139 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(__dirname) {var core = __webpack_require__(0);
@@ -85554,7 +85691,7 @@ Object.defineProperties(InvertFilter.prototype, {
 /* WEBPACK VAR INJECTION */}.call(exports, "/"))
 
 /***/ }),
-/* 139 */
+/* 140 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(__dirname) {var core = __webpack_require__(0);
@@ -85614,7 +85751,7 @@ Object.defineProperties(NoiseFilter.prototype, {
 /* WEBPACK VAR INJECTION */}.call(exports, "/"))
 
 /***/ }),
-/* 140 */
+/* 141 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(__dirname) {var core = __webpack_require__(0);
@@ -85670,7 +85807,7 @@ Object.defineProperties(PixelateFilter.prototype, {
 /* WEBPACK VAR INJECTION */}.call(exports, "/"))
 
 /***/ }),
-/* 141 */
+/* 142 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(__dirname) {var core = __webpack_require__(0);
@@ -85761,7 +85898,7 @@ Object.defineProperties(RGBSplitFilter.prototype, {
 /* WEBPACK VAR INJECTION */}.call(exports, "/"))
 
 /***/ }),
-/* 142 */
+/* 143 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(__dirname) {var core = __webpack_require__(0);
@@ -85854,7 +85991,7 @@ Object.defineProperties(ShockwaveFilter.prototype, {
 /* WEBPACK VAR INJECTION */}.call(exports, "/"))
 
 /***/ }),
-/* 143 */
+/* 144 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(__dirname) {var core = __webpack_require__(0);
@@ -85909,7 +86046,7 @@ Object.defineProperties(SepiaFilter.prototype, {
 /* WEBPACK VAR INJECTION */}.call(exports, "/"))
 
 /***/ }),
-/* 144 */
+/* 145 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(__dirname) {var core = __webpack_require__(0);
@@ -85944,7 +86081,7 @@ module.exports = SmartBlurFilter;
 /* WEBPACK VAR INJECTION */}.call(exports, "/"))
 
 /***/ }),
-/* 145 */
+/* 146 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var core = __webpack_require__(0),
@@ -86058,7 +86195,7 @@ Object.defineProperties(TiltShiftFilter.prototype, {
 
 
 /***/ }),
-/* 146 */
+/* 147 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(__dirname) {var core = __webpack_require__(0);
@@ -86148,7 +86285,7 @@ Object.defineProperties(TwistFilter.prototype, {
 /* WEBPACK VAR INJECTION */}.call(exports, "/"))
 
 /***/ }),
-/* 147 */
+/* 148 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -86163,13 +86300,13 @@ Object.defineProperties(TwistFilter.prototype, {
  */
 module.exports = {
     InteractionData:    __webpack_require__(55),
-    InteractionManager: __webpack_require__(148),
+    InteractionManager: __webpack_require__(149),
     interactiveTarget:  __webpack_require__(56)
 };
 
 
 /***/ }),
-/* 148 */
+/* 149 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var core = __webpack_require__(0),
@@ -87079,7 +87216,7 @@ core.CanvasRenderer.registerPlugin('interaction', InteractionManager);
 
 
 /***/ }),
-/* 149 */
+/* 150 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -87093,7 +87230,7 @@ core.CanvasRenderer.registerPlugin('interaction', InteractionManager);
  * @namespace PIXI.loaders
  */
 module.exports = {
-    Loader:             __webpack_require__(150),
+    Loader:             __webpack_require__(151),
 
     // parsers
     bitmapFontParser:   __webpack_require__(63),
@@ -87104,7 +87241,7 @@ module.exports = {
 
 
 /***/ }),
-/* 150 */
+/* 151 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var ResourceLoader = __webpack_require__(21),
@@ -87170,7 +87307,7 @@ Resource.setExtensionXhrType('fnt', Resource.XHR_RESPONSE_TYPE.DOCUMENT);
 
 
 /***/ }),
-/* 151 */
+/* 152 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -87669,7 +87806,7 @@ Loader.XHR_RESPONSE_TYPE = Resource.XHR_RESPONSE_TYPE;
 
 
 /***/ }),
-/* 152 */
+/* 153 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -87698,14 +87835,14 @@ module.exports = function () {
 
 
 /***/ }),
-/* 153 */
+/* 154 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var Resource = __webpack_require__(32);
-var b64 = __webpack_require__(154);
+var b64 = __webpack_require__(155);
 
 var Url = window.URL || window.webkitURL;
 
@@ -87772,7 +87909,7 @@ module.exports = function () {
 
 
 /***/ }),
-/* 154 */
+/* 155 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -87847,7 +87984,7 @@ module.exports = {
 
 
 /***/ }),
-/* 155 */
+/* 156 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Mesh = __webpack_require__(22);
@@ -87977,7 +88114,7 @@ Plane.prototype._onTextureUpdate = function ()
 
 
 /***/ }),
-/* 156 */
+/* 157 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Mesh = __webpack_require__(22);
@@ -88194,7 +88331,7 @@ Rope.prototype.updateTransform = function ()
 
 
 /***/ }),
-/* 157 */
+/* 158 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var core = __webpack_require__(0),
@@ -88427,7 +88564,7 @@ MeshRenderer.prototype.destroy = function ()
 
 
 /***/ }),
-/* 158 */
+/* 159 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var core = __webpack_require__(0);
@@ -88492,7 +88629,7 @@ core.ShaderManager.registerPlugin('meshShader', MeshShader);
 
 
 /***/ }),
-/* 159 */
+/* 160 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -88507,12 +88644,12 @@ core.ShaderManager.registerPlugin('meshShader', MeshShader);
  */
 module.exports = {
     accessibleTarget:     __webpack_require__(65),
-    AccessibilityManager: __webpack_require__(160)
+    AccessibilityManager: __webpack_require__(161)
 };
 
 
 /***/ }),
-/* 160 */
+/* 161 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var core = __webpack_require__(0);
@@ -88926,7 +89063,7 @@ core.CanvasRenderer.registerPlugin('accessibility', AccessibilityManager);
 
 
 /***/ }),
-/* 161 */
+/* 162 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*global console */
@@ -89281,13 +89418,13 @@ core.utils.uuid = function ()
 
 
 /***/ }),
-/* 162 */
+/* 163 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_pixi_js__ = __webpack_require__(33);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_pixi_js___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_pixi_js__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Libraries_ShaderLoader_js__ = __webpack_require__(163);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Libraries_ShaderLoader_js__ = __webpack_require__(66);
 
 
 
@@ -89323,148 +89460,6 @@ class PixiShader {
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = PixiShader;
 
-
-
-/***/ }),
-/* 163 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
-/**
- * ShaderLoader.js v1.0
- * An asynchronous shader loader for WebGL using AJAX with jQuery.
- *
- * Copyright (c) 2013 - 2014 Andre Cruz / http://andre-cruz.com
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
-
-/*
- * Dependencies: jQuery
- * Documentation: https://github.com/codecruzer/webgl-shader-loader-js
- */
- // Dependencies import:
-
-
-var SHADER_LOADER = SHADER_LOADER || {};
-
-let loader;
-/* harmony default export */ __webpack_exports__["a"] = (loader = SHADER_LOADER || {});
-
-/**
- * Loads all shaders from an external file that are included in the
- * DOM as script elements. See comments in ShaderLoader.js for documentation.
- *
- * @param {Function} Callback invoked when all shaders have loaded with signature
- * function (data) {}
- */
-SHADER_LOADER.load = function(onShadersLoaded) {
-  /**
-   * Checks if there are any shaders still pending to load.
-   * If there are none remaining, then invoke the onShadersLoaded
-   * callback.
-   *
-   */
-  var checkForRemaining = function() {
-    if (unloadedRemaining <= 0 &&
-      onShadersLoaded) {
-      onShadersLoaded(loadedShaders);
-    }
-  };
-
-  /**
-   * Loads an external shader file asynchronously using AJAX
-   *
-   * @param {Object} The shader script tag from the DOM
-   * @param {String} The type of shader [vertex|fragment]
-   */
-  var loadShaderFile = function(shaderElement, type) {
-    /**
-     * Processes a shader that comes back from
-     * the AJAX and stores it in the Shaders
-     * Object for later on
-     *
-     * @param {Object} The jQuery XHR object
-     * @param {String} The response text, e.g. success, error
-     */
-    var onComplete = function onComplete(jqXHR, textStatus) {
-      --unloadedRemaining;
-
-      if (!loadedShaders[name]) {
-        loadedShaders[name] = {
-          vertex: "",
-          fragment: ""
-        };
-      }
-
-      loadedShaders[name][type] = jqXHR.responseText;
-
-      checkForRemaining();
-    };
-
-    var element = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(shaderElement);
-    var url = element.data("src");
-    var name = element.data("name");
-
-    __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
-      url: url,
-      dataType: "text",
-      context: {
-        name: name,
-        type: type
-      },
-      complete: onComplete
-    });
-  };
-
-  /************************
-   * Load the shaders here *
-   ************************/
-
-  var loadedShaders = {};
-
-  // Get all of the shaders from the DOM
-  var vertexShaders = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('script[type="x-shader/x-vertex"]');
-  var fragmentShaders = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('script[type="x-shader/x-fragment"]');
-
-  var unloadedRemaining = vertexShaders.length + fragmentShaders.length;
-
-  // Load vertex shaders
-  var shader;
-  var i, shaderCount;
-  for (i = 0, shaderCount = vertexShaders.length; i < shaderCount; ++i) {
-    shader = vertexShaders[i];
-    loadShaderFile(shader, "vertex");
-  }
-
-  // Load fragment shaders
-  for (i = 0, shaderCount = fragmentShaders.length; i < shaderCount; ++i) {
-    shader = fragmentShaders[i];
-    loadShaderFile(shader, "fragment");
-  }
-
-  // Check if we're still waiting for any shaders to load, in case they already
-  // finished or if there were none.
-  checkForRemaining();
-};
 
 
 /***/ }),
@@ -89666,10 +89661,12 @@ exports.push([module.i, "#popup{\n\tposition: absolute;\n\tright: 0%;\n\theight:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_three__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Models_ThreeScene_js__ = __webpack_require__(171);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__css_three_css__ = __webpack_require__(174);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__css_three_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__css_three_css__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_three__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Models_Scene_js__ = __webpack_require__(171);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__Models_RenderPlane_js__ = __webpack_require__(174);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__css_three_css__ = __webpack_require__(175);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__css_three_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__css_three_css__);
+
 
 
 
@@ -89680,12 +89677,14 @@ class ThreeController {
     this.className = properties.className;
     this.verbose = properties.verbose;
     this.editor = properties.editor;
-    this.renderer = new __WEBPACK_IMPORTED_MODULE_0_three__["w" /* WebGLRenderer */]({
+    this.renderer = new __WEBPACK_IMPORTED_MODULE_0_three__["A" /* WebGLRenderer */]({
       antialias: false
     });
     this.width = window.innerWidth;
     this.height = window.innerHeight;
-    this.scene = new __WEBPACK_IMPORTED_MODULE_1__Models_ThreeScene_js__["a" /* default */]();
+    this.renderplane = new __WEBPACK_IMPORTED_MODULE_2__Models_RenderPlane_js__["a" /* default */](this.width, this.height);
+    console.log(this.renderplane.rt);
+    this.scene = new __WEBPACK_IMPORTED_MODULE_1__Models_Scene_js__["a" /* default */]();
     this.config();
   }
   config() {
@@ -89714,7 +89713,9 @@ class ThreeController {
     this.render();
   }
   render() {
-    this.renderer.render(this.scene.scene, this.scene.camera);
+    // this.renderer.render(this.scene.scene, this.scene.camera);
+    this.renderer.render(this.scene.scene, this.scene.camera, this.renderplane.rt, true);
+    this.renderer.render(this.renderplane.scene, this.renderplane.camera);
   }
   resize() {
     this.width = window.innerWidth;
@@ -89732,17 +89733,17 @@ class ThreeController {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_three__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_three__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__BotObject_js__ = __webpack_require__(172);
 
 
 
-class ThreeScene {
+class Scene {
   constructor() {
-    this.scene = new __WEBPACK_IMPORTED_MODULE_0_three__["q" /* Scene */]();
+    this.scene = new __WEBPACK_IMPORTED_MODULE_0_three__["t" /* Scene */]();
     this.fog = new __WEBPACK_IMPORTED_MODULE_0_three__["e" /* FogExp2 */](0x000000, 0.077);
-    this.camera = new __WEBPACK_IMPORTED_MODULE_0_three__["n" /* PerspectiveCamera */](45, window.innerWidth / window.innerHeight, 1, 10000);
-    this.light = new __WEBPACK_IMPORTED_MODULE_0_three__["o" /* PointLight */](0xfffafa, 1, 0, 2);
+    this.camera = new __WEBPACK_IMPORTED_MODULE_0_three__["p" /* PerspectiveCamera */](45, window.innerWidth / window.innerHeight, 1, 10000);
+    this.light = new __WEBPACK_IMPORTED_MODULE_0_three__["r" /* PointLight */](0xfffafa, 1, 0, 2);
     this.hemiLight = new __WEBPACK_IMPORTED_MODULE_0_three__["f" /* HemisphereLight */](0x404040, 0x1f1f1f);
     this.bot = new __WEBPACK_IMPORTED_MODULE_1__BotObject_js__["a" /* default */]('../../obj/Bot.json', '../../textures/cube/nice/');
     this.config();
@@ -89751,7 +89752,7 @@ class ThreeScene {
   config() {
     this.scene.fog = this.fog;
     this.camera.position.x = -6.17403;
-    var origin = new __WEBPACK_IMPORTED_MODULE_0_three__["u" /* Vector3 */]();
+    var origin = new __WEBPACK_IMPORTED_MODULE_0_three__["x" /* Vector3 */]();
     this.camera.lookAt(origin);
     this.light.position.set(-80, -40, -55);
   }
@@ -89769,7 +89770,7 @@ class ThreeScene {
     this.camera.updateProjectionMatrix();
   }
 }
-/* harmony export (immutable) */ __webpack_exports__["a"] = ThreeScene;
+/* harmony export (immutable) */ __webpack_exports__["a"] = Scene;
 
 
 
@@ -89778,7 +89779,7 @@ class ThreeScene {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_three__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_three__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ArcadeObject_js__ = __webpack_require__(173);
 
 
@@ -89787,15 +89788,15 @@ class BotObject {
   constructor(path, cubeTexturePath, parent = null) {
     this.parent = parent;
     // Object
-    this.object = new __WEBPACK_IMPORTED_MODULE_0_three__["l" /* Object3D */]();
+    this.object = new __WEBPACK_IMPORTED_MODULE_0_three__["m" /* Object3D */]();
     if (this.parent != null) this.parent.add(this.object);
     // Loader
     this.path = path;
-    this.loader = new __WEBPACK_IMPORTED_MODULE_0_three__["m" /* ObjectLoader */](loader.manager);
+    this.loader = new __WEBPACK_IMPORTED_MODULE_0_three__["n" /* ObjectLoader */](loader.manager);
     this.loader.load(path, this.onLoaded.bind(this));
     // Textures
     this.textures = {};
-    this.textures.arcade = new __WEBPACK_IMPORTED_MODULE_0_three__["t" /* TextureLoader */](loader.manager).load('../../textures/arcade.png');
+    this.textures.arcade = new __WEBPACK_IMPORTED_MODULE_0_three__["w" /* TextureLoader */](loader.manager).load('../../textures/arcade.png');
     this.textures.reflexion = {};
     this.textures.reflexion.path = cubeTexturePath;
     this.textures.reflexion.format = '.jpg';
@@ -89810,7 +89811,7 @@ class BotObject {
     this.textures.reflexion.cube = new __WEBPACK_IMPORTED_MODULE_0_three__["c" /* CubeTextureLoader */](loader.manager).load(this.textures.reflexion.urls);
     // Materials
     this.materials = {};
-    this.materials.black = new __WEBPACK_IMPORTED_MODULE_0_three__["k" /* MeshStandardMaterial */]({
+    this.materials.black = new __WEBPACK_IMPORTED_MODULE_0_three__["l" /* MeshStandardMaterial */]({
       color: 0x060606,
       roughness: 0.1,
       metalness: 0.8,
@@ -89819,14 +89820,14 @@ class BotObject {
       // transparent: true,
       // opacity: 0.93
     });
-    this.materials.white = new __WEBPACK_IMPORTED_MODULE_0_three__["k" /* MeshStandardMaterial */]({
+    this.materials.white = new __WEBPACK_IMPORTED_MODULE_0_three__["l" /* MeshStandardMaterial */]({
       color: 0xffffff,
       roughness: 0.18,
       metalness: 0.8,
       envMap: this.textures.reflexion.cube,
       envMapIntensity: 0.65
     });
-    this.materials.red = new __WEBPACK_IMPORTED_MODULE_0_three__["k" /* MeshStandardMaterial */]({
+    this.materials.red = new __WEBPACK_IMPORTED_MODULE_0_three__["l" /* MeshStandardMaterial */]({
       color: 0xff0024,
       roughness: 0.1,
       metalness: 0.3,
@@ -89834,12 +89835,12 @@ class BotObject {
       opacity: 0.8,
       emissive: 0.5
     });
-    this.materials.edesign = new __WEBPACK_IMPORTED_MODULE_0_three__["j" /* MeshBasicMaterial */]({
+    this.materials.edesign = new __WEBPACK_IMPORTED_MODULE_0_three__["k" /* MeshBasicMaterial */]({
       color: 0x00ff00,
       transparent: true
     });
     this.materials.edesign.needsUpdate = true;
-    this.materials.vfx = new __WEBPACK_IMPORTED_MODULE_0_three__["j" /* MeshBasicMaterial */]({
+    this.materials.vfx = new __WEBPACK_IMPORTED_MODULE_0_three__["k" /* MeshBasicMaterial */]({
       color: 0xff0000,
       transparent: true
     });
@@ -89853,7 +89854,7 @@ class BotObject {
     this.arcadeObject = new __WEBPACK_IMPORTED_MODULE_1__ArcadeObject_js__["a" /* default */]('../../textures/arcade.png', 'arcadeVideo');
   }
   config() {
-    this.textures.reflexion.cube.format = __WEBPACK_IMPORTED_MODULE_0_three__["p" /* RGBFormat */];
+    this.textures.reflexion.cube.format = __WEBPACK_IMPORTED_MODULE_0_three__["s" /* RGBFormat */];
     this.materials.edesign.side = __WEBPACK_IMPORTED_MODULE_0_three__["d" /* DoubleSide */];
     this.materials.vfx.side = __WEBPACK_IMPORTED_MODULE_0_three__["d" /* DoubleSide */];
   }
@@ -89921,7 +89922,7 @@ class BotObject {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_three__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_three__ = __webpack_require__(9);
 
 
 class ArcadeObject {
@@ -89932,38 +89933,41 @@ class ArcadeObject {
     // Video
     this.video = document.getElementById(this.videoId);
     // Loader
-    this.loader = new __WEBPACK_IMPORTED_MODULE_0_three__["t" /* TextureLoader */](loader.manager);
+    this.loader = new __WEBPACK_IMPORTED_MODULE_0_three__["w" /* TextureLoader */](loader.manager);
     // Textures
     this.mainTexture = this.loader.load(path);
-    this.videoTexture = new __WEBPACK_IMPORTED_MODULE_0_three__["v" /* VideoTexture */](this.video);
+    this.videoTexture = new __WEBPACK_IMPORTED_MODULE_0_three__["y" /* VideoTexture */](this.video);
     // Materials
-    this.mainMaterial = new __WEBPACK_IMPORTED_MODULE_0_three__["s" /* SpriteMaterial */]({
+    this.mainMaterial = new __WEBPACK_IMPORTED_MODULE_0_three__["v" /* SpriteMaterial */]({
       map: this.mainTexture
     });
-    this.videoMaterial = new __WEBPACK_IMPORTED_MODULE_0_three__["s" /* SpriteMaterial */]({
+    this.videoMaterial = new __WEBPACK_IMPORTED_MODULE_0_three__["v" /* SpriteMaterial */]({
       map: this.videoTexture
     });
     // Sprites
-    this.mainSprite = new __WEBPACK_IMPORTED_MODULE_0_three__["r" /* Sprite */](this.mainMaterial);
-    this.videoSprite = new __WEBPACK_IMPORTED_MODULE_0_three__["r" /* Sprite */](this.videoMaterial);
+    this.mainSprite = new __WEBPACK_IMPORTED_MODULE_0_three__["u" /* Sprite */](this.mainMaterial);
+    this.videoSprite = new __WEBPACK_IMPORTED_MODULE_0_three__["u" /* Sprite */](this.videoMaterial);
     // Object
-    this.object = new __WEBPACK_IMPORTED_MODULE_0_three__["l" /* Object3D */]();
+    this.object = new __WEBPACK_IMPORTED_MODULE_0_three__["m" /* Object3D */]();
     this.config();
   }
   config() {
     // Textures
     this.videoTexture.minFilter = __WEBPACK_IMPORTED_MODULE_0_three__["g" /* LinearFilter */];
     this.videoTexture.magFilter = __WEBPACK_IMPORTED_MODULE_0_three__["g" /* LinearFilter */];
-    this.videoTexture.format = __WEBPACK_IMPORTED_MODULE_0_three__["p" /* RGBFormat */];
+    this.videoTexture.format = __WEBPACK_IMPORTED_MODULE_0_three__["s" /* RGBFormat */];
     // Sprites
     this.mainSprite.scale.set(0.343, 0.859, 1);
     this.mainSprite.position.set(0, 0, 0);
     this.videoSprite.scale.set(0.285, 0.16, 1);
     this.videoSprite.position.set(0.17, 0.001, -0.015);
     // Object
+    this.attach();
+    this.object.scale.set(5, 5, 1);
+  }
+  attach(){
     this.object.add(this.mainSprite);
     this.object.add(this.videoSprite);
-    this.object.scale.set(5, 5, 1);
   }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = ArcadeObject;
@@ -89972,12 +89976,75 @@ class ArcadeObject {
 
 /***/ }),
 /* 174 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_three__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Libraries_ShaderLoader_js__ = __webpack_require__(66);
+
+
+
+class RenderPlane {
+  constructor(width, height) {
+    this.resolution = 1;
+    this.width = width * this.resolution;
+    this.height = height * this.resolution;
+    console.log("Render Target resolution: ", this.width, this.height);
+    this.rt = new __WEBPACK_IMPORTED_MODULE_0_three__["z" /* WebGLRenderTarget */](this.width, this.height, {
+      minFilter: __WEBPACK_IMPORTED_MODULE_0_three__["g" /* LinearFilter */],
+      magFilter: __WEBPACK_IMPORTED_MODULE_0_three__["g" /* LinearFilter */],
+      format: __WEBPACK_IMPORTED_MODULE_0_three__["s" /* RGBFormat */]
+    });
+    __WEBPACK_IMPORTED_MODULE_1__Libraries_ShaderLoader_js__["a" /* default */].load(this.onloaded.bind(this));
+  }
+  attach() {
+    this.scene.add(this.plane);
+  }
+  onloaded(data) {
+    this.material = new __WEBPACK_IMPORTED_MODULE_0_three__["k" /* MeshBasicMaterial */]({
+      color: 0xffffff,
+      map: this.rt
+    });
+    this.material.side = __WEBPACK_IMPORTED_MODULE_0_three__["d" /* DoubleSide */];
+    // this.material = new THREE.ShaderMaterial({
+    //   uniforms: {
+    //     tBase: {
+    //       type: "t",
+    //       value: 0,
+    //       texture: this.rt
+    //     },
+    //     tGlow: {
+    //       type: "t",
+    //       value: 1,
+    //       texture: this.rt
+    //     },
+    //     glowStrength: {
+    //       type: "f",
+    //       value: 0.95
+    //     }
+    //   },
+    //   vertexShader: data.ortho.vertex,
+    //   fragmentShader: data.composite.fragment,
+    //   depthWrite: false
+    // });
+    this.plane = new __WEBPACK_IMPORTED_MODULE_0_three__["j" /* Mesh */](new __WEBPACK_IMPORTED_MODULE_0_three__["q" /* PlaneGeometry */](1, 1), this.material);
+    this.camera = new __WEBPACK_IMPORTED_MODULE_0_three__["o" /* OrthographicCamera */](1 / -2, 1 / 2, 1 / 2, 1 / -2, 0.00001, 1000.0);
+    this.scene = new __WEBPACK_IMPORTED_MODULE_0_three__["t" /* Scene */]();
+    this.attach();
+  }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = RenderPlane;
+
+
+
+/***/ }),
+/* 175 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(175);
+var content = __webpack_require__(176);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -90002,7 +90069,7 @@ if(false) {
 }
 
 /***/ }),
-/* 175 */
+/* 176 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(4)(false);
@@ -90016,13 +90083,13 @@ exports.push([module.i, "video{\n\tdisplay: none;\n}\n.three{\n  position: absol
 
 
 /***/ }),
-/* 176 */
+/* 177 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__vimeo_player__ = __webpack_require__(177);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__vimeo_player__ = __webpack_require__(178);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__vimeo_player___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__vimeo_player__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__css_vimeo_css__ = __webpack_require__(178);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__css_vimeo_css__ = __webpack_require__(179);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__css_vimeo_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__css_vimeo_css__);
 
 
@@ -90098,7 +90165,7 @@ class VimeoController {
 
 
 /***/ }),
-/* 177 */
+/* 178 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, setImmediate) {/*! @vimeo/player v2.2.1 | (c) 2017 Vimeo | MIT License | https://github.com/vimeo/player.js */
@@ -92184,13 +92251,13 @@ return Player;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11), __webpack_require__(37).setImmediate))
 
 /***/ }),
-/* 178 */
+/* 179 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(179);
+var content = __webpack_require__(180);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -92215,7 +92282,7 @@ if(false) {
 }
 
 /***/ }),
-/* 179 */
+/* 180 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(4)(false);
@@ -92229,13 +92296,13 @@ exports.push([module.i, "#vimeo iframe{\n\tposition: absolute;\n  height: 100%;\
 
 
 /***/ }),
-/* 180 */
+/* 181 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(181);
+var content = __webpack_require__(182);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -92260,7 +92327,7 @@ if(false) {
 }
 
 /***/ }),
-/* 181 */
+/* 182 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(4)(false);
@@ -92274,13 +92341,13 @@ exports.push([module.i, "/* Reset CSS\n * --------------------------------------
 
 
 /***/ }),
-/* 182 */
+/* 183 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(183);
+var content = __webpack_require__(184);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -92305,34 +92372,34 @@ if(false) {
 }
 
 /***/ }),
-/* 183 */
+/* 184 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var escape = __webpack_require__(66);
+var escape = __webpack_require__(67);
 exports = module.exports = __webpack_require__(4)(false);
 // imports
 
 
 // module
-exports.push([module.i, "/* Custom CSS\n* --------------------------------------- */\n\nbody {\n  font-family: Roboto-Thin, helvetica;\n  color: #fff;\n  background-color: rgba(0, 0, 0, 1);\n}\n\nh1 {\n  font-size: 2.2em;\n  letter-spacing: 15px;\n  padding: 20px 0px;\n}\n\n/* fullpage: */\n\n.info {\n  margin-left: 250px;\n  /*padding-left: 55%;*/\n}\n\n.project h1 {\n  width: 350px;\n  font-size: 1.15em;\n  letter-spacing: 10px;\n  padding: 10px 0px;\n  padding-top: 150px;\n}\n\n.project p {\n  width: 350px;\n  font-size: 0.95em;\n  padding: 10px 0px;\n}\n\n.contact h1 {\n  font-family: Renogare, helvetica;\n  width: 350px;\n  font-size: 1.7em;\n  letter-spacing: 5px;\n}\n\n.contact p {\n  width: 350px;\n  font-size: 1.3em;\n  padding: 20px 0px;\n  letter-spacing: 5px;\n}\n\n.contact .field {\n  width: 400px;\n  font-size: 1.3em;\n  padding: 10px 0px;\n  letter-spacing: 5px;\n}\n\n/*\nAqui comienza para el menu\n*/\n#menu {\n  font-family: Roboto-Light, helvetica;\n  position: absolute;\n  top: 25px;\n  left: 40px;\n  z-index: 10;\n}\n#menu-head{\n  margin-bottom: 20px;\n}\n#menu-logo {\n  width: 70%;\n}\n#title {\n  padding-left: 9px;\n  font-family: Renogare, helvetica;\n  font-size: 1.3em;\n  display: block;\n}\n\n#menu li {\n  letter-spacing: 3px;\n  color: #fff;\n}\n\n#menu li.active {\n  color: #ddd;\n}\n\n#menu li a {\n  font-size: 0.85em;\n  display: block;\n  width: 150px;\n  text-decoration: none;\n  color: #777;\n  padding: 6px 10px;\n}\n\n#menu li a:hover {\n  color: #aaa;\n}\n\n#menu li.active a {\n  color: #fff;\n}\n\n#menu li.active a:hover {\n  color: #fff;\n}\n\n#help {\n  bottom: 10px;\n  position: absolute;\n  width: 100%;\n}\n\n#scroll_img {\n  display: table;\n  margin: auto;\n  background-image: url(" + escape(__webpack_require__(184)) + ");\n  z-index: 7;\n  bottom: 10px;\n  width: 80px;\n  height: 80px;\n  background-repeat: no-repeat;\n  background-size: contain;\n}\n", ""]);
+exports.push([module.i, "/* Custom CSS\n* --------------------------------------- */\n\nbody {\n  font-family: Roboto-Thin, helvetica;\n  color: #fff;\n  background-color: rgba(0, 0, 0, 1);\n}\n\nh1 {\n  font-size: 2.2em;\n  letter-spacing: 15px;\n  padding: 20px 0px;\n}\n\n/* fullpage: */\n\n.info {\n  margin-left: 250px;\n  /*padding-left: 55%;*/\n}\n\n.project h1 {\n  width: 350px;\n  font-size: 1.15em;\n  letter-spacing: 10px;\n  padding: 10px 0px;\n  padding-top: 150px;\n}\n\n.project p {\n  width: 350px;\n  font-size: 0.95em;\n  padding: 10px 0px;\n}\n\n.contact h1 {\n  font-family: Renogare, helvetica;\n  width: 350px;\n  font-size: 1.7em;\n  letter-spacing: 5px;\n}\n\n.contact p {\n  width: 350px;\n  font-size: 1.3em;\n  padding: 20px 0px;\n  letter-spacing: 5px;\n}\n\n.contact .field {\n  width: 400px;\n  font-size: 1.3em;\n  padding: 10px 0px;\n  letter-spacing: 5px;\n}\n\n/*\nAqui comienza para el menu\n*/\n#menu {\n  font-family: Roboto-Light, helvetica;\n  position: absolute;\n  top: 25px;\n  left: 40px;\n  z-index: 10;\n}\n#menu-head{\n  margin-bottom: 20px;\n}\n#menu-logo {\n  width: 70%;\n}\n#title {\n  padding-left: 9px;\n  font-family: Renogare, helvetica;\n  font-size: 1.3em;\n  display: block;\n}\n\n#menu li {\n  letter-spacing: 3px;\n  color: #fff;\n}\n\n#menu li.active {\n  color: #ddd;\n}\n\n#menu li a {\n  font-size: 0.85em;\n  display: block;\n  width: 150px;\n  text-decoration: none;\n  color: #777;\n  padding: 6px 10px;\n}\n\n#menu li a:hover {\n  color: #aaa;\n}\n\n#menu li.active a {\n  color: #fff;\n}\n\n#menu li.active a:hover {\n  color: #fff;\n}\n\n#help {\n  bottom: 10px;\n  position: absolute;\n  width: 100%;\n}\n\n#scroll_img {\n  display: table;\n  margin: auto;\n  background-image: url(" + escape(__webpack_require__(185)) + ");\n  z-index: 7;\n  bottom: 10px;\n  width: 80px;\n  height: 80px;\n  background-repeat: no-repeat;\n  background-size: contain;\n}\n", ""]);
 
 // exports
 
 
 /***/ }),
-/* 184 */
+/* 185 */
 /***/ (function(module, exports) {
 
 module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4QUaERIoti1LYgAABvtJREFUeNrtnVuIVlUUx9d2UsfRUUcdxUzS7AZikg8+FUgXkSB0tEFInbygkxAaltFFiKLHeqqXIrpRUGQXRVOr8Za+dDEowqIGzFIw1KzxNo3OrwfX8Vsev2++c77b3NaCw7nuvQ7//16Xvc85+wTpBQJICMHuDxORYSIyTkRGishgPdUuIn+LyDERORNCOJ2rDpciyDDbM4BHgX3kl6+AtcDt2epyKY6U24CdwNEswP8G7NKlNcv5I0ALMM2RLNIygACsB87HAH4qAhgYYBc9Ng14JkbgeWCd1ukAp3VRwCjgdQPoz8DTudxZrmPABuAXU89rQJ27sHSkjAL2GBBftCAmAdJep/W9ZOrbFdXnkh/EEcB2A958A2wxFidAo6n3M2C4W0l+4FYZ0FaUyrWUu/6+SsYtBqx1eiyUUE/Q9Xqj52YnJTchPypIXwA15QBJXddQTaMBvndCspPRCHQAp4DZ+UDKFdzzBX2j7z7gX9XZ4KRcDVTUYr9LUaYaaNYOYavGh+oU5Q+ozhZn4EpgbjB9hQ1JrEPX72Tpmb+RovxzWuYgMMmZyAB0F3CaFD4DmNrFONatKepBXdesnoDFgB7CyTgRGSoiv6YoM7nAc3E5JCK1eg9OiBrFKN39OkXRgwWei0ukc4QTckmqRORa3f4zKYkhhFYReT7L6WdDCIdSeL/Dup4AVHU3GNf0AEKCuisRkTOJCmQeNL0gIgdEZJXuvyoi22LX5JNI5zC9l35PiBQChFpJh4hs0iV+ruz30JeDenoGuwC8Nz+q7bWE9FVxQpwQFyfECXFxQpwQFyfECXFxQpwQFyfExQlxQlycECfExQlxQlycECfExQlxcUKcEBcnxAlx6XuEICLndLu6G/QP0fVZvZd+T0iniJzQ7fpu0B/pPK730r8JCSEgIr/r7kyRynx8aXTM1PVRvRePISLyj4j8JyLTlaRKNIRoc6pk5tnyGKJyWESOastdWm4rMR99NuuhI5L5cMcFGAzs1Q8wv6mg3m9V525goFuIXP64pl1ENuuh64HpFdA7Q0Qm6e6nIYQOnzjgapAOa4t9HxhSxqk1aoAPVdchRz43WA+Yb83vLGPsmGX0zHXkuwZrkwFrsmnVxVpFtD3F1L+xUml2ryUFqDOzAh0H7i5h/bOBE1r3D6rLgU9gJTcCJxW408CiLB26NJ0/AZqAM1rnSWCKW0c6UqYAfxn38iZwXZqP+4EqYGJskppj1hW6pCNlMLANuGgAfRm4B7gJqM1StlbP3Qu8YspdBLYCg3oyGaEnkxJCELWIO0TkLdNvaBeRP+TSgGCbDruIiAySSxPJjBGRiZKZgrxVRJaLyP4QwkWfdrxIS9Htgdrqt5Fctqk1DSwkBrmFJLAYs79EROaIyATJTBFyQS5NYLM9hPBurrIuZbKaUl7rUiZynIQKtvj+dC/dDUQVMKbSoJj0ekxPmLysJw2XzAN+AhbosVABvdEs142q+363EAUGeELT1A7gkXJbirGMNaoT4LFKNITeQsp4/UUROt40t1ykGDIazNjWXmC8M3ElQHXm31LnzPTf5ZiMf775a89eYIQH9eykjNanhdEob3OpgDI6VkeTNgPvAaOdjK4DfJ154eEC8GAJ61+kdUYvNvjzkITAjTYxpQ1oLLQVx/6+EFnGHv/lUXoAxwKfK4BnC4kpJmY0aB3o75Tq3U0VRspw4BMFsh1YkxRIU8daLQvwETDcySiOnLGx7CtvSmzImKdloj9/1juipbGUkcB+Q0rOHr1xUwsMGfs8tS09KfXm5bY28w5wyELGMr0G4AOPGeUjZYT+FDJ6Rr7UpMtiyIiewbe4ZZSfnHrTT2mL3JdxU20mtR3jiBXY+gtwX7tNTJmjSxQzdhYynO9WlAGiDliYpJ8RC/QblYBTukQxI5GbMjFnITDSmZDLw+9PRv2ENK1VLWW/ectkX5LUNvY2S9TPedyH3zMBucGMMe0CalL0NUbpC3BbolaesFyNcXsXgLnusjIgDQCWm5a+RX8amTSm1EZvMSYpo9+ebDX6lgL+zX4W92FJ2R5PaROUz0dEtL3D6HnIg3rXrb0J6DQDgdXFgmXqHmLI6AQWOxHJgFttSNkSxZQi664xbqoTeNjJSAdgk3Eru5KkxHlS292mvsWOcGGWYmPKxylT4myp7eWY4ZZRHCkdZjgkTUpcY4ZZOioxKUF/6TiuNC18swKdL6MaqtdGssI7fqVNiZcZcL/M1tJjqW2Lub7JU9vypcSRbI0+xIkRMSjW6VviRJQ/JY6ed+ywKbG6sh1mOKTZyahsStyprqlKlxbTf1niSFXWUlYYt/R27NNnz6YqnXnpeqkZJY5S26ZCO5EuJbAWoNkQstKtovtdlwAzgZl9IbX9HyEB553WaiXyAAAAAElFTkSuQmCC"
 
 /***/ }),
-/* 185 */
+/* 186 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(186);
+var content = __webpack_require__(187);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -92357,46 +92424,46 @@ if(false) {
 }
 
 /***/ }),
-/* 186 */
+/* 187 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var escape = __webpack_require__(66);
+var escape = __webpack_require__(67);
 exports = module.exports = __webpack_require__(4)(false);
 // imports
 
 
 // module
-exports.push([module.i, "@CHARSET \"ISO-8859-1\";\n@font-face {\n  font-family: Renogare;\n  src: url(" + escape(__webpack_require__(187)) + ") format(\"truetype\");\n  font-weight: bold;\n}\n\n@font-face {\n  font-family: Roboto-Light;\n  src: url(" + escape(__webpack_require__(188)) + ") format(\"truetype\");\n  font-weight: bold;\n}\n\n@font-face {\n  font-family: Roboto-Thin;\n  src: url(" + escape(__webpack_require__(189)) + ") format(\"truetype\");\n  font-weight: bold;\n}\n", ""]);
+exports.push([module.i, "@CHARSET \"ISO-8859-1\";\n@font-face {\n  font-family: Renogare;\n  src: url(" + escape(__webpack_require__(188)) + ") format(\"truetype\");\n  font-weight: bold;\n}\n\n@font-face {\n  font-family: Roboto-Light;\n  src: url(" + escape(__webpack_require__(189)) + ") format(\"truetype\");\n  font-weight: bold;\n}\n\n@font-face {\n  font-family: Roboto-Thin;\n  src: url(" + escape(__webpack_require__(190)) + ") format(\"truetype\");\n  font-weight: bold;\n}\n", ""]);
 
 // exports
 
 
 /***/ }),
-/* 187 */
+/* 188 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "fonts/Renogare.ttf";
 
 /***/ }),
-/* 188 */
+/* 189 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "fonts/Roboto-Light.ttf";
 
 /***/ }),
-/* 189 */
+/* 190 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "fonts/Roboto-Thin.ttf";
 
 /***/ }),
-/* 190 */
+/* 191 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(191);
+var content = __webpack_require__(192);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -92421,7 +92488,7 @@ if(false) {
 }
 
 /***/ }),
-/* 191 */
+/* 192 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(4)(false);
@@ -92429,26 +92496,26 @@ exports = module.exports = __webpack_require__(4)(false);
 
 
 // module
-exports.push([module.i, "@keyframes glitch {\n  0% {\n    clip: rect(3px, 200px, 22px, 0px); }\n  1.25% {\n    clip: rect(2px, 200px, 27px, 0px); }\n  2.5% {\n    clip: rect(3px, 200px, 18px, 0px); }\n  3.75% {\n    clip: rect(2px, 200px, 16px, 0px); }\n  5% {\n    clip: rect(5px, 200px, 11px, 0px); }\n  6.25% {\n    clip: rect(2px, 200px, 20px, 0px); }\n  7.5% {\n    clip: rect(5px, 200px, 3px, 0px); }\n  8.75% {\n    clip: rect(3px, 200px, 27px, 0px); }\n  10% {\n    clip: rect(1px, 200px, 11px, 0px); }\n  11.25% {\n    clip: rect(5px, 200px, 10px, 0px); }\n  12.5% {\n    clip: rect(5px, 200px, 20px, 0px); }\n  13.75% {\n    clip: rect(5px, 200px, 14px, 0px); }\n  15% {\n    clip: rect(5px, 200px, 19px, 0px); }\n  16.25% {\n    clip: rect(4px, 200px, 18px, 0px); }\n  17.5% {\n    clip: rect(1px, 200px, 22px, 0px); }\n  18.75% {\n    clip: rect(1px, 200px, 6px, 0px); }\n  20% {\n    clip: rect(2px, 200px, 16px, 0px); }\n  21.25% {\n    clip: rect(3px, 200px, 21px, 0px); }\n  22.5% {\n    clip: rect(2px, 200px, 23px, 0px); }\n  23.75% {\n    clip: rect(1px, 200px, 5px, 0px); }\n  25% {\n    clip: rect(4px, 200px, 2px, 0px); }\n  26.25% {\n    clip: rect(4px, 200px, 14px, 0px); }\n  27.5% {\n    clip: rect(2px, 200px, 20px, 0px); }\n  28.75% {\n    clip: rect(1px, 200px, 19px, 0px); }\n  30% {\n    clip: rect(1px, 200px, 12px, 0px); }\n  31.25% {\n    clip: rect(1px, 200px, 16px, 0px); }\n  32.5% {\n    clip: rect(5px, 200px, 4px, 0px); }\n  33.75% {\n    clip: rect(3px, 200px, 13px, 0px); }\n  35% {\n    clip: rect(5px, 200px, 19px, 0px); }\n  36.25% {\n    clip: rect(4px, 200px, 27px, 0px); }\n  37.5% {\n    clip: rect(2px, 200px, 4px, 0px); }\n  38.75% {\n    clip: rect(2px, 200px, 30px, 0px); }\n  40% {\n    clip: rect(1px, 200px, 30px, 0px); }\n  41.25% {\n    clip: rect(2px, 200px, 15px, 0px); }\n  42.5% {\n    clip: rect(3px, 200px, 24px, 0px); }\n  43.75% {\n    clip: rect(2px, 200px, 11px, 0px); }\n  45% {\n    clip: rect(1px, 200px, 18px, 0px); }\n  46.25% {\n    clip: rect(3px, 200px, 6px, 0px); }\n  47.5% {\n    clip: rect(1px, 200px, 22px, 0px); }\n  48.75% {\n    clip: rect(3px, 200px, 27px, 0px); }\n  50% {\n    clip: rect(1px, 200px, 4px, 0px); }\n  51.25% {\n    clip: rect(5px, 200px, 11px, 0px); }\n  52.5% {\n    clip: rect(2px, 200px, 21px, 0px); }\n  53.75% {\n    clip: rect(1px, 200px, 11px, 0px); }\n  55% {\n    clip: rect(1px, 200px, 1px, 0px); }\n  56.25% {\n    clip: rect(1px, 200px, 9px, 0px); }\n  57.5% {\n    clip: rect(4px, 200px, 3px, 0px); }\n  58.75% {\n    clip: rect(2px, 200px, 30px, 0px); }\n  60% {\n    clip: rect(4px, 200px, 4px, 0px); }\n  61.25% {\n    clip: rect(5px, 200px, 22px, 0px); }\n  62.5% {\n    clip: rect(4px, 200px, 3px, 0px); }\n  63.75% {\n    clip: rect(1px, 200px, 12px, 0px); }\n  65% {\n    clip: rect(4px, 200px, 22px, 0px); }\n  66.25% {\n    clip: rect(5px, 200px, 29px, 0px); }\n  67.5% {\n    clip: rect(3px, 200px, 23px, 0px); }\n  68.75% {\n    clip: rect(2px, 200px, 8px, 0px); }\n  70% {\n    clip: rect(3px, 200px, 23px, 0px); }\n  71.25% {\n    clip: rect(4px, 200px, 25px, 0px); }\n  72.5% {\n    clip: rect(1px, 200px, 13px, 0px); }\n  73.75% {\n    clip: rect(2px, 200px, 2px, 0px); }\n  75% {\n    clip: rect(5px, 200px, 25px, 0px); }\n  76.25% {\n    clip: rect(4px, 200px, 18px, 0px); }\n  77.5% {\n    clip: rect(5px, 200px, 7px, 0px); }\n  78.75% {\n    clip: rect(1px, 200px, 18px, 0px); }\n  80% {\n    clip: rect(3px, 200px, 13px, 0px); }\n  81.25% {\n    clip: rect(3px, 200px, 12px, 0px); }\n  82.5% {\n    clip: rect(5px, 200px, 21px, 0px); }\n  83.75% {\n    clip: rect(4px, 200px, 25px, 0px); }\n  85% {\n    clip: rect(3px, 200px, 28px, 0px); }\n  86.25% {\n    clip: rect(4px, 200px, 15px, 0px); }\n  87.5% {\n    clip: rect(5px, 200px, 5px, 0px); }\n  88.75% {\n    clip: rect(5px, 200px, 29px, 0px); }\n  90% {\n    clip: rect(3px, 200px, 11px, 0px); }\n  91.25% {\n    clip: rect(1px, 200px, 25px, 0px); }\n  92.5% {\n    clip: rect(5px, 200px, 1px, 0px); }\n  93.75% {\n    clip: rect(3px, 200px, 9px, 0px); }\n  95% {\n    clip: rect(2px, 200px, 18px, 0px); }\n  96.25% {\n    clip: rect(2px, 200px, 27px, 0px); }\n  97.5% {\n    clip: rect(4px, 200px, 10px, 0px); }\n  98.75% {\n    clip: rect(1px, 200px, 24px, 0px); }\n  100% {\n    clip: rect(5px, 200px, 25px, 0px); } }\n\n.glitch {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  background-color: transparent;\n  position: absolute;\n  clip: rect(0, 180px, 0, 0);\n  animation: glitch 3s infinite alternate-reverse; }\n", ""]);
+exports.push([module.i, "@keyframes glitch {\n  0% {\n    clip: rect(2px, 200px, 30px, 0px); }\n  1.25% {\n    clip: rect(5px, 200px, 18px, 0px); }\n  2.5% {\n    clip: rect(1px, 200px, 26px, 0px); }\n  3.75% {\n    clip: rect(5px, 200px, 18px, 0px); }\n  5% {\n    clip: rect(5px, 200px, 5px, 0px); }\n  6.25% {\n    clip: rect(1px, 200px, 16px, 0px); }\n  7.5% {\n    clip: rect(5px, 200px, 11px, 0px); }\n  8.75% {\n    clip: rect(2px, 200px, 23px, 0px); }\n  10% {\n    clip: rect(4px, 200px, 15px, 0px); }\n  11.25% {\n    clip: rect(1px, 200px, 22px, 0px); }\n  12.5% {\n    clip: rect(4px, 200px, 27px, 0px); }\n  13.75% {\n    clip: rect(1px, 200px, 14px, 0px); }\n  15% {\n    clip: rect(1px, 200px, 5px, 0px); }\n  16.25% {\n    clip: rect(4px, 200px, 20px, 0px); }\n  17.5% {\n    clip: rect(3px, 200px, 8px, 0px); }\n  18.75% {\n    clip: rect(1px, 200px, 12px, 0px); }\n  20% {\n    clip: rect(3px, 200px, 24px, 0px); }\n  21.25% {\n    clip: rect(4px, 200px, 4px, 0px); }\n  22.5% {\n    clip: rect(1px, 200px, 2px, 0px); }\n  23.75% {\n    clip: rect(4px, 200px, 9px, 0px); }\n  25% {\n    clip: rect(1px, 200px, 24px, 0px); }\n  26.25% {\n    clip: rect(1px, 200px, 3px, 0px); }\n  27.5% {\n    clip: rect(3px, 200px, 23px, 0px); }\n  28.75% {\n    clip: rect(2px, 200px, 22px, 0px); }\n  30% {\n    clip: rect(1px, 200px, 1px, 0px); }\n  31.25% {\n    clip: rect(2px, 200px, 16px, 0px); }\n  32.5% {\n    clip: rect(2px, 200px, 10px, 0px); }\n  33.75% {\n    clip: rect(4px, 200px, 2px, 0px); }\n  35% {\n    clip: rect(4px, 200px, 29px, 0px); }\n  36.25% {\n    clip: rect(5px, 200px, 1px, 0px); }\n  37.5% {\n    clip: rect(2px, 200px, 10px, 0px); }\n  38.75% {\n    clip: rect(5px, 200px, 11px, 0px); }\n  40% {\n    clip: rect(1px, 200px, 4px, 0px); }\n  41.25% {\n    clip: rect(2px, 200px, 21px, 0px); }\n  42.5% {\n    clip: rect(5px, 200px, 20px, 0px); }\n  43.75% {\n    clip: rect(3px, 200px, 23px, 0px); }\n  45% {\n    clip: rect(3px, 200px, 25px, 0px); }\n  46.25% {\n    clip: rect(3px, 200px, 25px, 0px); }\n  47.5% {\n    clip: rect(4px, 200px, 3px, 0px); }\n  48.75% {\n    clip: rect(2px, 200px, 11px, 0px); }\n  50% {\n    clip: rect(4px, 200px, 23px, 0px); }\n  51.25% {\n    clip: rect(3px, 200px, 10px, 0px); }\n  52.5% {\n    clip: rect(2px, 200px, 28px, 0px); }\n  53.75% {\n    clip: rect(1px, 200px, 3px, 0px); }\n  55% {\n    clip: rect(2px, 200px, 10px, 0px); }\n  56.25% {\n    clip: rect(3px, 200px, 20px, 0px); }\n  57.5% {\n    clip: rect(4px, 200px, 19px, 0px); }\n  58.75% {\n    clip: rect(2px, 200px, 13px, 0px); }\n  60% {\n    clip: rect(1px, 200px, 24px, 0px); }\n  61.25% {\n    clip: rect(2px, 200px, 10px, 0px); }\n  62.5% {\n    clip: rect(3px, 200px, 17px, 0px); }\n  63.75% {\n    clip: rect(5px, 200px, 13px, 0px); }\n  65% {\n    clip: rect(2px, 200px, 7px, 0px); }\n  66.25% {\n    clip: rect(4px, 200px, 18px, 0px); }\n  67.5% {\n    clip: rect(5px, 200px, 13px, 0px); }\n  68.75% {\n    clip: rect(5px, 200px, 16px, 0px); }\n  70% {\n    clip: rect(3px, 200px, 5px, 0px); }\n  71.25% {\n    clip: rect(1px, 200px, 20px, 0px); }\n  72.5% {\n    clip: rect(3px, 200px, 17px, 0px); }\n  73.75% {\n    clip: rect(5px, 200px, 10px, 0px); }\n  75% {\n    clip: rect(5px, 200px, 14px, 0px); }\n  76.25% {\n    clip: rect(2px, 200px, 23px, 0px); }\n  77.5% {\n    clip: rect(1px, 200px, 22px, 0px); }\n  78.75% {\n    clip: rect(2px, 200px, 22px, 0px); }\n  80% {\n    clip: rect(5px, 200px, 2px, 0px); }\n  81.25% {\n    clip: rect(5px, 200px, 8px, 0px); }\n  82.5% {\n    clip: rect(1px, 200px, 18px, 0px); }\n  83.75% {\n    clip: rect(4px, 200px, 29px, 0px); }\n  85% {\n    clip: rect(2px, 200px, 17px, 0px); }\n  86.25% {\n    clip: rect(3px, 200px, 15px, 0px); }\n  87.5% {\n    clip: rect(4px, 200px, 15px, 0px); }\n  88.75% {\n    clip: rect(1px, 200px, 14px, 0px); }\n  90% {\n    clip: rect(3px, 200px, 19px, 0px); }\n  91.25% {\n    clip: rect(1px, 200px, 2px, 0px); }\n  92.5% {\n    clip: rect(4px, 200px, 13px, 0px); }\n  93.75% {\n    clip: rect(2px, 200px, 6px, 0px); }\n  95% {\n    clip: rect(3px, 200px, 24px, 0px); }\n  96.25% {\n    clip: rect(3px, 200px, 8px, 0px); }\n  97.5% {\n    clip: rect(1px, 200px, 12px, 0px); }\n  98.75% {\n    clip: rect(3px, 200px, 21px, 0px); }\n  100% {\n    clip: rect(3px, 200px, 3px, 0px); } }\n\n.glitch {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  background-color: transparent;\n  position: absolute;\n  clip: rect(0, 180px, 0, 0);\n  animation: glitch 3s infinite alternate-reverse; }\n", ""]);
 
 // exports
 
 
 /***/ }),
-/* 192 */
+/* 193 */
 /***/ (function(module, exports) {
 
 function import$(t,e){var i={}.hasOwnProperty;for(var r in e)i.call(e,r)&&(t[r]=e[r]);return t}var slice$=[].slice;!function(){var t,e,i,r;return t={head:function(t){return'<?xml version="1.0" encoding="utf-8"?><svg xmlns="http://www.w3.org/2000/svg" viewBox="'+t+'">'},wrap:function(t){return"data:image/svg+xml;base64,"+btoa(t)},gradient:function(t,e){var i,r,a,l,n,h,s,d,o,u;for(null==t&&(t=45),null==e&&(e=1),i=slice$.call(arguments,2),r=[this.head("0 0 100 100")],a=4*i.length+1,t=t*Math.PI/180,l=Math.pow(Math.cos(t),2),n=Math.sqrt(l-Math.pow(l,2)),t>.25*Math.PI&&(n=Math.pow(Math.sin(t),2),l=Math.sqrt(n-Math.pow(n,2))),h=100*l,s=100*n,r.push('<defs><linearGradient id="gradient" x1="0" x2="'+l+'" y1="0" y2="'+n+'">'),d=0;a>d;++d)o=d,u=100*o/(a-1),r.push('<stop offset="'+u+'%" stop-color="'+i[o%i.length]+'"/>');return r.push(['</linearGradient></defs>\n<rect x="0" y="0" width="400" height="400" fill="url(#gradient)">\n<animateTransform attributeName="transform" type="translate" from="-'+h+",-"+s+'"\nto="0,0" dur="'+e+'s" repeatCount="indefinite"/></rect></svg>'].join("")),this.wrap(r.join(""))},stripe:function(t,e,i){var r,a;return null==t&&(t="#b4b4b4"),null==e&&(e="#e6e6e6"),null==i&&(i=1),r=[this.head("0 0 100 100")],r=r.concat(['<rect fill="'+e+'" width="100" height="100"/>',"<g><g>",function(){var e,i=[];for(e=0;13>e;++e)a=e,i.push('<polygon fill="'+t+'" '+('points="'+(-90+20*a)+",100 "+(-100+20*a)+",")+("100 "+(-60+20*a)+",0 "+(-50+20*a)+',0 "/>'));return i}().join(""),'</g><animateTransform attributeName="transform" type="translate" ','from="0,0" to="20,0" dur="'+i+'s" repeatCount="indefinite"/></g></svg>'].join("")),this.wrap(r)},bubble:function(t,e,i,r,a,l){var n,h,s,d,o,u,f;for(null==t&&(t="#39d"),null==e&&(e="#9cf"),null==i&&(i=15),null==r&&(r=1),null==a&&(a=6),null==l&&(l=1),n=[this.head("0 0 200 200"),'<rect x="0" y="0" width="200" height="200" fill="'+t+'"/>'],h=0;i>h;++h)s=h,d=-(s/i)*r,o=184*Math.random()+8,u=(.7*Math.random()+.3)*a,f=r*(1+.5*Math.random()),n.push(['<circle cx="'+o+'" cy="0" r="'+u+'" fill="none" stroke="'+e+'" stroke-width="'+l+'">','<animate attributeName="cy" values="190;-10" times="0;1" ','dur="'+f+'s" begin="'+d+'s" repeatCount="indefinite"/>',"</circle>",'<circle cx="'+o+'" cy="0" r="'+u+'" fill="none" stroke="'+e+'" stroke-width="'+l+'">','<animate attributeName="cy" values="390;190" times="0;1" ','dur="'+f+'s" begin="'+d+'s" repeatCount="indefinite"/>',"</circle>"].join(""));return this.wrap(n.join("")+"</svg>")}},e={queue:{},running:!1,main:function(t){var e,i,r,a,l,n,h=this;e=!1,i=[];for(r in a=this.queue)l=a[r],n=l(t),n||i.push(l),e=e||n;for(r in a=this.queue)l=a[r],i.indexOf(l)>=0&&delete this.queue[r];return e?requestAnimationFrame(function(t){return h.main(t)}):this.running=!1},add:function(t,e){var i=this;return this.queue[t]||(this.queue[t]=e),this.running?void 0:(this.running=!0,requestAnimationFrame(function(t){return i.main(t)}))}},i={rainbow:{type:"stroke",path:"M10 10L90 10",stroke:"data:ldbar/res,gradient(0,1,#a551df,#fd51ad,#ff7f82,#ffb874,#ffeb90)"},energy:{type:"fill",path:"M15 5L85 5A5 5 0 0 1 85 15L15 15A5 5 0 0 1 15 5",stroke:"#f00",fill:"data:ldbar/res,gradient(45,2,#4e9,#8fb,#4e9)","fill-dir":"ltr","fill-background":"#444","fill-background-extrude":1},stripe:{type:"fill",path:"M15 5L85 5A5 5 0 0 1 85 15L15 15A5 5 0 0 1 15 5",stroke:"#f00",fill:"data:ldbar/res,stripe(#25b,#58e,1)","fill-dir":"ltr","fill-background":"#ddd","fill-background-extrude":1},text:{type:"fill",img:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="70" height="20" viewBox="0 0 70 20"><text x="35" y="10" text-anchor="middle" dominant-baseline="central" font-family="arial">LOADING</text></svg>',"fill-background-extrude":1.3,"pattern-size":100,"fill-dir":"ltr","img-size":"70,20"},line:{type:"stroke",path:"M10 10L90 10",stroke:"#25b","stroke-width":3,"stroke-trail":"#ddd","stroke-trail-width":1},fan:{type:"stroke",path:"M10 90A40 40 0 0 1 90 90","fill-dir":"btt",fill:"#25b","fill-background":"#ddd","fill-background-extrude":3,"stroke-dir":"normal",stroke:"#25b","stroke-width":"3","stroke-trail":"#ddd","stroke-trail-width":.5},circle:{type:"stroke",path:"M50 10A40 40 0 0 1 50 90A40 40 0 0 1 50 10","fill-dir":"btt",fill:"#25b","fill-background":"#ddd","fill-background-extrude":3,"stroke-dir":"normal",stroke:"#25b","stroke-width":"3","stroke-trail":"#ddd","stroke-trail-width":.5},bubble:{type:"fill",path:"M50 10A40 40 0 0 1 50 90A40 40 0 0 1 50 10","fill-dir":"btt",fill:"data:ldbar/res,bubble(#39d,#cef)","pattern-size":"150","fill-background":"#ddd","fill-background-extrude":2,"stroke-dir":"normal",stroke:"#25b","stroke-width":"3","stroke-trail":"#ddd","stroke-trail-width":.5}},window.ldBar=r=function(r,a){var l,n,h,s,d,o,u,f,c,g,p,w,m,k,b,x,y,v,M,A,q,C,S,B,L=this;return null==a&&(a={}),l={xlink:"http://www.w3.org/1999/xlink"},n="string"==typeof r?document.querySelector(r):r,(h=n.ldBar)?h:(s=n.getAttribute("class"),s.indexOf("ldBar")||n.setAttribute("class",s+" ldBar"),d="ldBar-"+Math.random().toString(16).substring(2),d={key:d,clip:d+"-clip",filter:d+"-filter",pattern:d+"-pattern",mask:d+"-mask",maskPath:d+"-mask-path"},o=function(t,e){var i,r;t=u(t);for(i in e)r=e[i],"attr"!==i&&t.appendChild(o(i,r||{}));return t.attrs(e.attr||{}),t},u=function(t){return document.createElementNS("http://www.w3.org/2000/svg",t)},f=document.body.__proto__.__proto__.__proto__,f.text=function(t){return this.appendChild(document.createTextNode(t))},f.attrs=function(t){var e,i,r,a=[];for(e in t)i=t[e],r=/([^:]+):([^:]+)/.exec(e),a.push(r&&l[r[1]]?this.setAttributeNS(l[r[1]],e,i):this.setAttribute(e,i));return a},f.styles=function(t){var e,i,r=[];for(e in t)i=t[e],r.push(this.style[e]=i);return r},f.append=function(t){var e;return this.appendChild(e=document.createElementNS("http://www.w3.og/2000/svg",t))},f.attr=function(t,e){return null!=e?this.setAttribute(t,e):this.getAttribute(t)},c={type:"stroke",img:"",path:"M10 10L90 10","fill-dir":"btt",fill:"#25b","fill-background":"#ddd","fill-background-extrude":3,"pattern-size":null,"stroke-dir":"normal",stroke:"#25b","stroke-width":"3","stroke-trail":"#ddd","stroke-trail-width":.5,duration:1,easing:"linear",value:0,"img-size":null},c.preset=n.attr("data-preset")||a.preset,null!=c.preset&&import$(c,i[c.preset]),function(){var t,e=[];for(g in t=c)p=t[g],e.push({k:g,v:p});return e}().map(function(t){return[t.k,n.attr("data-"+t.k)]}).filter(function(t){return t[1]}).map(function(t){return c[t[0]]=t[1]}),c.img&&(c.path=null),import$(c,a),w="stroke"===c.type,m=function(e){var i,r;return i=/data:ldbar\/res,([^()]+)\(([^)]+)\)/,r=i.exec(e),r?r=t[r[1]].apply(t,r[2].split(",")):e},c.fill=m(c.fill),c.stroke=m(c.stroke),k={attr:{"xmlns:xlink":"http://www.w3.org/1999/xlink",preserveAspectRatio:"xMidYMid",width:"100%",height:"100%"},defs:{filter:{attr:{id:d.filter,x:-1,y:-1,width:3,height:3},feMorphology:{attr:{operator:+c["fill-background-extrude"]>=0?"dilate":"erode",radius:Math.abs(+c["fill-background-extrude"])}},feColorMatrix:{attr:{values:"0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0",result:"cm"}}},mask:{attr:{id:d.mask},image:{attr:{"xlink:href":c.img,filter:"url(#"+d.filter+")",x:0,y:0,width:100,height:100,preserveAspectRatio:"xMidYMid"}}},g:{mask:{attr:{id:d.maskPath},path:{attr:{d:c.path||"",fill:"#fff",stroke:"#fff",filter:"url(#"+d.filter+")"}}}},clipPath:{attr:{id:d.clip},rect:{attr:{"class":"mask",fill:"#000"}}},pattern:{attr:{id:d.pattern,patternUnits:"userSpaceOnUse",x:0,y:0,width:300,height:300},image:{attr:{x:0,y:0,width:300,height:300}}}}},b=o("svg",k),x=document.createElement("div"),x.setAttribute("class","ldBar-label"),n.appendChild(b),n.appendChild(x),y=[0,0],v=0,this.fit=function(){var t,e,i;return t=y[1].getBBox(),e=1.5*Math.max.apply(null,["stroke-width","stroke-trail-width","fill-background-extrude"].map(function(t){return c[t]})),b.attrs({viewBox:[t.x-e,t.y-e,t.width+2*e,t.height+2*e].join(" ")}),n.style.width||n.styles({width:t.width+2*e+"px"}),n.style.height||n.styles({height:t.height+2*e+"px"}),i=y[0].querySelector("rect"),i?i.attrs({x:t.x-e,y:t.y-e,width:t.width+2*e,height:t.height+2*e}):void 0},c.path?(y[0]=w?o("g",{path:{attr:{d:c.path,fill:"none","class":"baseline"}}}):o("g",{rect:{attr:{x:0,y:0,width:100,height:100,mask:"url(#"+d.maskPath+")",fill:c["fill-background"],"class":"frame"}}}),b.appendChild(y[0]),y[1]=o("g",{path:{attr:{d:c.path,"class":w?"mainline":"solid","clip-path":"fill"===c.type?"url(#"+d.clip+")":""}}}),b.appendChild(y[1]),M=y[0].querySelector(w?"path":"rect"),A=y[1].querySelector("path"),w&&A.attrs({fill:"none"}),q=b.querySelector("pattern image"),C=new Image,C.addEventListener("load",function(){var t,e;return t=(e=c["pattern-size"])?{width:+e,height:+e}:C.width&&C.height?{width:C.width,height:C.height}:{width:300,height:300},b.querySelector("pattern").attrs({width:t.width,height:t.height}),q.attrs({width:t.width,height:t.height})}),/.+\..+|^data:/.exec(w?c.stroke:c.fill)&&(C.src=w?c.stroke:c.fill,q.attrs({"xlink:href":C.src})),w&&(M.attrs({stroke:c["stroke-trail"],"stroke-width":c["stroke-trail-width"]}),A.attrs({"stroke-width":c["stroke-width"],stroke:/.+\..+|^data:/.exec(c.stroke)?"url(#"+d.pattern+")":c.stroke})),c.fill&&!w&&A.attrs({fill:/.+\..+|^data:/.exec(c.fill)?"url(#"+d.pattern+")":c.fill}),v=A.getTotalLength(),this.fit(),this.inited=!0):c.img&&(c["img-size"]?(S=c["img-size"].split(","),B={width:+S[0],height:+S[1]}):B={width:100,height:100},y[0]=o("g",{rect:{attr:{x:0,y:0,width:100,height:100,mask:"url(#"+d.mask+")",fill:c["fill-background"]}}}),b.querySelector("mask image").attrs({width:B.width,height:B.height}),y[1]=o("g",{image:{attr:{width:B.width,height:B.height,x:0,y:0,preserveAspectRatio:"xMidYMid","clip-path":"fill"===c.type?"url(#"+d.clip+")":"","xlink:href":c.img,"class":"solid"}}}),C=new Image,C.addEventListener("load",function(){var t,e;return c["img-size"]?(t=c["img-size"].split(","),e={width:+t[0],height:+t[1]}):e=C.width&&C.height?{width:C.width,height:C.height}:{width:100,height:100},b.querySelector("mask image").attrs({width:e.width,height:e.height}),y[1].querySelector("image").attrs({width:e.width,height:e.height}),L.fit(),L.set(void 0,!1),L.inited=!0}),C.src=c.img,b.appendChild(y[0]),b.appendChild(y[1])),b.attrs({width:"100%",height:"100%"}),this.transition={value:{src:0,des:0},time:{},ease:function(t,e,i,r){return t/=.5*r,1>t?.5*i*t*t+e:(t-=1,.5*-i*(t*(t-2)-1)+e)},handler:function(t){var e,i,r,a,l,n,h,s,d;return null==this.time.src&&(this.time.src=t),e=[this.value.des-this.value.src,.001*(t-this.time.src),+c.duration||1],i=e[0],r=e[1],a=e[2],x.textContent=l=Math.round(this.ease(r,this.value.src,i,a)),w?(n=A,h={"stroke-dasharray":"reverse"===c["stroke-dir"]?"0 "+v*(100-l)*.01+" "+v*l*.01+" 0":.01*l*v+" "+(.01*(100-l)*v+1)}):(s=y[1].getBBox(),d=c["fill-dir"],h="btt"!==d&&d?"ttb"===d?{y:s.y,height:s.height*l*.01,x:s.x,width:s.width}:"ltr"===d?{y:s.y,height:s.height,x:s.x,width:s.width*l*.01}:"rtl"===d?{y:s.y,height:s.height,x:s.x+s.width*(100-l)*.01,width:s.width*l*.01}:void 0:{y:s.y+s.height*(100-l)*.01,height:s.height*l*.01,x:s.x,width:s.width},n=b.querySelector("rect")),n.attrs(h),r>=a?(delete this.time.src,!1):!0},start:function(t,i,r){var a,l=this;return a=this.value,a.src=t,a.des=i,!!(n.offsetWidth||n.offsetHeight||n.getClientRects().length),r&&(n.offsetWidth||n.offsetHeight||n.getClientRects().length)?e.add(d.key,function(t){return l.handler(t)}):(this.time.src=0,void this.handler(1e3))}},this.set=function(t,e){var i,r;return null==e&&(e=!0),i=this.value||0,null!=t?this.value=t:t=this.value,r=this.value,this.transition.start(i,r,e)},this.set(+c.value||0,!1),this)},window.addEventListener("load",function(){return Array.from(document.querySelectorAll(".ldBar")).forEach(function(t){return t.ldBar=new r(t)})},!1)}();
 
 /***/ }),
-/* 193 */
+/* 194 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_animate_css__ = __webpack_require__(194);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_animate_css__ = __webpack_require__(195);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_animate_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_animate_css__);
 
 
@@ -92520,13 +92587,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 /***/ }),
-/* 194 */
+/* 195 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(195);
+var content = __webpack_require__(196);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -92551,7 +92618,7 @@ if(false) {
 }
 
 /***/ }),
-/* 195 */
+/* 196 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(4)(false);
@@ -92562,6 +92629,16 @@ exports = module.exports = __webpack_require__(4)(false);
 exports.push([module.i, "@charset \"UTF-8\";\n\n/*!\n * animate.css -http://daneden.me/animate\n * Version - 3.5.1\n * Licensed under the MIT license - http://opensource.org/licenses/MIT\n *\n * Copyright (c) 2016 Daniel Eden\n */\n\n.animated {\n  -webkit-animation-duration: 1s;\n  animation-duration: 1s;\n  -webkit-animation-fill-mode: both;\n  animation-fill-mode: both;\n}\n\n.animated.infinite {\n  -webkit-animation-iteration-count: infinite;\n  animation-iteration-count: infinite;\n}\n\n.animated.hinge {\n  -webkit-animation-duration: 2s;\n  animation-duration: 2s;\n}\n\n.animated.flipOutX,\n.animated.flipOutY,\n.animated.bounceIn,\n.animated.bounceOut {\n  -webkit-animation-duration: .75s;\n  animation-duration: .75s;\n}\n\n@-webkit-keyframes bounce {\n  from, 20%, 53%, 80%, to {\n    -webkit-animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n    -webkit-transform: translate3d(0,0,0);\n    transform: translate3d(0,0,0);\n  }\n\n  40%, 43% {\n    -webkit-animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);\n    animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);\n    -webkit-transform: translate3d(0, -30px, 0);\n    transform: translate3d(0, -30px, 0);\n  }\n\n  70% {\n    -webkit-animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);\n    animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);\n    -webkit-transform: translate3d(0, -15px, 0);\n    transform: translate3d(0, -15px, 0);\n  }\n\n  90% {\n    -webkit-transform: translate3d(0,-4px,0);\n    transform: translate3d(0,-4px,0);\n  }\n}\n\n@keyframes bounce {\n  from, 20%, 53%, 80%, to {\n    -webkit-animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n    -webkit-transform: translate3d(0,0,0);\n    transform: translate3d(0,0,0);\n  }\n\n  40%, 43% {\n    -webkit-animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);\n    animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);\n    -webkit-transform: translate3d(0, -30px, 0);\n    transform: translate3d(0, -30px, 0);\n  }\n\n  70% {\n    -webkit-animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);\n    animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);\n    -webkit-transform: translate3d(0, -15px, 0);\n    transform: translate3d(0, -15px, 0);\n  }\n\n  90% {\n    -webkit-transform: translate3d(0,-4px,0);\n    transform: translate3d(0,-4px,0);\n  }\n}\n\n.bounce {\n  -webkit-animation-name: bounce;\n  animation-name: bounce;\n  -webkit-transform-origin: center bottom;\n  transform-origin: center bottom;\n}\n\n@-webkit-keyframes flash {\n  from, 50%, to {\n    opacity: 1;\n  }\n\n  25%, 75% {\n    opacity: 0;\n  }\n}\n\n@keyframes flash {\n  from, 50%, to {\n    opacity: 1;\n  }\n\n  25%, 75% {\n    opacity: 0;\n  }\n}\n\n.flash {\n  -webkit-animation-name: flash;\n  animation-name: flash;\n}\n\n/* originally authored by Nick Pettit - https://github.com/nickpettit/glide */\n\n@-webkit-keyframes pulse {\n  from {\n    -webkit-transform: scale3d(1, 1, 1);\n    transform: scale3d(1, 1, 1);\n  }\n\n  50% {\n    -webkit-transform: scale3d(1.05, 1.05, 1.05);\n    transform: scale3d(1.05, 1.05, 1.05);\n  }\n\n  to {\n    -webkit-transform: scale3d(1, 1, 1);\n    transform: scale3d(1, 1, 1);\n  }\n}\n\n@keyframes pulse {\n  from {\n    -webkit-transform: scale3d(1, 1, 1);\n    transform: scale3d(1, 1, 1);\n  }\n\n  50% {\n    -webkit-transform: scale3d(1.05, 1.05, 1.05);\n    transform: scale3d(1.05, 1.05, 1.05);\n  }\n\n  to {\n    -webkit-transform: scale3d(1, 1, 1);\n    transform: scale3d(1, 1, 1);\n  }\n}\n\n.pulse {\n  -webkit-animation-name: pulse;\n  animation-name: pulse;\n}\n\n@-webkit-keyframes rubberBand {\n  from {\n    -webkit-transform: scale3d(1, 1, 1);\n    transform: scale3d(1, 1, 1);\n  }\n\n  30% {\n    -webkit-transform: scale3d(1.25, 0.75, 1);\n    transform: scale3d(1.25, 0.75, 1);\n  }\n\n  40% {\n    -webkit-transform: scale3d(0.75, 1.25, 1);\n    transform: scale3d(0.75, 1.25, 1);\n  }\n\n  50% {\n    -webkit-transform: scale3d(1.15, 0.85, 1);\n    transform: scale3d(1.15, 0.85, 1);\n  }\n\n  65% {\n    -webkit-transform: scale3d(.95, 1.05, 1);\n    transform: scale3d(.95, 1.05, 1);\n  }\n\n  75% {\n    -webkit-transform: scale3d(1.05, .95, 1);\n    transform: scale3d(1.05, .95, 1);\n  }\n\n  to {\n    -webkit-transform: scale3d(1, 1, 1);\n    transform: scale3d(1, 1, 1);\n  }\n}\n\n@keyframes rubberBand {\n  from {\n    -webkit-transform: scale3d(1, 1, 1);\n    transform: scale3d(1, 1, 1);\n  }\n\n  30% {\n    -webkit-transform: scale3d(1.25, 0.75, 1);\n    transform: scale3d(1.25, 0.75, 1);\n  }\n\n  40% {\n    -webkit-transform: scale3d(0.75, 1.25, 1);\n    transform: scale3d(0.75, 1.25, 1);\n  }\n\n  50% {\n    -webkit-transform: scale3d(1.15, 0.85, 1);\n    transform: scale3d(1.15, 0.85, 1);\n  }\n\n  65% {\n    -webkit-transform: scale3d(.95, 1.05, 1);\n    transform: scale3d(.95, 1.05, 1);\n  }\n\n  75% {\n    -webkit-transform: scale3d(1.05, .95, 1);\n    transform: scale3d(1.05, .95, 1);\n  }\n\n  to {\n    -webkit-transform: scale3d(1, 1, 1);\n    transform: scale3d(1, 1, 1);\n  }\n}\n\n.rubberBand {\n  -webkit-animation-name: rubberBand;\n  animation-name: rubberBand;\n}\n\n@-webkit-keyframes shake {\n  from, to {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n\n  10%, 30%, 50%, 70%, 90% {\n    -webkit-transform: translate3d(-10px, 0, 0);\n    transform: translate3d(-10px, 0, 0);\n  }\n\n  20%, 40%, 60%, 80% {\n    -webkit-transform: translate3d(10px, 0, 0);\n    transform: translate3d(10px, 0, 0);\n  }\n}\n\n@keyframes shake {\n  from, to {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n\n  10%, 30%, 50%, 70%, 90% {\n    -webkit-transform: translate3d(-10px, 0, 0);\n    transform: translate3d(-10px, 0, 0);\n  }\n\n  20%, 40%, 60%, 80% {\n    -webkit-transform: translate3d(10px, 0, 0);\n    transform: translate3d(10px, 0, 0);\n  }\n}\n\n.shake {\n  -webkit-animation-name: shake;\n  animation-name: shake;\n}\n\n@-webkit-keyframes headShake {\n  0% {\n    -webkit-transform: translateX(0);\n    transform: translateX(0);\n  }\n\n  6.5% {\n    -webkit-transform: translateX(-6px) rotateY(-9deg);\n    transform: translateX(-6px) rotateY(-9deg);\n  }\n\n  18.5% {\n    -webkit-transform: translateX(5px) rotateY(7deg);\n    transform: translateX(5px) rotateY(7deg);\n  }\n\n  31.5% {\n    -webkit-transform: translateX(-3px) rotateY(-5deg);\n    transform: translateX(-3px) rotateY(-5deg);\n  }\n\n  43.5% {\n    -webkit-transform: translateX(2px) rotateY(3deg);\n    transform: translateX(2px) rotateY(3deg);\n  }\n\n  50% {\n    -webkit-transform: translateX(0);\n    transform: translateX(0);\n  }\n}\n\n@keyframes headShake {\n  0% {\n    -webkit-transform: translateX(0);\n    transform: translateX(0);\n  }\n\n  6.5% {\n    -webkit-transform: translateX(-6px) rotateY(-9deg);\n    transform: translateX(-6px) rotateY(-9deg);\n  }\n\n  18.5% {\n    -webkit-transform: translateX(5px) rotateY(7deg);\n    transform: translateX(5px) rotateY(7deg);\n  }\n\n  31.5% {\n    -webkit-transform: translateX(-3px) rotateY(-5deg);\n    transform: translateX(-3px) rotateY(-5deg);\n  }\n\n  43.5% {\n    -webkit-transform: translateX(2px) rotateY(3deg);\n    transform: translateX(2px) rotateY(3deg);\n  }\n\n  50% {\n    -webkit-transform: translateX(0);\n    transform: translateX(0);\n  }\n}\n\n.headShake {\n  -webkit-animation-timing-function: ease-in-out;\n  animation-timing-function: ease-in-out;\n  -webkit-animation-name: headShake;\n  animation-name: headShake;\n}\n\n@-webkit-keyframes swing {\n  20% {\n    -webkit-transform: rotate3d(0, 0, 1, 15deg);\n    transform: rotate3d(0, 0, 1, 15deg);\n  }\n\n  40% {\n    -webkit-transform: rotate3d(0, 0, 1, -10deg);\n    transform: rotate3d(0, 0, 1, -10deg);\n  }\n\n  60% {\n    -webkit-transform: rotate3d(0, 0, 1, 5deg);\n    transform: rotate3d(0, 0, 1, 5deg);\n  }\n\n  80% {\n    -webkit-transform: rotate3d(0, 0, 1, -5deg);\n    transform: rotate3d(0, 0, 1, -5deg);\n  }\n\n  to {\n    -webkit-transform: rotate3d(0, 0, 1, 0deg);\n    transform: rotate3d(0, 0, 1, 0deg);\n  }\n}\n\n@keyframes swing {\n  20% {\n    -webkit-transform: rotate3d(0, 0, 1, 15deg);\n    transform: rotate3d(0, 0, 1, 15deg);\n  }\n\n  40% {\n    -webkit-transform: rotate3d(0, 0, 1, -10deg);\n    transform: rotate3d(0, 0, 1, -10deg);\n  }\n\n  60% {\n    -webkit-transform: rotate3d(0, 0, 1, 5deg);\n    transform: rotate3d(0, 0, 1, 5deg);\n  }\n\n  80% {\n    -webkit-transform: rotate3d(0, 0, 1, -5deg);\n    transform: rotate3d(0, 0, 1, -5deg);\n  }\n\n  to {\n    -webkit-transform: rotate3d(0, 0, 1, 0deg);\n    transform: rotate3d(0, 0, 1, 0deg);\n  }\n}\n\n.swing {\n  -webkit-transform-origin: top center;\n  transform-origin: top center;\n  -webkit-animation-name: swing;\n  animation-name: swing;\n}\n\n@-webkit-keyframes tada {\n  from {\n    -webkit-transform: scale3d(1, 1, 1);\n    transform: scale3d(1, 1, 1);\n  }\n\n  10%, 20% {\n    -webkit-transform: scale3d(.9, .9, .9) rotate3d(0, 0, 1, -3deg);\n    transform: scale3d(.9, .9, .9) rotate3d(0, 0, 1, -3deg);\n  }\n\n  30%, 50%, 70%, 90% {\n    -webkit-transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, 3deg);\n    transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, 3deg);\n  }\n\n  40%, 60%, 80% {\n    -webkit-transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, -3deg);\n    transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, -3deg);\n  }\n\n  to {\n    -webkit-transform: scale3d(1, 1, 1);\n    transform: scale3d(1, 1, 1);\n  }\n}\n\n@keyframes tada {\n  from {\n    -webkit-transform: scale3d(1, 1, 1);\n    transform: scale3d(1, 1, 1);\n  }\n\n  10%, 20% {\n    -webkit-transform: scale3d(.9, .9, .9) rotate3d(0, 0, 1, -3deg);\n    transform: scale3d(.9, .9, .9) rotate3d(0, 0, 1, -3deg);\n  }\n\n  30%, 50%, 70%, 90% {\n    -webkit-transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, 3deg);\n    transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, 3deg);\n  }\n\n  40%, 60%, 80% {\n    -webkit-transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, -3deg);\n    transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, -3deg);\n  }\n\n  to {\n    -webkit-transform: scale3d(1, 1, 1);\n    transform: scale3d(1, 1, 1);\n  }\n}\n\n.tada {\n  -webkit-animation-name: tada;\n  animation-name: tada;\n}\n\n/* originally authored by Nick Pettit - https://github.com/nickpettit/glide */\n\n@-webkit-keyframes wobble {\n  from {\n    -webkit-transform: none;\n    transform: none;\n  }\n\n  15% {\n    -webkit-transform: translate3d(-25%, 0, 0) rotate3d(0, 0, 1, -5deg);\n    transform: translate3d(-25%, 0, 0) rotate3d(0, 0, 1, -5deg);\n  }\n\n  30% {\n    -webkit-transform: translate3d(20%, 0, 0) rotate3d(0, 0, 1, 3deg);\n    transform: translate3d(20%, 0, 0) rotate3d(0, 0, 1, 3deg);\n  }\n\n  45% {\n    -webkit-transform: translate3d(-15%, 0, 0) rotate3d(0, 0, 1, -3deg);\n    transform: translate3d(-15%, 0, 0) rotate3d(0, 0, 1, -3deg);\n  }\n\n  60% {\n    -webkit-transform: translate3d(10%, 0, 0) rotate3d(0, 0, 1, 2deg);\n    transform: translate3d(10%, 0, 0) rotate3d(0, 0, 1, 2deg);\n  }\n\n  75% {\n    -webkit-transform: translate3d(-5%, 0, 0) rotate3d(0, 0, 1, -1deg);\n    transform: translate3d(-5%, 0, 0) rotate3d(0, 0, 1, -1deg);\n  }\n\n  to {\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n@keyframes wobble {\n  from {\n    -webkit-transform: none;\n    transform: none;\n  }\n\n  15% {\n    -webkit-transform: translate3d(-25%, 0, 0) rotate3d(0, 0, 1, -5deg);\n    transform: translate3d(-25%, 0, 0) rotate3d(0, 0, 1, -5deg);\n  }\n\n  30% {\n    -webkit-transform: translate3d(20%, 0, 0) rotate3d(0, 0, 1, 3deg);\n    transform: translate3d(20%, 0, 0) rotate3d(0, 0, 1, 3deg);\n  }\n\n  45% {\n    -webkit-transform: translate3d(-15%, 0, 0) rotate3d(0, 0, 1, -3deg);\n    transform: translate3d(-15%, 0, 0) rotate3d(0, 0, 1, -3deg);\n  }\n\n  60% {\n    -webkit-transform: translate3d(10%, 0, 0) rotate3d(0, 0, 1, 2deg);\n    transform: translate3d(10%, 0, 0) rotate3d(0, 0, 1, 2deg);\n  }\n\n  75% {\n    -webkit-transform: translate3d(-5%, 0, 0) rotate3d(0, 0, 1, -1deg);\n    transform: translate3d(-5%, 0, 0) rotate3d(0, 0, 1, -1deg);\n  }\n\n  to {\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n.wobble {\n  -webkit-animation-name: wobble;\n  animation-name: wobble;\n}\n\n@-webkit-keyframes jello {\n  from, 11.1%, to {\n    -webkit-transform: none;\n    transform: none;\n  }\n\n  22.2% {\n    -webkit-transform: skewX(-12.5deg) skewY(-12.5deg);\n    transform: skewX(-12.5deg) skewY(-12.5deg);\n  }\n\n  33.3% {\n    -webkit-transform: skewX(6.25deg) skewY(6.25deg);\n    transform: skewX(6.25deg) skewY(6.25deg);\n  }\n\n  44.4% {\n    -webkit-transform: skewX(-3.125deg) skewY(-3.125deg);\n    transform: skewX(-3.125deg) skewY(-3.125deg);\n  }\n\n  55.5% {\n    -webkit-transform: skewX(1.5625deg) skewY(1.5625deg);\n    transform: skewX(1.5625deg) skewY(1.5625deg);\n  }\n\n  66.6% {\n    -webkit-transform: skewX(-0.78125deg) skewY(-0.78125deg);\n    transform: skewX(-0.78125deg) skewY(-0.78125deg);\n  }\n\n  77.7% {\n    -webkit-transform: skewX(0.390625deg) skewY(0.390625deg);\n    transform: skewX(0.390625deg) skewY(0.390625deg);\n  }\n\n  88.8% {\n    -webkit-transform: skewX(-0.1953125deg) skewY(-0.1953125deg);\n    transform: skewX(-0.1953125deg) skewY(-0.1953125deg);\n  }\n}\n\n@keyframes jello {\n  from, 11.1%, to {\n    -webkit-transform: none;\n    transform: none;\n  }\n\n  22.2% {\n    -webkit-transform: skewX(-12.5deg) skewY(-12.5deg);\n    transform: skewX(-12.5deg) skewY(-12.5deg);\n  }\n\n  33.3% {\n    -webkit-transform: skewX(6.25deg) skewY(6.25deg);\n    transform: skewX(6.25deg) skewY(6.25deg);\n  }\n\n  44.4% {\n    -webkit-transform: skewX(-3.125deg) skewY(-3.125deg);\n    transform: skewX(-3.125deg) skewY(-3.125deg);\n  }\n\n  55.5% {\n    -webkit-transform: skewX(1.5625deg) skewY(1.5625deg);\n    transform: skewX(1.5625deg) skewY(1.5625deg);\n  }\n\n  66.6% {\n    -webkit-transform: skewX(-0.78125deg) skewY(-0.78125deg);\n    transform: skewX(-0.78125deg) skewY(-0.78125deg);\n  }\n\n  77.7% {\n    -webkit-transform: skewX(0.390625deg) skewY(0.390625deg);\n    transform: skewX(0.390625deg) skewY(0.390625deg);\n  }\n\n  88.8% {\n    -webkit-transform: skewX(-0.1953125deg) skewY(-0.1953125deg);\n    transform: skewX(-0.1953125deg) skewY(-0.1953125deg);\n  }\n}\n\n.jello {\n  -webkit-animation-name: jello;\n  animation-name: jello;\n  -webkit-transform-origin: center;\n  transform-origin: center;\n}\n\n@-webkit-keyframes bounceIn {\n  from, 20%, 40%, 60%, 80%, to {\n    -webkit-animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n  }\n\n  0% {\n    opacity: 0;\n    -webkit-transform: scale3d(.3, .3, .3);\n    transform: scale3d(.3, .3, .3);\n  }\n\n  20% {\n    -webkit-transform: scale3d(1.1, 1.1, 1.1);\n    transform: scale3d(1.1, 1.1, 1.1);\n  }\n\n  40% {\n    -webkit-transform: scale3d(.9, .9, .9);\n    transform: scale3d(.9, .9, .9);\n  }\n\n  60% {\n    opacity: 1;\n    -webkit-transform: scale3d(1.03, 1.03, 1.03);\n    transform: scale3d(1.03, 1.03, 1.03);\n  }\n\n  80% {\n    -webkit-transform: scale3d(.97, .97, .97);\n    transform: scale3d(.97, .97, .97);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: scale3d(1, 1, 1);\n    transform: scale3d(1, 1, 1);\n  }\n}\n\n@keyframes bounceIn {\n  from, 20%, 40%, 60%, 80%, to {\n    -webkit-animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n  }\n\n  0% {\n    opacity: 0;\n    -webkit-transform: scale3d(.3, .3, .3);\n    transform: scale3d(.3, .3, .3);\n  }\n\n  20% {\n    -webkit-transform: scale3d(1.1, 1.1, 1.1);\n    transform: scale3d(1.1, 1.1, 1.1);\n  }\n\n  40% {\n    -webkit-transform: scale3d(.9, .9, .9);\n    transform: scale3d(.9, .9, .9);\n  }\n\n  60% {\n    opacity: 1;\n    -webkit-transform: scale3d(1.03, 1.03, 1.03);\n    transform: scale3d(1.03, 1.03, 1.03);\n  }\n\n  80% {\n    -webkit-transform: scale3d(.97, .97, .97);\n    transform: scale3d(.97, .97, .97);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: scale3d(1, 1, 1);\n    transform: scale3d(1, 1, 1);\n  }\n}\n\n.bounceIn {\n  -webkit-animation-name: bounceIn;\n  animation-name: bounceIn;\n}\n\n@-webkit-keyframes bounceInDown {\n  from, 60%, 75%, 90%, to {\n    -webkit-animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n  }\n\n  0% {\n    opacity: 0;\n    -webkit-transform: translate3d(0, -3000px, 0);\n    transform: translate3d(0, -3000px, 0);\n  }\n\n  60% {\n    opacity: 1;\n    -webkit-transform: translate3d(0, 25px, 0);\n    transform: translate3d(0, 25px, 0);\n  }\n\n  75% {\n    -webkit-transform: translate3d(0, -10px, 0);\n    transform: translate3d(0, -10px, 0);\n  }\n\n  90% {\n    -webkit-transform: translate3d(0, 5px, 0);\n    transform: translate3d(0, 5px, 0);\n  }\n\n  to {\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n@keyframes bounceInDown {\n  from, 60%, 75%, 90%, to {\n    -webkit-animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n  }\n\n  0% {\n    opacity: 0;\n    -webkit-transform: translate3d(0, -3000px, 0);\n    transform: translate3d(0, -3000px, 0);\n  }\n\n  60% {\n    opacity: 1;\n    -webkit-transform: translate3d(0, 25px, 0);\n    transform: translate3d(0, 25px, 0);\n  }\n\n  75% {\n    -webkit-transform: translate3d(0, -10px, 0);\n    transform: translate3d(0, -10px, 0);\n  }\n\n  90% {\n    -webkit-transform: translate3d(0, 5px, 0);\n    transform: translate3d(0, 5px, 0);\n  }\n\n  to {\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n.bounceInDown {\n  -webkit-animation-name: bounceInDown;\n  animation-name: bounceInDown;\n}\n\n@-webkit-keyframes bounceInLeft {\n  from, 60%, 75%, 90%, to {\n    -webkit-animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n  }\n\n  0% {\n    opacity: 0;\n    -webkit-transform: translate3d(-3000px, 0, 0);\n    transform: translate3d(-3000px, 0, 0);\n  }\n\n  60% {\n    opacity: 1;\n    -webkit-transform: translate3d(25px, 0, 0);\n    transform: translate3d(25px, 0, 0);\n  }\n\n  75% {\n    -webkit-transform: translate3d(-10px, 0, 0);\n    transform: translate3d(-10px, 0, 0);\n  }\n\n  90% {\n    -webkit-transform: translate3d(5px, 0, 0);\n    transform: translate3d(5px, 0, 0);\n  }\n\n  to {\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n@keyframes bounceInLeft {\n  from, 60%, 75%, 90%, to {\n    -webkit-animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n  }\n\n  0% {\n    opacity: 0;\n    -webkit-transform: translate3d(-3000px, 0, 0);\n    transform: translate3d(-3000px, 0, 0);\n  }\n\n  60% {\n    opacity: 1;\n    -webkit-transform: translate3d(25px, 0, 0);\n    transform: translate3d(25px, 0, 0);\n  }\n\n  75% {\n    -webkit-transform: translate3d(-10px, 0, 0);\n    transform: translate3d(-10px, 0, 0);\n  }\n\n  90% {\n    -webkit-transform: translate3d(5px, 0, 0);\n    transform: translate3d(5px, 0, 0);\n  }\n\n  to {\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n.bounceInLeft {\n  -webkit-animation-name: bounceInLeft;\n  animation-name: bounceInLeft;\n}\n\n@-webkit-keyframes bounceInRight {\n  from, 60%, 75%, 90%, to {\n    -webkit-animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n  }\n\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(3000px, 0, 0);\n    transform: translate3d(3000px, 0, 0);\n  }\n\n  60% {\n    opacity: 1;\n    -webkit-transform: translate3d(-25px, 0, 0);\n    transform: translate3d(-25px, 0, 0);\n  }\n\n  75% {\n    -webkit-transform: translate3d(10px, 0, 0);\n    transform: translate3d(10px, 0, 0);\n  }\n\n  90% {\n    -webkit-transform: translate3d(-5px, 0, 0);\n    transform: translate3d(-5px, 0, 0);\n  }\n\n  to {\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n@keyframes bounceInRight {\n  from, 60%, 75%, 90%, to {\n    -webkit-animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n  }\n\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(3000px, 0, 0);\n    transform: translate3d(3000px, 0, 0);\n  }\n\n  60% {\n    opacity: 1;\n    -webkit-transform: translate3d(-25px, 0, 0);\n    transform: translate3d(-25px, 0, 0);\n  }\n\n  75% {\n    -webkit-transform: translate3d(10px, 0, 0);\n    transform: translate3d(10px, 0, 0);\n  }\n\n  90% {\n    -webkit-transform: translate3d(-5px, 0, 0);\n    transform: translate3d(-5px, 0, 0);\n  }\n\n  to {\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n.bounceInRight {\n  -webkit-animation-name: bounceInRight;\n  animation-name: bounceInRight;\n}\n\n@-webkit-keyframes bounceInUp {\n  from, 60%, 75%, 90%, to {\n    -webkit-animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n  }\n\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(0, 3000px, 0);\n    transform: translate3d(0, 3000px, 0);\n  }\n\n  60% {\n    opacity: 1;\n    -webkit-transform: translate3d(0, -20px, 0);\n    transform: translate3d(0, -20px, 0);\n  }\n\n  75% {\n    -webkit-transform: translate3d(0, 10px, 0);\n    transform: translate3d(0, 10px, 0);\n  }\n\n  90% {\n    -webkit-transform: translate3d(0, -5px, 0);\n    transform: translate3d(0, -5px, 0);\n  }\n\n  to {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n}\n\n@keyframes bounceInUp {\n  from, 60%, 75%, 90%, to {\n    -webkit-animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n  }\n\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(0, 3000px, 0);\n    transform: translate3d(0, 3000px, 0);\n  }\n\n  60% {\n    opacity: 1;\n    -webkit-transform: translate3d(0, -20px, 0);\n    transform: translate3d(0, -20px, 0);\n  }\n\n  75% {\n    -webkit-transform: translate3d(0, 10px, 0);\n    transform: translate3d(0, 10px, 0);\n  }\n\n  90% {\n    -webkit-transform: translate3d(0, -5px, 0);\n    transform: translate3d(0, -5px, 0);\n  }\n\n  to {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n}\n\n.bounceInUp {\n  -webkit-animation-name: bounceInUp;\n  animation-name: bounceInUp;\n}\n\n@-webkit-keyframes bounceOut {\n  20% {\n    -webkit-transform: scale3d(.9, .9, .9);\n    transform: scale3d(.9, .9, .9);\n  }\n\n  50%, 55% {\n    opacity: 1;\n    -webkit-transform: scale3d(1.1, 1.1, 1.1);\n    transform: scale3d(1.1, 1.1, 1.1);\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: scale3d(.3, .3, .3);\n    transform: scale3d(.3, .3, .3);\n  }\n}\n\n@keyframes bounceOut {\n  20% {\n    -webkit-transform: scale3d(.9, .9, .9);\n    transform: scale3d(.9, .9, .9);\n  }\n\n  50%, 55% {\n    opacity: 1;\n    -webkit-transform: scale3d(1.1, 1.1, 1.1);\n    transform: scale3d(1.1, 1.1, 1.1);\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: scale3d(.3, .3, .3);\n    transform: scale3d(.3, .3, .3);\n  }\n}\n\n.bounceOut {\n  -webkit-animation-name: bounceOut;\n  animation-name: bounceOut;\n}\n\n@-webkit-keyframes bounceOutDown {\n  20% {\n    -webkit-transform: translate3d(0, 10px, 0);\n    transform: translate3d(0, 10px, 0);\n  }\n\n  40%, 45% {\n    opacity: 1;\n    -webkit-transform: translate3d(0, -20px, 0);\n    transform: translate3d(0, -20px, 0);\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(0, 2000px, 0);\n    transform: translate3d(0, 2000px, 0);\n  }\n}\n\n@keyframes bounceOutDown {\n  20% {\n    -webkit-transform: translate3d(0, 10px, 0);\n    transform: translate3d(0, 10px, 0);\n  }\n\n  40%, 45% {\n    opacity: 1;\n    -webkit-transform: translate3d(0, -20px, 0);\n    transform: translate3d(0, -20px, 0);\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(0, 2000px, 0);\n    transform: translate3d(0, 2000px, 0);\n  }\n}\n\n.bounceOutDown {\n  -webkit-animation-name: bounceOutDown;\n  animation-name: bounceOutDown;\n}\n\n@-webkit-keyframes bounceOutLeft {\n  20% {\n    opacity: 1;\n    -webkit-transform: translate3d(20px, 0, 0);\n    transform: translate3d(20px, 0, 0);\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(-2000px, 0, 0);\n    transform: translate3d(-2000px, 0, 0);\n  }\n}\n\n@keyframes bounceOutLeft {\n  20% {\n    opacity: 1;\n    -webkit-transform: translate3d(20px, 0, 0);\n    transform: translate3d(20px, 0, 0);\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(-2000px, 0, 0);\n    transform: translate3d(-2000px, 0, 0);\n  }\n}\n\n.bounceOutLeft {\n  -webkit-animation-name: bounceOutLeft;\n  animation-name: bounceOutLeft;\n}\n\n@-webkit-keyframes bounceOutRight {\n  20% {\n    opacity: 1;\n    -webkit-transform: translate3d(-20px, 0, 0);\n    transform: translate3d(-20px, 0, 0);\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(2000px, 0, 0);\n    transform: translate3d(2000px, 0, 0);\n  }\n}\n\n@keyframes bounceOutRight {\n  20% {\n    opacity: 1;\n    -webkit-transform: translate3d(-20px, 0, 0);\n    transform: translate3d(-20px, 0, 0);\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(2000px, 0, 0);\n    transform: translate3d(2000px, 0, 0);\n  }\n}\n\n.bounceOutRight {\n  -webkit-animation-name: bounceOutRight;\n  animation-name: bounceOutRight;\n}\n\n@-webkit-keyframes bounceOutUp {\n  20% {\n    -webkit-transform: translate3d(0, -10px, 0);\n    transform: translate3d(0, -10px, 0);\n  }\n\n  40%, 45% {\n    opacity: 1;\n    -webkit-transform: translate3d(0, 20px, 0);\n    transform: translate3d(0, 20px, 0);\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(0, -2000px, 0);\n    transform: translate3d(0, -2000px, 0);\n  }\n}\n\n@keyframes bounceOutUp {\n  20% {\n    -webkit-transform: translate3d(0, -10px, 0);\n    transform: translate3d(0, -10px, 0);\n  }\n\n  40%, 45% {\n    opacity: 1;\n    -webkit-transform: translate3d(0, 20px, 0);\n    transform: translate3d(0, 20px, 0);\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(0, -2000px, 0);\n    transform: translate3d(0, -2000px, 0);\n  }\n}\n\n.bounceOutUp {\n  -webkit-animation-name: bounceOutUp;\n  animation-name: bounceOutUp;\n}\n\n@-webkit-keyframes fadeIn {\n  from {\n    opacity: 0;\n  }\n\n  to {\n    opacity: 1;\n  }\n}\n\n@keyframes fadeIn {\n  from {\n    opacity: 0;\n  }\n\n  to {\n    opacity: 1;\n  }\n}\n\n.fadeIn {\n  -webkit-animation-name: fadeIn;\n  animation-name: fadeIn;\n}\n\n@-webkit-keyframes fadeInDown {\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(0, -100%, 0);\n    transform: translate3d(0, -100%, 0);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n@keyframes fadeInDown {\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(0, -100%, 0);\n    transform: translate3d(0, -100%, 0);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n.fadeInDown {\n  -webkit-animation-name: fadeInDown;\n  animation-name: fadeInDown;\n}\n\n@-webkit-keyframes fadeInDownBig {\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(0, -2000px, 0);\n    transform: translate3d(0, -2000px, 0);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n@keyframes fadeInDownBig {\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(0, -2000px, 0);\n    transform: translate3d(0, -2000px, 0);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n.fadeInDownBig {\n  -webkit-animation-name: fadeInDownBig;\n  animation-name: fadeInDownBig;\n}\n\n@-webkit-keyframes fadeInLeft {\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(-100%, 0, 0);\n    transform: translate3d(-100%, 0, 0);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n@keyframes fadeInLeft {\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(-100%, 0, 0);\n    transform: translate3d(-100%, 0, 0);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n.fadeInLeft {\n  -webkit-animation-name: fadeInLeft;\n  animation-name: fadeInLeft;\n}\n\n@-webkit-keyframes fadeInLeftBig {\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(-2000px, 0, 0);\n    transform: translate3d(-2000px, 0, 0);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n@keyframes fadeInLeftBig {\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(-2000px, 0, 0);\n    transform: translate3d(-2000px, 0, 0);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n.fadeInLeftBig {\n  -webkit-animation-name: fadeInLeftBig;\n  animation-name: fadeInLeftBig;\n}\n\n@-webkit-keyframes fadeInRight {\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(100%, 0, 0);\n    transform: translate3d(100%, 0, 0);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n@keyframes fadeInRight {\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(100%, 0, 0);\n    transform: translate3d(100%, 0, 0);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n.fadeInRight {\n  -webkit-animation-name: fadeInRight;\n  animation-name: fadeInRight;\n}\n\n@-webkit-keyframes fadeInRightBig {\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(2000px, 0, 0);\n    transform: translate3d(2000px, 0, 0);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n@keyframes fadeInRightBig {\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(2000px, 0, 0);\n    transform: translate3d(2000px, 0, 0);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n.fadeInRightBig {\n  -webkit-animation-name: fadeInRightBig;\n  animation-name: fadeInRightBig;\n}\n\n@-webkit-keyframes fadeInUp {\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(0, 100%, 0);\n    transform: translate3d(0, 100%, 0);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n@keyframes fadeInUp {\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(0, 100%, 0);\n    transform: translate3d(0, 100%, 0);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n.fadeInUp {\n  -webkit-animation-name: fadeInUp;\n  animation-name: fadeInUp;\n}\n\n@-webkit-keyframes fadeInUpBig {\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(0, 2000px, 0);\n    transform: translate3d(0, 2000px, 0);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n@keyframes fadeInUpBig {\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(0, 2000px, 0);\n    transform: translate3d(0, 2000px, 0);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n.fadeInUpBig {\n  -webkit-animation-name: fadeInUpBig;\n  animation-name: fadeInUpBig;\n}\n\n@-webkit-keyframes fadeOut {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n  }\n}\n\n@keyframes fadeOut {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n  }\n}\n\n.fadeOut {\n  -webkit-animation-name: fadeOut;\n  animation-name: fadeOut;\n}\n\n@-webkit-keyframes fadeOutDown {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(0, 100%, 0);\n    transform: translate3d(0, 100%, 0);\n  }\n}\n\n@keyframes fadeOutDown {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(0, 100%, 0);\n    transform: translate3d(0, 100%, 0);\n  }\n}\n\n.fadeOutDown {\n  -webkit-animation-name: fadeOutDown;\n  animation-name: fadeOutDown;\n}\n\n@-webkit-keyframes fadeOutDownBig {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(0, 2000px, 0);\n    transform: translate3d(0, 2000px, 0);\n  }\n}\n\n@keyframes fadeOutDownBig {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(0, 2000px, 0);\n    transform: translate3d(0, 2000px, 0);\n  }\n}\n\n.fadeOutDownBig {\n  -webkit-animation-name: fadeOutDownBig;\n  animation-name: fadeOutDownBig;\n}\n\n@-webkit-keyframes fadeOutLeft {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(-100%, 0, 0);\n    transform: translate3d(-100%, 0, 0);\n  }\n}\n\n@keyframes fadeOutLeft {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(-100%, 0, 0);\n    transform: translate3d(-100%, 0, 0);\n  }\n}\n\n.fadeOutLeft {\n  -webkit-animation-name: fadeOutLeft;\n  animation-name: fadeOutLeft;\n}\n\n@-webkit-keyframes fadeOutLeftBig {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(-2000px, 0, 0);\n    transform: translate3d(-2000px, 0, 0);\n  }\n}\n\n@keyframes fadeOutLeftBig {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(-2000px, 0, 0);\n    transform: translate3d(-2000px, 0, 0);\n  }\n}\n\n.fadeOutLeftBig {\n  -webkit-animation-name: fadeOutLeftBig;\n  animation-name: fadeOutLeftBig;\n}\n\n@-webkit-keyframes fadeOutRight {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(100%, 0, 0);\n    transform: translate3d(100%, 0, 0);\n  }\n}\n\n@keyframes fadeOutRight {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(100%, 0, 0);\n    transform: translate3d(100%, 0, 0);\n  }\n}\n\n.fadeOutRight {\n  -webkit-animation-name: fadeOutRight;\n  animation-name: fadeOutRight;\n}\n\n@-webkit-keyframes fadeOutRightBig {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(2000px, 0, 0);\n    transform: translate3d(2000px, 0, 0);\n  }\n}\n\n@keyframes fadeOutRightBig {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(2000px, 0, 0);\n    transform: translate3d(2000px, 0, 0);\n  }\n}\n\n.fadeOutRightBig {\n  -webkit-animation-name: fadeOutRightBig;\n  animation-name: fadeOutRightBig;\n}\n\n@-webkit-keyframes fadeOutUp {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(0, -100%, 0);\n    transform: translate3d(0, -100%, 0);\n  }\n}\n\n@keyframes fadeOutUp {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(0, -100%, 0);\n    transform: translate3d(0, -100%, 0);\n  }\n}\n\n.fadeOutUp {\n  -webkit-animation-name: fadeOutUp;\n  animation-name: fadeOutUp;\n}\n\n@-webkit-keyframes fadeOutUpBig {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(0, -2000px, 0);\n    transform: translate3d(0, -2000px, 0);\n  }\n}\n\n@keyframes fadeOutUpBig {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(0, -2000px, 0);\n    transform: translate3d(0, -2000px, 0);\n  }\n}\n\n.fadeOutUpBig {\n  -webkit-animation-name: fadeOutUpBig;\n  animation-name: fadeOutUpBig;\n}\n\n@-webkit-keyframes flip {\n  from {\n    -webkit-transform: perspective(400px) rotate3d(0, 1, 0, -360deg);\n    transform: perspective(400px) rotate3d(0, 1, 0, -360deg);\n    -webkit-animation-timing-function: ease-out;\n    animation-timing-function: ease-out;\n  }\n\n  40% {\n    -webkit-transform: perspective(400px) translate3d(0, 0, 150px) rotate3d(0, 1, 0, -190deg);\n    transform: perspective(400px) translate3d(0, 0, 150px) rotate3d(0, 1, 0, -190deg);\n    -webkit-animation-timing-function: ease-out;\n    animation-timing-function: ease-out;\n  }\n\n  50% {\n    -webkit-transform: perspective(400px) translate3d(0, 0, 150px) rotate3d(0, 1, 0, -170deg);\n    transform: perspective(400px) translate3d(0, 0, 150px) rotate3d(0, 1, 0, -170deg);\n    -webkit-animation-timing-function: ease-in;\n    animation-timing-function: ease-in;\n  }\n\n  80% {\n    -webkit-transform: perspective(400px) scale3d(.95, .95, .95);\n    transform: perspective(400px) scale3d(.95, .95, .95);\n    -webkit-animation-timing-function: ease-in;\n    animation-timing-function: ease-in;\n  }\n\n  to {\n    -webkit-transform: perspective(400px);\n    transform: perspective(400px);\n    -webkit-animation-timing-function: ease-in;\n    animation-timing-function: ease-in;\n  }\n}\n\n@keyframes flip {\n  from {\n    -webkit-transform: perspective(400px) rotate3d(0, 1, 0, -360deg);\n    transform: perspective(400px) rotate3d(0, 1, 0, -360deg);\n    -webkit-animation-timing-function: ease-out;\n    animation-timing-function: ease-out;\n  }\n\n  40% {\n    -webkit-transform: perspective(400px) translate3d(0, 0, 150px) rotate3d(0, 1, 0, -190deg);\n    transform: perspective(400px) translate3d(0, 0, 150px) rotate3d(0, 1, 0, -190deg);\n    -webkit-animation-timing-function: ease-out;\n    animation-timing-function: ease-out;\n  }\n\n  50% {\n    -webkit-transform: perspective(400px) translate3d(0, 0, 150px) rotate3d(0, 1, 0, -170deg);\n    transform: perspective(400px) translate3d(0, 0, 150px) rotate3d(0, 1, 0, -170deg);\n    -webkit-animation-timing-function: ease-in;\n    animation-timing-function: ease-in;\n  }\n\n  80% {\n    -webkit-transform: perspective(400px) scale3d(.95, .95, .95);\n    transform: perspective(400px) scale3d(.95, .95, .95);\n    -webkit-animation-timing-function: ease-in;\n    animation-timing-function: ease-in;\n  }\n\n  to {\n    -webkit-transform: perspective(400px);\n    transform: perspective(400px);\n    -webkit-animation-timing-function: ease-in;\n    animation-timing-function: ease-in;\n  }\n}\n\n.animated.flip {\n  -webkit-backface-visibility: visible;\n  backface-visibility: visible;\n  -webkit-animation-name: flip;\n  animation-name: flip;\n}\n\n@-webkit-keyframes flipInX {\n  from {\n    -webkit-transform: perspective(400px) rotate3d(1, 0, 0, 90deg);\n    transform: perspective(400px) rotate3d(1, 0, 0, 90deg);\n    -webkit-animation-timing-function: ease-in;\n    animation-timing-function: ease-in;\n    opacity: 0;\n  }\n\n  40% {\n    -webkit-transform: perspective(400px) rotate3d(1, 0, 0, -20deg);\n    transform: perspective(400px) rotate3d(1, 0, 0, -20deg);\n    -webkit-animation-timing-function: ease-in;\n    animation-timing-function: ease-in;\n  }\n\n  60% {\n    -webkit-transform: perspective(400px) rotate3d(1, 0, 0, 10deg);\n    transform: perspective(400px) rotate3d(1, 0, 0, 10deg);\n    opacity: 1;\n  }\n\n  80% {\n    -webkit-transform: perspective(400px) rotate3d(1, 0, 0, -5deg);\n    transform: perspective(400px) rotate3d(1, 0, 0, -5deg);\n  }\n\n  to {\n    -webkit-transform: perspective(400px);\n    transform: perspective(400px);\n  }\n}\n\n@keyframes flipInX {\n  from {\n    -webkit-transform: perspective(400px) rotate3d(1, 0, 0, 90deg);\n    transform: perspective(400px) rotate3d(1, 0, 0, 90deg);\n    -webkit-animation-timing-function: ease-in;\n    animation-timing-function: ease-in;\n    opacity: 0;\n  }\n\n  40% {\n    -webkit-transform: perspective(400px) rotate3d(1, 0, 0, -20deg);\n    transform: perspective(400px) rotate3d(1, 0, 0, -20deg);\n    -webkit-animation-timing-function: ease-in;\n    animation-timing-function: ease-in;\n  }\n\n  60% {\n    -webkit-transform: perspective(400px) rotate3d(1, 0, 0, 10deg);\n    transform: perspective(400px) rotate3d(1, 0, 0, 10deg);\n    opacity: 1;\n  }\n\n  80% {\n    -webkit-transform: perspective(400px) rotate3d(1, 0, 0, -5deg);\n    transform: perspective(400px) rotate3d(1, 0, 0, -5deg);\n  }\n\n  to {\n    -webkit-transform: perspective(400px);\n    transform: perspective(400px);\n  }\n}\n\n.flipInX {\n  -webkit-backface-visibility: visible !important;\n  backface-visibility: visible !important;\n  -webkit-animation-name: flipInX;\n  animation-name: flipInX;\n}\n\n@-webkit-keyframes flipInY {\n  from {\n    -webkit-transform: perspective(400px) rotate3d(0, 1, 0, 90deg);\n    transform: perspective(400px) rotate3d(0, 1, 0, 90deg);\n    -webkit-animation-timing-function: ease-in;\n    animation-timing-function: ease-in;\n    opacity: 0;\n  }\n\n  40% {\n    -webkit-transform: perspective(400px) rotate3d(0, 1, 0, -20deg);\n    transform: perspective(400px) rotate3d(0, 1, 0, -20deg);\n    -webkit-animation-timing-function: ease-in;\n    animation-timing-function: ease-in;\n  }\n\n  60% {\n    -webkit-transform: perspective(400px) rotate3d(0, 1, 0, 10deg);\n    transform: perspective(400px) rotate3d(0, 1, 0, 10deg);\n    opacity: 1;\n  }\n\n  80% {\n    -webkit-transform: perspective(400px) rotate3d(0, 1, 0, -5deg);\n    transform: perspective(400px) rotate3d(0, 1, 0, -5deg);\n  }\n\n  to {\n    -webkit-transform: perspective(400px);\n    transform: perspective(400px);\n  }\n}\n\n@keyframes flipInY {\n  from {\n    -webkit-transform: perspective(400px) rotate3d(0, 1, 0, 90deg);\n    transform: perspective(400px) rotate3d(0, 1, 0, 90deg);\n    -webkit-animation-timing-function: ease-in;\n    animation-timing-function: ease-in;\n    opacity: 0;\n  }\n\n  40% {\n    -webkit-transform: perspective(400px) rotate3d(0, 1, 0, -20deg);\n    transform: perspective(400px) rotate3d(0, 1, 0, -20deg);\n    -webkit-animation-timing-function: ease-in;\n    animation-timing-function: ease-in;\n  }\n\n  60% {\n    -webkit-transform: perspective(400px) rotate3d(0, 1, 0, 10deg);\n    transform: perspective(400px) rotate3d(0, 1, 0, 10deg);\n    opacity: 1;\n  }\n\n  80% {\n    -webkit-transform: perspective(400px) rotate3d(0, 1, 0, -5deg);\n    transform: perspective(400px) rotate3d(0, 1, 0, -5deg);\n  }\n\n  to {\n    -webkit-transform: perspective(400px);\n    transform: perspective(400px);\n  }\n}\n\n.flipInY {\n  -webkit-backface-visibility: visible !important;\n  backface-visibility: visible !important;\n  -webkit-animation-name: flipInY;\n  animation-name: flipInY;\n}\n\n@-webkit-keyframes flipOutX {\n  from {\n    -webkit-transform: perspective(400px);\n    transform: perspective(400px);\n  }\n\n  30% {\n    -webkit-transform: perspective(400px) rotate3d(1, 0, 0, -20deg);\n    transform: perspective(400px) rotate3d(1, 0, 0, -20deg);\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform: perspective(400px) rotate3d(1, 0, 0, 90deg);\n    transform: perspective(400px) rotate3d(1, 0, 0, 90deg);\n    opacity: 0;\n  }\n}\n\n@keyframes flipOutX {\n  from {\n    -webkit-transform: perspective(400px);\n    transform: perspective(400px);\n  }\n\n  30% {\n    -webkit-transform: perspective(400px) rotate3d(1, 0, 0, -20deg);\n    transform: perspective(400px) rotate3d(1, 0, 0, -20deg);\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform: perspective(400px) rotate3d(1, 0, 0, 90deg);\n    transform: perspective(400px) rotate3d(1, 0, 0, 90deg);\n    opacity: 0;\n  }\n}\n\n.flipOutX {\n  -webkit-animation-name: flipOutX;\n  animation-name: flipOutX;\n  -webkit-backface-visibility: visible !important;\n  backface-visibility: visible !important;\n}\n\n@-webkit-keyframes flipOutY {\n  from {\n    -webkit-transform: perspective(400px);\n    transform: perspective(400px);\n  }\n\n  30% {\n    -webkit-transform: perspective(400px) rotate3d(0, 1, 0, -15deg);\n    transform: perspective(400px) rotate3d(0, 1, 0, -15deg);\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform: perspective(400px) rotate3d(0, 1, 0, 90deg);\n    transform: perspective(400px) rotate3d(0, 1, 0, 90deg);\n    opacity: 0;\n  }\n}\n\n@keyframes flipOutY {\n  from {\n    -webkit-transform: perspective(400px);\n    transform: perspective(400px);\n  }\n\n  30% {\n    -webkit-transform: perspective(400px) rotate3d(0, 1, 0, -15deg);\n    transform: perspective(400px) rotate3d(0, 1, 0, -15deg);\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform: perspective(400px) rotate3d(0, 1, 0, 90deg);\n    transform: perspective(400px) rotate3d(0, 1, 0, 90deg);\n    opacity: 0;\n  }\n}\n\n.flipOutY {\n  -webkit-backface-visibility: visible !important;\n  backface-visibility: visible !important;\n  -webkit-animation-name: flipOutY;\n  animation-name: flipOutY;\n}\n\n@-webkit-keyframes lightSpeedIn {\n  from {\n    -webkit-transform: translate3d(100%, 0, 0) skewX(-30deg);\n    transform: translate3d(100%, 0, 0) skewX(-30deg);\n    opacity: 0;\n  }\n\n  60% {\n    -webkit-transform: skewX(20deg);\n    transform: skewX(20deg);\n    opacity: 1;\n  }\n\n  80% {\n    -webkit-transform: skewX(-5deg);\n    transform: skewX(-5deg);\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform: none;\n    transform: none;\n    opacity: 1;\n  }\n}\n\n@keyframes lightSpeedIn {\n  from {\n    -webkit-transform: translate3d(100%, 0, 0) skewX(-30deg);\n    transform: translate3d(100%, 0, 0) skewX(-30deg);\n    opacity: 0;\n  }\n\n  60% {\n    -webkit-transform: skewX(20deg);\n    transform: skewX(20deg);\n    opacity: 1;\n  }\n\n  80% {\n    -webkit-transform: skewX(-5deg);\n    transform: skewX(-5deg);\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform: none;\n    transform: none;\n    opacity: 1;\n  }\n}\n\n.lightSpeedIn {\n  -webkit-animation-name: lightSpeedIn;\n  animation-name: lightSpeedIn;\n  -webkit-animation-timing-function: ease-out;\n  animation-timing-function: ease-out;\n}\n\n@-webkit-keyframes lightSpeedOut {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform: translate3d(100%, 0, 0) skewX(30deg);\n    transform: translate3d(100%, 0, 0) skewX(30deg);\n    opacity: 0;\n  }\n}\n\n@keyframes lightSpeedOut {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform: translate3d(100%, 0, 0) skewX(30deg);\n    transform: translate3d(100%, 0, 0) skewX(30deg);\n    opacity: 0;\n  }\n}\n\n.lightSpeedOut {\n  -webkit-animation-name: lightSpeedOut;\n  animation-name: lightSpeedOut;\n  -webkit-animation-timing-function: ease-in;\n  animation-timing-function: ease-in;\n}\n\n@-webkit-keyframes rotateIn {\n  from {\n    -webkit-transform-origin: center;\n    transform-origin: center;\n    -webkit-transform: rotate3d(0, 0, 1, -200deg);\n    transform: rotate3d(0, 0, 1, -200deg);\n    opacity: 0;\n  }\n\n  to {\n    -webkit-transform-origin: center;\n    transform-origin: center;\n    -webkit-transform: none;\n    transform: none;\n    opacity: 1;\n  }\n}\n\n@keyframes rotateIn {\n  from {\n    -webkit-transform-origin: center;\n    transform-origin: center;\n    -webkit-transform: rotate3d(0, 0, 1, -200deg);\n    transform: rotate3d(0, 0, 1, -200deg);\n    opacity: 0;\n  }\n\n  to {\n    -webkit-transform-origin: center;\n    transform-origin: center;\n    -webkit-transform: none;\n    transform: none;\n    opacity: 1;\n  }\n}\n\n.rotateIn {\n  -webkit-animation-name: rotateIn;\n  animation-name: rotateIn;\n}\n\n@-webkit-keyframes rotateInDownLeft {\n  from {\n    -webkit-transform-origin: left bottom;\n    transform-origin: left bottom;\n    -webkit-transform: rotate3d(0, 0, 1, -45deg);\n    transform: rotate3d(0, 0, 1, -45deg);\n    opacity: 0;\n  }\n\n  to {\n    -webkit-transform-origin: left bottom;\n    transform-origin: left bottom;\n    -webkit-transform: none;\n    transform: none;\n    opacity: 1;\n  }\n}\n\n@keyframes rotateInDownLeft {\n  from {\n    -webkit-transform-origin: left bottom;\n    transform-origin: left bottom;\n    -webkit-transform: rotate3d(0, 0, 1, -45deg);\n    transform: rotate3d(0, 0, 1, -45deg);\n    opacity: 0;\n  }\n\n  to {\n    -webkit-transform-origin: left bottom;\n    transform-origin: left bottom;\n    -webkit-transform: none;\n    transform: none;\n    opacity: 1;\n  }\n}\n\n.rotateInDownLeft {\n  -webkit-animation-name: rotateInDownLeft;\n  animation-name: rotateInDownLeft;\n}\n\n@-webkit-keyframes rotateInDownRight {\n  from {\n    -webkit-transform-origin: right bottom;\n    transform-origin: right bottom;\n    -webkit-transform: rotate3d(0, 0, 1, 45deg);\n    transform: rotate3d(0, 0, 1, 45deg);\n    opacity: 0;\n  }\n\n  to {\n    -webkit-transform-origin: right bottom;\n    transform-origin: right bottom;\n    -webkit-transform: none;\n    transform: none;\n    opacity: 1;\n  }\n}\n\n@keyframes rotateInDownRight {\n  from {\n    -webkit-transform-origin: right bottom;\n    transform-origin: right bottom;\n    -webkit-transform: rotate3d(0, 0, 1, 45deg);\n    transform: rotate3d(0, 0, 1, 45deg);\n    opacity: 0;\n  }\n\n  to {\n    -webkit-transform-origin: right bottom;\n    transform-origin: right bottom;\n    -webkit-transform: none;\n    transform: none;\n    opacity: 1;\n  }\n}\n\n.rotateInDownRight {\n  -webkit-animation-name: rotateInDownRight;\n  animation-name: rotateInDownRight;\n}\n\n@-webkit-keyframes rotateInUpLeft {\n  from {\n    -webkit-transform-origin: left bottom;\n    transform-origin: left bottom;\n    -webkit-transform: rotate3d(0, 0, 1, 45deg);\n    transform: rotate3d(0, 0, 1, 45deg);\n    opacity: 0;\n  }\n\n  to {\n    -webkit-transform-origin: left bottom;\n    transform-origin: left bottom;\n    -webkit-transform: none;\n    transform: none;\n    opacity: 1;\n  }\n}\n\n@keyframes rotateInUpLeft {\n  from {\n    -webkit-transform-origin: left bottom;\n    transform-origin: left bottom;\n    -webkit-transform: rotate3d(0, 0, 1, 45deg);\n    transform: rotate3d(0, 0, 1, 45deg);\n    opacity: 0;\n  }\n\n  to {\n    -webkit-transform-origin: left bottom;\n    transform-origin: left bottom;\n    -webkit-transform: none;\n    transform: none;\n    opacity: 1;\n  }\n}\n\n.rotateInUpLeft {\n  -webkit-animation-name: rotateInUpLeft;\n  animation-name: rotateInUpLeft;\n}\n\n@-webkit-keyframes rotateInUpRight {\n  from {\n    -webkit-transform-origin: right bottom;\n    transform-origin: right bottom;\n    -webkit-transform: rotate3d(0, 0, 1, -90deg);\n    transform: rotate3d(0, 0, 1, -90deg);\n    opacity: 0;\n  }\n\n  to {\n    -webkit-transform-origin: right bottom;\n    transform-origin: right bottom;\n    -webkit-transform: none;\n    transform: none;\n    opacity: 1;\n  }\n}\n\n@keyframes rotateInUpRight {\n  from {\n    -webkit-transform-origin: right bottom;\n    transform-origin: right bottom;\n    -webkit-transform: rotate3d(0, 0, 1, -90deg);\n    transform: rotate3d(0, 0, 1, -90deg);\n    opacity: 0;\n  }\n\n  to {\n    -webkit-transform-origin: right bottom;\n    transform-origin: right bottom;\n    -webkit-transform: none;\n    transform: none;\n    opacity: 1;\n  }\n}\n\n.rotateInUpRight {\n  -webkit-animation-name: rotateInUpRight;\n  animation-name: rotateInUpRight;\n}\n\n@-webkit-keyframes rotateOut {\n  from {\n    -webkit-transform-origin: center;\n    transform-origin: center;\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform-origin: center;\n    transform-origin: center;\n    -webkit-transform: rotate3d(0, 0, 1, 200deg);\n    transform: rotate3d(0, 0, 1, 200deg);\n    opacity: 0;\n  }\n}\n\n@keyframes rotateOut {\n  from {\n    -webkit-transform-origin: center;\n    transform-origin: center;\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform-origin: center;\n    transform-origin: center;\n    -webkit-transform: rotate3d(0, 0, 1, 200deg);\n    transform: rotate3d(0, 0, 1, 200deg);\n    opacity: 0;\n  }\n}\n\n.rotateOut {\n  -webkit-animation-name: rotateOut;\n  animation-name: rotateOut;\n}\n\n@-webkit-keyframes rotateOutDownLeft {\n  from {\n    -webkit-transform-origin: left bottom;\n    transform-origin: left bottom;\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform-origin: left bottom;\n    transform-origin: left bottom;\n    -webkit-transform: rotate3d(0, 0, 1, 45deg);\n    transform: rotate3d(0, 0, 1, 45deg);\n    opacity: 0;\n  }\n}\n\n@keyframes rotateOutDownLeft {\n  from {\n    -webkit-transform-origin: left bottom;\n    transform-origin: left bottom;\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform-origin: left bottom;\n    transform-origin: left bottom;\n    -webkit-transform: rotate3d(0, 0, 1, 45deg);\n    transform: rotate3d(0, 0, 1, 45deg);\n    opacity: 0;\n  }\n}\n\n.rotateOutDownLeft {\n  -webkit-animation-name: rotateOutDownLeft;\n  animation-name: rotateOutDownLeft;\n}\n\n@-webkit-keyframes rotateOutDownRight {\n  from {\n    -webkit-transform-origin: right bottom;\n    transform-origin: right bottom;\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform-origin: right bottom;\n    transform-origin: right bottom;\n    -webkit-transform: rotate3d(0, 0, 1, -45deg);\n    transform: rotate3d(0, 0, 1, -45deg);\n    opacity: 0;\n  }\n}\n\n@keyframes rotateOutDownRight {\n  from {\n    -webkit-transform-origin: right bottom;\n    transform-origin: right bottom;\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform-origin: right bottom;\n    transform-origin: right bottom;\n    -webkit-transform: rotate3d(0, 0, 1, -45deg);\n    transform: rotate3d(0, 0, 1, -45deg);\n    opacity: 0;\n  }\n}\n\n.rotateOutDownRight {\n  -webkit-animation-name: rotateOutDownRight;\n  animation-name: rotateOutDownRight;\n}\n\n@-webkit-keyframes rotateOutUpLeft {\n  from {\n    -webkit-transform-origin: left bottom;\n    transform-origin: left bottom;\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform-origin: left bottom;\n    transform-origin: left bottom;\n    -webkit-transform: rotate3d(0, 0, 1, -45deg);\n    transform: rotate3d(0, 0, 1, -45deg);\n    opacity: 0;\n  }\n}\n\n@keyframes rotateOutUpLeft {\n  from {\n    -webkit-transform-origin: left bottom;\n    transform-origin: left bottom;\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform-origin: left bottom;\n    transform-origin: left bottom;\n    -webkit-transform: rotate3d(0, 0, 1, -45deg);\n    transform: rotate3d(0, 0, 1, -45deg);\n    opacity: 0;\n  }\n}\n\n.rotateOutUpLeft {\n  -webkit-animation-name: rotateOutUpLeft;\n  animation-name: rotateOutUpLeft;\n}\n\n@-webkit-keyframes rotateOutUpRight {\n  from {\n    -webkit-transform-origin: right bottom;\n    transform-origin: right bottom;\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform-origin: right bottom;\n    transform-origin: right bottom;\n    -webkit-transform: rotate3d(0, 0, 1, 90deg);\n    transform: rotate3d(0, 0, 1, 90deg);\n    opacity: 0;\n  }\n}\n\n@keyframes rotateOutUpRight {\n  from {\n    -webkit-transform-origin: right bottom;\n    transform-origin: right bottom;\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform-origin: right bottom;\n    transform-origin: right bottom;\n    -webkit-transform: rotate3d(0, 0, 1, 90deg);\n    transform: rotate3d(0, 0, 1, 90deg);\n    opacity: 0;\n  }\n}\n\n.rotateOutUpRight {\n  -webkit-animation-name: rotateOutUpRight;\n  animation-name: rotateOutUpRight;\n}\n\n@-webkit-keyframes hinge {\n  0% {\n    -webkit-transform-origin: top left;\n    transform-origin: top left;\n    -webkit-animation-timing-function: ease-in-out;\n    animation-timing-function: ease-in-out;\n  }\n\n  20%, 60% {\n    -webkit-transform: rotate3d(0, 0, 1, 80deg);\n    transform: rotate3d(0, 0, 1, 80deg);\n    -webkit-transform-origin: top left;\n    transform-origin: top left;\n    -webkit-animation-timing-function: ease-in-out;\n    animation-timing-function: ease-in-out;\n  }\n\n  40%, 80% {\n    -webkit-transform: rotate3d(0, 0, 1, 60deg);\n    transform: rotate3d(0, 0, 1, 60deg);\n    -webkit-transform-origin: top left;\n    transform-origin: top left;\n    -webkit-animation-timing-function: ease-in-out;\n    animation-timing-function: ease-in-out;\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform: translate3d(0, 700px, 0);\n    transform: translate3d(0, 700px, 0);\n    opacity: 0;\n  }\n}\n\n@keyframes hinge {\n  0% {\n    -webkit-transform-origin: top left;\n    transform-origin: top left;\n    -webkit-animation-timing-function: ease-in-out;\n    animation-timing-function: ease-in-out;\n  }\n\n  20%, 60% {\n    -webkit-transform: rotate3d(0, 0, 1, 80deg);\n    transform: rotate3d(0, 0, 1, 80deg);\n    -webkit-transform-origin: top left;\n    transform-origin: top left;\n    -webkit-animation-timing-function: ease-in-out;\n    animation-timing-function: ease-in-out;\n  }\n\n  40%, 80% {\n    -webkit-transform: rotate3d(0, 0, 1, 60deg);\n    transform: rotate3d(0, 0, 1, 60deg);\n    -webkit-transform-origin: top left;\n    transform-origin: top left;\n    -webkit-animation-timing-function: ease-in-out;\n    animation-timing-function: ease-in-out;\n    opacity: 1;\n  }\n\n  to {\n    -webkit-transform: translate3d(0, 700px, 0);\n    transform: translate3d(0, 700px, 0);\n    opacity: 0;\n  }\n}\n\n.hinge {\n  -webkit-animation-name: hinge;\n  animation-name: hinge;\n}\n\n/* originally authored by Nick Pettit - https://github.com/nickpettit/glide */\n\n@-webkit-keyframes rollIn {\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(-100%, 0, 0) rotate3d(0, 0, 1, -120deg);\n    transform: translate3d(-100%, 0, 0) rotate3d(0, 0, 1, -120deg);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n@keyframes rollIn {\n  from {\n    opacity: 0;\n    -webkit-transform: translate3d(-100%, 0, 0) rotate3d(0, 0, 1, -120deg);\n    transform: translate3d(-100%, 0, 0) rotate3d(0, 0, 1, -120deg);\n  }\n\n  to {\n    opacity: 1;\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n\n.rollIn {\n  -webkit-animation-name: rollIn;\n  animation-name: rollIn;\n}\n\n/* originally authored by Nick Pettit - https://github.com/nickpettit/glide */\n\n@-webkit-keyframes rollOut {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(100%, 0, 0) rotate3d(0, 0, 1, 120deg);\n    transform: translate3d(100%, 0, 0) rotate3d(0, 0, 1, 120deg);\n  }\n}\n\n@keyframes rollOut {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: translate3d(100%, 0, 0) rotate3d(0, 0, 1, 120deg);\n    transform: translate3d(100%, 0, 0) rotate3d(0, 0, 1, 120deg);\n  }\n}\n\n.rollOut {\n  -webkit-animation-name: rollOut;\n  animation-name: rollOut;\n}\n\n@-webkit-keyframes zoomIn {\n  from {\n    opacity: 0;\n    -webkit-transform: scale3d(.3, .3, .3);\n    transform: scale3d(.3, .3, .3);\n  }\n\n  50% {\n    opacity: 1;\n  }\n}\n\n@keyframes zoomIn {\n  from {\n    opacity: 0;\n    -webkit-transform: scale3d(.3, .3, .3);\n    transform: scale3d(.3, .3, .3);\n  }\n\n  50% {\n    opacity: 1;\n  }\n}\n\n.zoomIn {\n  -webkit-animation-name: zoomIn;\n  animation-name: zoomIn;\n}\n\n@-webkit-keyframes zoomInDown {\n  from {\n    opacity: 0;\n    -webkit-transform: scale3d(.1, .1, .1) translate3d(0, -1000px, 0);\n    transform: scale3d(.1, .1, .1) translate3d(0, -1000px, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n    animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n  }\n\n  60% {\n    opacity: 1;\n    -webkit-transform: scale3d(.475, .475, .475) translate3d(0, 60px, 0);\n    transform: scale3d(.475, .475, .475) translate3d(0, 60px, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n    animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n  }\n}\n\n@keyframes zoomInDown {\n  from {\n    opacity: 0;\n    -webkit-transform: scale3d(.1, .1, .1) translate3d(0, -1000px, 0);\n    transform: scale3d(.1, .1, .1) translate3d(0, -1000px, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n    animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n  }\n\n  60% {\n    opacity: 1;\n    -webkit-transform: scale3d(.475, .475, .475) translate3d(0, 60px, 0);\n    transform: scale3d(.475, .475, .475) translate3d(0, 60px, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n    animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n  }\n}\n\n.zoomInDown {\n  -webkit-animation-name: zoomInDown;\n  animation-name: zoomInDown;\n}\n\n@-webkit-keyframes zoomInLeft {\n  from {\n    opacity: 0;\n    -webkit-transform: scale3d(.1, .1, .1) translate3d(-1000px, 0, 0);\n    transform: scale3d(.1, .1, .1) translate3d(-1000px, 0, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n    animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n  }\n\n  60% {\n    opacity: 1;\n    -webkit-transform: scale3d(.475, .475, .475) translate3d(10px, 0, 0);\n    transform: scale3d(.475, .475, .475) translate3d(10px, 0, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n    animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n  }\n}\n\n@keyframes zoomInLeft {\n  from {\n    opacity: 0;\n    -webkit-transform: scale3d(.1, .1, .1) translate3d(-1000px, 0, 0);\n    transform: scale3d(.1, .1, .1) translate3d(-1000px, 0, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n    animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n  }\n\n  60% {\n    opacity: 1;\n    -webkit-transform: scale3d(.475, .475, .475) translate3d(10px, 0, 0);\n    transform: scale3d(.475, .475, .475) translate3d(10px, 0, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n    animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n  }\n}\n\n.zoomInLeft {\n  -webkit-animation-name: zoomInLeft;\n  animation-name: zoomInLeft;\n}\n\n@-webkit-keyframes zoomInRight {\n  from {\n    opacity: 0;\n    -webkit-transform: scale3d(.1, .1, .1) translate3d(1000px, 0, 0);\n    transform: scale3d(.1, .1, .1) translate3d(1000px, 0, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n    animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n  }\n\n  60% {\n    opacity: 1;\n    -webkit-transform: scale3d(.475, .475, .475) translate3d(-10px, 0, 0);\n    transform: scale3d(.475, .475, .475) translate3d(-10px, 0, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n    animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n  }\n}\n\n@keyframes zoomInRight {\n  from {\n    opacity: 0;\n    -webkit-transform: scale3d(.1, .1, .1) translate3d(1000px, 0, 0);\n    transform: scale3d(.1, .1, .1) translate3d(1000px, 0, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n    animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n  }\n\n  60% {\n    opacity: 1;\n    -webkit-transform: scale3d(.475, .475, .475) translate3d(-10px, 0, 0);\n    transform: scale3d(.475, .475, .475) translate3d(-10px, 0, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n    animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n  }\n}\n\n.zoomInRight {\n  -webkit-animation-name: zoomInRight;\n  animation-name: zoomInRight;\n}\n\n@-webkit-keyframes zoomInUp {\n  from {\n    opacity: 0;\n    -webkit-transform: scale3d(.1, .1, .1) translate3d(0, 1000px, 0);\n    transform: scale3d(.1, .1, .1) translate3d(0, 1000px, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n    animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n  }\n\n  60% {\n    opacity: 1;\n    -webkit-transform: scale3d(.475, .475, .475) translate3d(0, -60px, 0);\n    transform: scale3d(.475, .475, .475) translate3d(0, -60px, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n    animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n  }\n}\n\n@keyframes zoomInUp {\n  from {\n    opacity: 0;\n    -webkit-transform: scale3d(.1, .1, .1) translate3d(0, 1000px, 0);\n    transform: scale3d(.1, .1, .1) translate3d(0, 1000px, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n    animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n  }\n\n  60% {\n    opacity: 1;\n    -webkit-transform: scale3d(.475, .475, .475) translate3d(0, -60px, 0);\n    transform: scale3d(.475, .475, .475) translate3d(0, -60px, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n    animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n  }\n}\n\n.zoomInUp {\n  -webkit-animation-name: zoomInUp;\n  animation-name: zoomInUp;\n}\n\n@-webkit-keyframes zoomOut {\n  from {\n    opacity: 1;\n  }\n\n  50% {\n    opacity: 0;\n    -webkit-transform: scale3d(.3, .3, .3);\n    transform: scale3d(.3, .3, .3);\n  }\n\n  to {\n    opacity: 0;\n  }\n}\n\n@keyframes zoomOut {\n  from {\n    opacity: 1;\n  }\n\n  50% {\n    opacity: 0;\n    -webkit-transform: scale3d(.3, .3, .3);\n    transform: scale3d(.3, .3, .3);\n  }\n\n  to {\n    opacity: 0;\n  }\n}\n\n.zoomOut {\n  -webkit-animation-name: zoomOut;\n  animation-name: zoomOut;\n}\n\n@-webkit-keyframes zoomOutDown {\n  40% {\n    opacity: 1;\n    -webkit-transform: scale3d(.475, .475, .475) translate3d(0, -60px, 0);\n    transform: scale3d(.475, .475, .475) translate3d(0, -60px, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n    animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: scale3d(.1, .1, .1) translate3d(0, 2000px, 0);\n    transform: scale3d(.1, .1, .1) translate3d(0, 2000px, 0);\n    -webkit-transform-origin: center bottom;\n    transform-origin: center bottom;\n    -webkit-animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n    animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n  }\n}\n\n@keyframes zoomOutDown {\n  40% {\n    opacity: 1;\n    -webkit-transform: scale3d(.475, .475, .475) translate3d(0, -60px, 0);\n    transform: scale3d(.475, .475, .475) translate3d(0, -60px, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n    animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: scale3d(.1, .1, .1) translate3d(0, 2000px, 0);\n    transform: scale3d(.1, .1, .1) translate3d(0, 2000px, 0);\n    -webkit-transform-origin: center bottom;\n    transform-origin: center bottom;\n    -webkit-animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n    animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n  }\n}\n\n.zoomOutDown {\n  -webkit-animation-name: zoomOutDown;\n  animation-name: zoomOutDown;\n}\n\n@-webkit-keyframes zoomOutLeft {\n  40% {\n    opacity: 1;\n    -webkit-transform: scale3d(.475, .475, .475) translate3d(42px, 0, 0);\n    transform: scale3d(.475, .475, .475) translate3d(42px, 0, 0);\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: scale(.1) translate3d(-2000px, 0, 0);\n    transform: scale(.1) translate3d(-2000px, 0, 0);\n    -webkit-transform-origin: left center;\n    transform-origin: left center;\n  }\n}\n\n@keyframes zoomOutLeft {\n  40% {\n    opacity: 1;\n    -webkit-transform: scale3d(.475, .475, .475) translate3d(42px, 0, 0);\n    transform: scale3d(.475, .475, .475) translate3d(42px, 0, 0);\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: scale(.1) translate3d(-2000px, 0, 0);\n    transform: scale(.1) translate3d(-2000px, 0, 0);\n    -webkit-transform-origin: left center;\n    transform-origin: left center;\n  }\n}\n\n.zoomOutLeft {\n  -webkit-animation-name: zoomOutLeft;\n  animation-name: zoomOutLeft;\n}\n\n@-webkit-keyframes zoomOutRight {\n  40% {\n    opacity: 1;\n    -webkit-transform: scale3d(.475, .475, .475) translate3d(-42px, 0, 0);\n    transform: scale3d(.475, .475, .475) translate3d(-42px, 0, 0);\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: scale(.1) translate3d(2000px, 0, 0);\n    transform: scale(.1) translate3d(2000px, 0, 0);\n    -webkit-transform-origin: right center;\n    transform-origin: right center;\n  }\n}\n\n@keyframes zoomOutRight {\n  40% {\n    opacity: 1;\n    -webkit-transform: scale3d(.475, .475, .475) translate3d(-42px, 0, 0);\n    transform: scale3d(.475, .475, .475) translate3d(-42px, 0, 0);\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: scale(.1) translate3d(2000px, 0, 0);\n    transform: scale(.1) translate3d(2000px, 0, 0);\n    -webkit-transform-origin: right center;\n    transform-origin: right center;\n  }\n}\n\n.zoomOutRight {\n  -webkit-animation-name: zoomOutRight;\n  animation-name: zoomOutRight;\n}\n\n@-webkit-keyframes zoomOutUp {\n  40% {\n    opacity: 1;\n    -webkit-transform: scale3d(.475, .475, .475) translate3d(0, 60px, 0);\n    transform: scale3d(.475, .475, .475) translate3d(0, 60px, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n    animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: scale3d(.1, .1, .1) translate3d(0, -2000px, 0);\n    transform: scale3d(.1, .1, .1) translate3d(0, -2000px, 0);\n    -webkit-transform-origin: center bottom;\n    transform-origin: center bottom;\n    -webkit-animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n    animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n  }\n}\n\n@keyframes zoomOutUp {\n  40% {\n    opacity: 1;\n    -webkit-transform: scale3d(.475, .475, .475) translate3d(0, 60px, 0);\n    transform: scale3d(.475, .475, .475) translate3d(0, 60px, 0);\n    -webkit-animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n    animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190);\n  }\n\n  to {\n    opacity: 0;\n    -webkit-transform: scale3d(.1, .1, .1) translate3d(0, -2000px, 0);\n    transform: scale3d(.1, .1, .1) translate3d(0, -2000px, 0);\n    -webkit-transform-origin: center bottom;\n    transform-origin: center bottom;\n    -webkit-animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n    animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1);\n  }\n}\n\n.zoomOutUp {\n  -webkit-animation-name: zoomOutUp;\n  animation-name: zoomOutUp;\n}\n\n@-webkit-keyframes slideInDown {\n  from {\n    -webkit-transform: translate3d(0, -100%, 0);\n    transform: translate3d(0, -100%, 0);\n    visibility: visible;\n  }\n\n  to {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n}\n\n@keyframes slideInDown {\n  from {\n    -webkit-transform: translate3d(0, -100%, 0);\n    transform: translate3d(0, -100%, 0);\n    visibility: visible;\n  }\n\n  to {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n}\n\n.slideInDown {\n  -webkit-animation-name: slideInDown;\n  animation-name: slideInDown;\n}\n\n@-webkit-keyframes slideInLeft {\n  from {\n    -webkit-transform: translate3d(-100%, 0, 0);\n    transform: translate3d(-100%, 0, 0);\n    visibility: visible;\n  }\n\n  to {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n}\n\n@keyframes slideInLeft {\n  from {\n    -webkit-transform: translate3d(-100%, 0, 0);\n    transform: translate3d(-100%, 0, 0);\n    visibility: visible;\n  }\n\n  to {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n}\n\n.slideInLeft {\n  -webkit-animation-name: slideInLeft;\n  animation-name: slideInLeft;\n}\n\n@-webkit-keyframes slideInRight {\n  from {\n    -webkit-transform: translate3d(100%, 0, 0);\n    transform: translate3d(100%, 0, 0);\n    visibility: visible;\n  }\n\n  to {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n}\n\n@keyframes slideInRight {\n  from {\n    -webkit-transform: translate3d(100%, 0, 0);\n    transform: translate3d(100%, 0, 0);\n    visibility: visible;\n  }\n\n  to {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n}\n\n.slideInRight {\n  -webkit-animation-name: slideInRight;\n  animation-name: slideInRight;\n}\n\n@-webkit-keyframes slideInUp {\n  from {\n    -webkit-transform: translate3d(0, 100%, 0);\n    transform: translate3d(0, 100%, 0);\n    visibility: visible;\n  }\n\n  to {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n}\n\n@keyframes slideInUp {\n  from {\n    -webkit-transform: translate3d(0, 100%, 0);\n    transform: translate3d(0, 100%, 0);\n    visibility: visible;\n  }\n\n  to {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n}\n\n.slideInUp {\n  -webkit-animation-name: slideInUp;\n  animation-name: slideInUp;\n}\n\n@-webkit-keyframes slideOutDown {\n  from {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n\n  to {\n    visibility: hidden;\n    -webkit-transform: translate3d(0, 100%, 0);\n    transform: translate3d(0, 100%, 0);\n  }\n}\n\n@keyframes slideOutDown {\n  from {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n\n  to {\n    visibility: hidden;\n    -webkit-transform: translate3d(0, 100%, 0);\n    transform: translate3d(0, 100%, 0);\n  }\n}\n\n.slideOutDown {\n  -webkit-animation-name: slideOutDown;\n  animation-name: slideOutDown;\n}\n\n@-webkit-keyframes slideOutLeft {\n  from {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n\n  to {\n    visibility: hidden;\n    -webkit-transform: translate3d(-100%, 0, 0);\n    transform: translate3d(-100%, 0, 0);\n  }\n}\n\n@keyframes slideOutLeft {\n  from {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n\n  to {\n    visibility: hidden;\n    -webkit-transform: translate3d(-100%, 0, 0);\n    transform: translate3d(-100%, 0, 0);\n  }\n}\n\n.slideOutLeft {\n  -webkit-animation-name: slideOutLeft;\n  animation-name: slideOutLeft;\n}\n\n@-webkit-keyframes slideOutRight {\n  from {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n\n  to {\n    visibility: hidden;\n    -webkit-transform: translate3d(100%, 0, 0);\n    transform: translate3d(100%, 0, 0);\n  }\n}\n\n@keyframes slideOutRight {\n  from {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n\n  to {\n    visibility: hidden;\n    -webkit-transform: translate3d(100%, 0, 0);\n    transform: translate3d(100%, 0, 0);\n  }\n}\n\n.slideOutRight {\n  -webkit-animation-name: slideOutRight;\n  animation-name: slideOutRight;\n}\n\n@-webkit-keyframes slideOutUp {\n  from {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n\n  to {\n    visibility: hidden;\n    -webkit-transform: translate3d(0, -100%, 0);\n    transform: translate3d(0, -100%, 0);\n  }\n}\n\n@keyframes slideOutUp {\n  from {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translate3d(0, 0, 0);\n  }\n\n  to {\n    visibility: hidden;\n    -webkit-transform: translate3d(0, -100%, 0);\n    transform: translate3d(0, -100%, 0);\n  }\n}\n\n.slideOutUp {\n  -webkit-animation-name: slideOutUp;\n  animation-name: slideOutUp;\n}\n", ""]);
 
 // exports
+
+
+/***/ }),
+/* 197 */
+/***/ (function(module, exports) {
+
+let settings = {
+  debug: true
+};
+module.exports = settings;
 
 
 /***/ })

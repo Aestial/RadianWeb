@@ -16,10 +16,7 @@ import glitch from '../css/glitch.scss';
 require('./Libraries/loading-bar.js');
 require('./Libraries/jquery-extents.js');
 
-//var settings = require('./settings.js');
-var settings = {
-  debug: false
-};
+var settings = require('./Data/settings.js');
 var debug = settings.debug;
 
 var init = function() {
