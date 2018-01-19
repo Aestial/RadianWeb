@@ -8,9 +8,20 @@ module.exports = {
     fs: 'empty'
   },
   module: {
-    loaders: [
-    ],
+    loaders: [],
     rules: [{
+      test: /\.scss$/,
+      use: [{
+        loader: "style-loader"
+      }, {
+        loader: "css-loader"
+      }, {
+        loader: "sass-loader",
+        options: {
+          includePaths: ["absolute/path/a", "absolute/path/b"]
+        }
+      }]
+    }, {
       test: /\.css$/,
       loader: ['style-loader', 'css-loader']
     }, {

@@ -8,10 +8,6 @@
 	<meta name="description" content="Radian: E-Design VFX Videogames" />
 	<meta name="keywords" content="e-design vfx videogames" />
 	<meta name="Resource-type" content="Document" />
-	<!--LIBRARIES-->
-	<script type="text/javascript" src="src/js/libraries/jquery-3.2.1.min.js"></script>
-	<script type="text/javascript" src="src/js/libraries/dat.gui.min.js"></script>
-	<script type="text/javascript" src="src/js/libraries/ShaderLoader.js"></script>
 	<!--APP-->
 	<script type="text/javascript" src="dist/bundle.js"></script>
 	<!--SHADERS-->
@@ -34,9 +30,12 @@
 		</div>
 	</div>
 	<ul id="menu">
-		<li class="title-logo glitch"><img id="title-logo" src="svg/logo_kata.svg"></img>
-		</li>
-		<li class="title glitch" data-text="RADIAN" id="title">RADIAN</li>
+		<div id="menu-head">
+			<div id="menu-logo">
+				<img src="svg/logo_kata.svg"></img>
+			</div>
+			<li class="glitch" id="title">RADIAN</li>
+		</div>
 		<li data-menuanchor="aboutus"><a href="#aboutus">ACERCA DE</a></li>
 		<li data-menuanchor="edesign"><a href="#edesign">ELECTRÓNICA APLICADA</a></li>
 		<li data-menuanchor="vfx"><a href="#vfx">DISEÑO Y EFECTOS VISUALES</a></li>
@@ -111,9 +110,7 @@
 		<div id="scroll_img"></div>
 	</div>
 	<video id="arcadeVideo" autoplay loop muted webkit-playsinline>
-		<source src="textures/log.mp4" type='video/mp4'>
-			<!--source src="textures/sintel.ogv" type='video/ogg; codecs="theora, vorbis"'-->
-		</video>
+		<source src="textures/log.mp4" type='video/mp4'></video>
 </body>
 
 </html>

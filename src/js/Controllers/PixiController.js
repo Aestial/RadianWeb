@@ -49,5 +49,6 @@ export default class PixiController {
     this.renderer.resize(this.width, this.height);
     this.smokeShader.resize(this.width, this.height);
     this.team.x = this.width/2;
+    this.team.y = this.height;
   }
 }

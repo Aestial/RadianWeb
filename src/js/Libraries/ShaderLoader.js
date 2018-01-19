@@ -27,8 +27,13 @@
  * Dependencies: jQuery
  * Documentation: https://github.com/codecruzer/webgl-shader-loader-js
  */
+ // Dependencies import:
+import $ from 'jquery';
 
 var SHADER_LOADER = SHADER_LOADER || {};
+
+let loader;
+export default loader = SHADER_LOADER || {};
 
 /**
  * Loads all shaders from an external file that are included in the

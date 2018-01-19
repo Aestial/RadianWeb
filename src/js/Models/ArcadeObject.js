@@ -35,12 +35,10 @@ export default class ArcadeObject {
     this.mainSprite.scale.set(0.343, 0.859, 1);
     this.mainSprite.position.set(0, 0, 0);
     this.videoSprite.scale.set(0.285, 0.16, 1);
-    this.videoSprite.position.set(0.015, 0.16, -0.01);
+    this.videoSprite.position.set(0.17, 0.001, -0.015);
     // Object
     this.object.add(this.mainSprite);
     this.object.add(this.videoSprite);
-    this.object.scale.set(10, 10, 1);
-    this.object.position.set(5, 0, 0);
-    this.object.rotation.set(0, Math.PI / 2, 0);
+    this.object.scale.set(5, 5, 1);
   }
 }

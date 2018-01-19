@@ -11,7 +11,7 @@ import $ from 'jquery';
 import reset from '../css/reset.css';
 import style from '../css/style.css';
 import fonts from '../css/fonts.css';
-// import effects from '../css/effects.css';
+import glitch from '../css/glitch.scss';
 
 require('./Libraries/loading-bar.js');
 require('./Libraries/jquery-extents.js');

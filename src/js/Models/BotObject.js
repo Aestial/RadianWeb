@@ -1,8 +1,10 @@
 import * as THREE from 'three';
+import ArcadeObject from './ArcadeObject.js';
 
 export default class BotObject {
   constructor(path, cubeTexturePath, parent = null) {
     this.parent = parent;
+    // Object
     this.object = new THREE.Object3D();
     if (this.parent != null) this.parent.add(this.object);
     // Loader
@@ -14,7 +16,7 @@ export default class BotObject {
     this.textures.arcade = new THREE.TextureLoader(loader.manager).load('../../textures/arcade.png');
     this.textures.reflexion = {};
     this.textures.reflexion.path = cubeTexturePath;
-    this.textures.reflexion.format = '.png';
+    this.textures.reflexion.format = '.jpg';
     this.textures.reflexion.urls = [
       this.textures.reflexion.path + 'px' + this.textures.reflexion.format,
       this.textures.reflexion.path + 'nx' + this.textures.reflexion.format,
@@ -27,20 +29,20 @@ export default class BotObject {
     // Materials
     this.materials = {};
     this.materials.black = new THREE.MeshStandardMaterial({
-      color: 0x000000,
+      color: 0x060606,
       roughness: 0.1,
-      metalness: 1,
+      metalness: 0.8,
       envMap: this.textures.reflexion.cube,
-      envMapIntensity: 0.4,
-      transparent: true,
-      opacity: 0.94
+      envMapIntensity: 1.5
+      // transparent: true,
+      // opacity: 0.93
     });
     this.materials.white = new THREE.MeshStandardMaterial({
       color: 0xffffff,
-      roughness: 0.5,
-      metalness: 0.5,
+      roughness: 0.18,
+      metalness: 0.8,
       envMap: this.textures.reflexion.cube,
-      envMapIntensity: 0.16
+      envMapIntensity: 0.65
     });
     this.materials.red = new THREE.MeshStandardMaterial({
       color: 0xff0024,
@@ -50,27 +52,28 @@ export default class BotObject {
       opacity: 0.8,
       emissive: 0.5
     });
-    // Sprites
     this.materials.edesign = new THREE.MeshBasicMaterial({
-      color: 0x00ff00
+      color: 0x00ff00,
+      transparent: true
     });
+    this.materials.edesign.needsUpdate = true;
     this.materials.vfx = new THREE.MeshBasicMaterial({
-      color: 0xff0000
+      color: 0xff0000,
+      transparent: true
     });
-    this.materials.arcade = new THREE.MeshBasicMaterial({
-      map: this.textures.arcade
-    });
+    this.materials.vfx.needsUpdate = true;
     // Animation
     this.clock = new THREE.Clock();
     this.actions = [];
     this.currentAction = null;
     this.config();
+    // Arcade
+    this.arcadeObject = new ArcadeObject('../../textures/arcade.png', 'arcadeVideo');
   }
   config() {
     this.textures.reflexion.cube.format = THREE.RGBFormat;
     this.materials.edesign.side = THREE.DoubleSide;
     this.materials.vfx.side = THREE.DoubleSide;
-    this.materials.arcade.side = THREE.DoubleSide;
   }
   animate() {
     if (typeof this.mixer != "undefined") {
@@ -91,7 +94,7 @@ export default class BotObject {
     this.arcade = this.scene.children[3];
     this.edesign.material = this.materials.edesign;
     this.vfx.material = this.materials.vfx;
-    this.arcade.material = this.materials.arcade;
+    this.arcade.add(this.arcadeObject.object);
     this.object.add(this.scene);
 
     this.mixer = new THREE.AnimationMixer(this.scene);
@@ -106,6 +109,7 @@ export default class BotObject {
     }
   }
   playAnimation(index) {
+    this.appearObjets(index);
     this.actions[index].weight = 1;
     this.actions[index].reset();
     if (this.currentAction == null){
@@ -118,5 +122,11 @@ export default class BotObject {
       console.log("BOT: Fading to Animation: " + index);
     }
     this.currentAction = this.actions[index];
+  }
+  appearObjets(index) {
+    console.log("Aperaing objecets" + index);
+    this.materials.vfx.opacity = (index == 2) ? 1.0:0.0;
+    this.materials.edesign.opacity = (index == 1) ? 1.0:0.0;
+    console.log(this.materials.edesign.opacity);
   }
 }

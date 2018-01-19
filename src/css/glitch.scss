@@ -1,0 +1,21 @@
+$background: black;
+$transparent: transparent;
+$foreground: white;
+
+@keyframes glitch {
+  $steps: 80;
+  @for $i from 0 through $steps {
+    #{percentage($i * (1 / $steps))} {
+      clip: rect(random(5)+px, 200px, random(30)+px, 0px);
+    }
+  }
+}
+.glitch {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: $transparent;
+  position: absolute;
+  clip: rect(0, 180px, 0, 0);
+  animation: glitch 3s infinite alternate-reverse;
+}

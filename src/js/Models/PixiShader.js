@@ -1,4 +1,5 @@
 import PIXI from 'pixi.js';
+import loader from '../Libraries/ShaderLoader.js';
 
 export default class PixiShader {
   constructor(sprite, properties = {}) {
@@ -8,7 +9,7 @@ export default class PixiShader {
     this.height = properties.height;
     this.counter = 0;
     this.code = null;
-    SHADER_LOADER.load(this.onloaded.bind(this));
+    loader.load(this.onloaded.bind(this));
   }
   update(delta) {
     this.counter += delta;

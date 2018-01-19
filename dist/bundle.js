@@ -78,7 +78,7 @@
  * @namespace PIXI
  */
 // export core and const. We assign core to const so that the non-reference types in const remain in-tact
-var core = module.exports = Object.assign(__webpack_require__(1), __webpack_require__(4), {
+var core = module.exports = Object.assign(__webpack_require__(1), __webpack_require__(6), {
     // utils
     utils: __webpack_require__(3),
     ticker: __webpack_require__(100),
@@ -679,33 +679,6 @@ var utils = module.exports = {
 
 /***/ }),
 /* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Math classes and utilities mixed into PIXI namespace.
- *
- * @lends PIXI
- */
-module.exports = {
-    // These will be mixed to be made publicly available,
-    // while this module is used internally in core
-    // to avoid circular dependencies and cut down on
-    // internal module requires.
-
-    Point:      __webpack_require__(23),
-    Matrix:     __webpack_require__(34),
-    GroupD8:    __webpack_require__(35),
-
-    Circle:     __webpack_require__(94),
-    Ellipse:    __webpack_require__(95),
-    Polygon:    __webpack_require__(96),
-    Rectangle:  __webpack_require__(24),
-    RoundedRectangle: __webpack_require__(97)
-};
-
-
-/***/ }),
-/* 5 */
 /***/ (function(module, exports) {
 
 /*
@@ -787,7 +760,7 @@ function toComment(sourceMap) {
 
 
 /***/ }),
-/* 6 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -1156,6 +1129,33 @@ function updateLink (link, options, obj) {
 
 	if(oldSrc) URL.revokeObjectURL(oldSrc);
 }
+
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Math classes and utilities mixed into PIXI namespace.
+ *
+ * @lends PIXI
+ */
+module.exports = {
+    // These will be mixed to be made publicly available,
+    // while this module is used internally in core
+    // to avoid circular dependencies and cut down on
+    // internal module requires.
+
+    Point:      __webpack_require__(23),
+    Matrix:     __webpack_require__(34),
+    GroupD8:    __webpack_require__(35),
+
+    Circle:     __webpack_require__(94),
+    Ellipse:    __webpack_require__(95),
+    Polygon:    __webpack_require__(96),
+    Rectangle:  __webpack_require__(24),
+    RoundedRectangle: __webpack_require__(97)
+};
 
 
 /***/ }),
@@ -11766,16 +11766,16 @@ if (true) {
 "use strict";
 /* unused harmony export WebGLRenderTargetCube */
 /* unused harmony export WebGLRenderTarget */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "v", function() { return WebGLRenderer; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "w", function() { return WebGLRenderer; });
 /* unused harmony export ShaderLib */
 /* unused harmony export UniformsLib */
 /* unused harmony export UniformsUtils */
 /* unused harmony export ShaderChunk */
-/* unused harmony export FogExp2 */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return FogExp2; });
 /* unused harmony export Fog */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "p", function() { return Scene; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "q", function() { return Scene; });
 /* unused harmony export LensFlare */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "q", function() { return Sprite; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "r", function() { return Sprite; });
 /* unused harmony export LOD */
 /* unused harmony export SkinnedMesh */
 /* unused harmony export Skeleton */
@@ -11786,7 +11786,7 @@ if (true) {
 /* unused harmony export Line */
 /* unused harmony export Points */
 /* unused harmony export Group */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "u", function() { return VideoTexture; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "v", function() { return VideoTexture; });
 /* unused harmony export DataTexture */
 /* unused harmony export CompressedTexture */
 /* unused harmony export CubeTexture */
@@ -11796,12 +11796,12 @@ if (true) {
 /* unused harmony export CompressedTextureLoader */
 /* unused harmony export DataTextureLoader */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return CubeTextureLoader; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "s", function() { return TextureLoader; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return ObjectLoader; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "t", function() { return TextureLoader; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "m", function() { return ObjectLoader; });
 /* unused harmony export MaterialLoader */
 /* unused harmony export BufferGeometryLoader */
 /* unused harmony export DefaultLoadingManager */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return LoadingManager; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return LoadingManager; });
 /* unused harmony export JSONLoader */
 /* unused harmony export ImageLoader */
 /* unused harmony export ImageBitmapLoader */
@@ -11813,16 +11813,16 @@ if (true) {
 /* unused harmony export AudioLoader */
 /* unused harmony export SpotLightShadow */
 /* unused harmony export SpotLight */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "n", function() { return PointLight; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "o", function() { return PointLight; });
 /* unused harmony export RectAreaLight */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return HemisphereLight; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return HemisphereLight; });
 /* unused harmony export DirectionalLightShadow */
 /* unused harmony export DirectionalLight */
 /* unused harmony export AmbientLight */
 /* unused harmony export LightShadow */
 /* unused harmony export Light */
 /* unused harmony export StereoCamera */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "m", function() { return PerspectiveCamera; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "n", function() { return PerspectiveCamera; });
 /* unused harmony export OrthographicCamera */
 /* unused harmony export CubeCamera */
 /* unused harmony export ArrayCamera */
@@ -11854,7 +11854,7 @@ if (true) {
 /* unused harmony export InterleavedBuffer */
 /* unused harmony export InstancedBufferAttribute */
 /* unused harmony export Face3 */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return Object3D; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return Object3D; });
 /* unused harmony export Raycaster */
 /* unused harmony export Layers */
 /* unused harmony export EventDispatcher */
@@ -11879,7 +11879,7 @@ if (true) {
 /* unused harmony export Line3 */
 /* unused harmony export Euler */
 /* unused harmony export Vector4 */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "t", function() { return Vector3; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "u", function() { return Vector3; });
 /* unused harmony export Vector2 */
 /* unused harmony export Quaternion */
 /* unused harmony export Color */
@@ -11952,19 +11952,19 @@ if (true) {
 /* unused harmony export BoxGeometry */
 /* unused harmony export BoxBufferGeometry */
 /* unused harmony export ShadowMaterial */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "r", function() { return SpriteMaterial; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "s", function() { return SpriteMaterial; });
 /* unused harmony export RawShaderMaterial */
 /* unused harmony export ShaderMaterial */
 /* unused harmony export PointsMaterial */
 /* unused harmony export MeshPhysicalMaterial */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return MeshStandardMaterial; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return MeshStandardMaterial; });
 /* unused harmony export MeshPhongMaterial */
 /* unused harmony export MeshToonMaterial */
 /* unused harmony export MeshNormalMaterial */
 /* unused harmony export MeshLambertMaterial */
 /* unused harmony export MeshDepthMaterial */
 /* unused harmony export MeshDistanceMaterial */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return MeshBasicMaterial; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return MeshBasicMaterial; });
 /* unused harmony export LineDashedMaterial */
 /* unused harmony export LineBasicMaterial */
 /* unused harmony export Material */
@@ -12059,7 +12059,7 @@ if (true) {
 /* unused harmony export NearestFilter */
 /* unused harmony export NearestMipMapNearestFilter */
 /* unused harmony export NearestMipMapLinearFilter */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return LinearFilter; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return LinearFilter; });
 /* unused harmony export LinearMipMapNearestFilter */
 /* unused harmony export LinearMipMapLinearFilter */
 /* unused harmony export UnsignedByteType */
@@ -12075,7 +12075,7 @@ if (true) {
 /* unused harmony export UnsignedShort565Type */
 /* unused harmony export UnsignedInt248Type */
 /* unused harmony export AlphaFormat */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "o", function() { return RGBFormat; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "p", function() { return RGBFormat; });
 /* unused harmony export RGBAFormat */
 /* unused harmony export LuminanceFormat */
 /* unused harmony export LuminanceAlphaFormat */
@@ -12091,7 +12091,7 @@ if (true) {
 /* unused harmony export RGBA_PVRTC_4BPPV1_Format */
 /* unused harmony export RGBA_PVRTC_2BPPV1_Format */
 /* unused harmony export RGB_ETC1_Format */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return LoopOnce; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return LoopOnce; });
 /* unused harmony export LoopRepeat */
 /* unused harmony export LoopPingPong */
 /* unused harmony export InterpolateDiscrete */
@@ -57775,7 +57775,7 @@ var BaseTexture = __webpack_require__(14),
     VideoBaseTexture = __webpack_require__(39),
     TextureUvs = __webpack_require__(40),
     EventEmitter = __webpack_require__(9),
-    math = __webpack_require__(4),
+    math = __webpack_require__(6),
     utils = __webpack_require__(3);
 
 /**
@@ -58729,7 +58729,7 @@ BaseTexture.fromCanvas = function (canvas, scaleMode)
 /* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var math = __webpack_require__(4),
+var math = __webpack_require__(6),
     utils = __webpack_require__(3),
     CONST = __webpack_require__(1),
     //StencilManager = require('../managers/StencilManager'),
@@ -59055,7 +59055,7 @@ RenderTarget.prototype.destroy = function ()
 /* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var math = __webpack_require__(4),
+var math = __webpack_require__(6),
     utils = __webpack_require__(3),
     DisplayObject = __webpack_require__(38),
     RenderTexture = __webpack_require__(26),
@@ -61949,7 +61949,7 @@ var BaseTexture = __webpack_require__(14),
     RenderTarget = __webpack_require__(15),
     FilterManager = __webpack_require__(41),
     CanvasBuffer = __webpack_require__(27),
-    math = __webpack_require__(4),
+    math = __webpack_require__(6),
     CONST = __webpack_require__(1),
     tempMatrix = new math.Matrix();
 
@@ -66019,7 +66019,7 @@ exports.clearImmediate = clearImmediate;
 /* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var math = __webpack_require__(4),
+var math = __webpack_require__(6),
     RenderTexture = __webpack_require__(26),
     EventEmitter = __webpack_require__(9),
     CONST = __webpack_require__(1),
@@ -66917,7 +66917,7 @@ var WebGLManager = __webpack_require__(8),
     RenderTarget = __webpack_require__(15),
     CONST = __webpack_require__(1),
     Quad = __webpack_require__(103),
-    math =  __webpack_require__(4);
+    math =  __webpack_require__(6);
 
 /**
  * @class
@@ -67369,7 +67369,7 @@ FilterManager.prototype.destroy = function ()
 /* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var math = __webpack_require__(4),
+var math = __webpack_require__(6),
     Texture = __webpack_require__(12),
     Container = __webpack_require__(16),
     CanvasTinter = __webpack_require__(43),
@@ -68198,7 +68198,7 @@ CanvasTinter.tintMethod = CanvasTinter.canUseMultiply ? CanvasTinter.tintWithMul
 /***/ (function(module, exports, __webpack_require__) {
 
 var utils = __webpack_require__(3),
-    math = __webpack_require__(4),
+    math = __webpack_require__(6),
     CONST = __webpack_require__(1),
     EventEmitter = __webpack_require__(9);
 
@@ -68769,7 +68769,7 @@ module.exports = PrimitiveShader;
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(__dirname) {var AbstractFilter = __webpack_require__(28),
-    math =  __webpack_require__(4);
+    math =  __webpack_require__(6);
 
 // @see https://github.com/substack/brfs/issues/25
 var fs = __webpack_require__(2);
@@ -70558,17 +70558,20 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__Controllers_FullPageController_js__ = __webpack_require__(77);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__Controllers_LoaderController_js__ = __webpack_require__(83);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__Controllers_PixiController_js__ = __webpack_require__(88);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__Controllers_PopupController_js__ = __webpack_require__(166);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__Controllers_ThreeController_js__ = __webpack_require__(169);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__Controllers_VimeoController_js__ = __webpack_require__(175);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__Controllers_PopupController_js__ = __webpack_require__(167);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__Controllers_ThreeController_js__ = __webpack_require__(170);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__Controllers_VimeoController_js__ = __webpack_require__(176);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_jquery__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_8_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__css_reset_css__ = __webpack_require__(179);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__css_reset_css__ = __webpack_require__(180);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__css_reset_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_9__css_reset_css__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__css_style_css__ = __webpack_require__(181);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__css_style_css__ = __webpack_require__(182);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__css_style_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_10__css_style_css__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__css_fonts_css__ = __webpack_require__(184);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__css_fonts_css__ = __webpack_require__(185);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__css_fonts_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_11__css_fonts_css__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__css_glitch_scss__ = __webpack_require__(190);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__css_glitch_scss___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_12__css_glitch_scss__);
+
 
 
 
@@ -70584,8 +70587,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 // import effects from '../css/effects.css';
 
-__webpack_require__(189);
-__webpack_require__(190);
+__webpack_require__(192);
+__webpack_require__(193);
+// require('./Libraries/ShaderLoader.js');
 
 //var settings = require('./settings.js');
 var settings = {
@@ -71329,7 +71333,7 @@ var transform;
 var options = {"hmr":true}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(6)(content, options);
+var update = __webpack_require__(5)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -71349,7 +71353,7 @@ if(false) {
 /* 72 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(5)(false);
+exports = module.exports = __webpack_require__(4)(false);
 // imports
 
 
@@ -71531,7 +71535,7 @@ var transform;
 var options = {"hmr":true}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(6)(content, options);
+var update = __webpack_require__(5)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -71551,7 +71555,7 @@ if(false) {
 /* 76 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(5)(false);
+exports = module.exports = __webpack_require__(4)(false);
 // imports
 
 
@@ -74505,7 +74509,7 @@ var transform;
 var options = {"hmr":true}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(6)(content, options);
+var update = __webpack_require__(5)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -74525,7 +74529,7 @@ if(false) {
 /* 80 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(5)(false);
+exports = module.exports = __webpack_require__(4)(false);
 // imports
 
 
@@ -74550,7 +74554,7 @@ var transform;
 var options = {"hmr":true}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(6)(content, options);
+var update = __webpack_require__(5)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -74570,7 +74574,7 @@ if(false) {
 /* 82 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(5)(false);
+exports = module.exports = __webpack_require__(4)(false);
 // imports
 
 
@@ -74608,7 +74612,7 @@ class LoaderController {
     this.bar = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('#loadBar');
     this.dom = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('#loadScreen');
     this.logo.hover(this.onEnter.bind(this));
-    this.manager = new __WEBPACK_IMPORTED_MODULE_1_three__["g" /* LoadingManager */]();
+    this.manager = new __WEBPACK_IMPORTED_MODULE_1_three__["h" /* LoadingManager */]();
     this.manager.onStart = this.onStart.bind(this);
     this.manager.onLoad = this.onLoad.bind(this);
     this.manager.onProgress = this.onProgress.bind(this);
@@ -74664,7 +74668,7 @@ var transform;
 var options = {"hmr":true}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(6)(content, options);
+var update = __webpack_require__(5)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -74684,7 +74688,7 @@ if(false) {
 /* 85 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(5)(false);
+exports = module.exports = __webpack_require__(4)(false);
 // imports
 
 
@@ -74709,7 +74713,7 @@ var transform;
 var options = {"hmr":true}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(6)(content, options);
+var update = __webpack_require__(5)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -74729,7 +74733,7 @@ if(false) {
 /* 87 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(5)(false);
+exports = module.exports = __webpack_require__(4)(false);
 // imports
 
 
@@ -74747,7 +74751,7 @@ exports.push([module.i, ".ldBar{position:relative}.ldBar.label-center>.ldBar-lab
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_pixi_js__ = __webpack_require__(33);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_pixi_js___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_pixi_js__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Models_PixiShader_js__ = __webpack_require__(162);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__css_pixi_css__ = __webpack_require__(163);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__css_pixi_css__ = __webpack_require__(164);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__css_pixi_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__css_pixi_css__);
 
 
@@ -74771,7 +74775,7 @@ class PixiController {
     // SMOKE
     this.smoke = __WEBPACK_IMPORTED_MODULE_0_pixi_js___default.a.Sprite.fromImage("textures/pixi/pixi.png");
     this.smokeShader = new __WEBPACK_IMPORTED_MODULE_1__Models_PixiShader_js__["a" /* default */](this.smoke, {
-      uniforms: __webpack_require__(165).smoke,
+      uniforms: __webpack_require__(166).smoke,
       width: window.innerWidth,
       height: window.innerHeight
     });
@@ -74800,6 +74804,7 @@ class PixiController {
     this.renderer.resize(this.width, this.height);
     this.smokeShader.resize(this.width, this.height);
     this.team.x = this.width/2;
+    this.team.y = this.height;
   }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = PixiController;
@@ -77620,7 +77625,7 @@ var ObjectRenderer = __webpack_require__(13),
     WebGLRenderer = __webpack_require__(17),
     ParticleShader = __webpack_require__(110),
     ParticleBuffer = __webpack_require__(111),
-    math            = __webpack_require__(4);
+    math            = __webpack_require__(6);
 
 /**
  * @author Mat Groves
@@ -78404,7 +78409,7 @@ ParticleBuffer.prototype.destroy = function ()
 
 var Sprite = __webpack_require__(42),
     Texture = __webpack_require__(12),
-    math = __webpack_require__(4),
+    math = __webpack_require__(6),
     utils = __webpack_require__(3),
     CONST = __webpack_require__(1);
 
@@ -79108,7 +79113,7 @@ var Container = __webpack_require__(16),
     CanvasBuffer = __webpack_require__(27),
     CanvasGraphics = __webpack_require__(29),
     GraphicsData = __webpack_require__(50),
-    math = __webpack_require__(4),
+    math = __webpack_require__(6),
     CONST = __webpack_require__(1),
     tempPoint = new math.Point();
 
@@ -80293,7 +80298,7 @@ Graphics.prototype.destroy = function () {
 /***/ (function(module, exports, __webpack_require__) {
 
 var utils = __webpack_require__(3),
-    math = __webpack_require__(4),
+    math = __webpack_require__(6),
     CONST = __webpack_require__(1),
     ObjectRenderer = __webpack_require__(13),
     WebGLRenderer = __webpack_require__(17),
@@ -81983,7 +81988,7 @@ earcut.flatten = function (data) {
 var SystemRenderer = __webpack_require__(44),
     CanvasMaskManager = __webpack_require__(118),
     utils = __webpack_require__(3),
-    math = __webpack_require__(4),
+    math = __webpack_require__(6),
     CONST = __webpack_require__(1);
 
 /**
@@ -89282,6 +89287,8 @@ core.utils.uuid = function ()
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_pixi_js__ = __webpack_require__(33);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_pixi_js___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_pixi_js__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Libraries_ShaderLoader_js__ = __webpack_require__(163);
+
 
 
 class PixiShader {
@@ -89292,7 +89299,7 @@ class PixiShader {
     this.height = properties.height;
     this.counter = 0;
     this.code = null;
-    SHADER_LOADER.load(this.onloaded.bind(this));
+    __WEBPACK_IMPORTED_MODULE_1__Libraries_ShaderLoader_js__["a" /* default */].load(this.onloaded.bind(this));
   }
   update(delta) {
     this.counter += delta;
@@ -89317,14 +89324,157 @@ class PixiShader {
 /* harmony export (immutable) */ __webpack_exports__["a"] = PixiShader;
 
 
+
 /***/ }),
 /* 163 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
+/**
+ * ShaderLoader.js v1.0
+ * An asynchronous shader loader for WebGL using AJAX with jQuery.
+ *
+ * Copyright (c) 2013 - 2014 Andre Cruz / http://andre-cruz.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+/*
+ * Dependencies: jQuery
+ * Documentation: https://github.com/codecruzer/webgl-shader-loader-js
+ */
+ // Dependencies import:
+
+
+var SHADER_LOADER = SHADER_LOADER || {};
+
+let loader;
+/* harmony default export */ __webpack_exports__["a"] = (loader = SHADER_LOADER || {});
+
+/**
+ * Loads all shaders from an external file that are included in the
+ * DOM as script elements. See comments in ShaderLoader.js for documentation.
+ *
+ * @param {Function} Callback invoked when all shaders have loaded with signature
+ * function (data) {}
+ */
+SHADER_LOADER.load = function(onShadersLoaded) {
+  /**
+   * Checks if there are any shaders still pending to load.
+   * If there are none remaining, then invoke the onShadersLoaded
+   * callback.
+   *
+   */
+  var checkForRemaining = function() {
+    if (unloadedRemaining <= 0 &&
+      onShadersLoaded) {
+      onShadersLoaded(loadedShaders);
+    }
+  };
+
+  /**
+   * Loads an external shader file asynchronously using AJAX
+   *
+   * @param {Object} The shader script tag from the DOM
+   * @param {String} The type of shader [vertex|fragment]
+   */
+  var loadShaderFile = function(shaderElement, type) {
+    /**
+     * Processes a shader that comes back from
+     * the AJAX and stores it in the Shaders
+     * Object for later on
+     *
+     * @param {Object} The jQuery XHR object
+     * @param {String} The response text, e.g. success, error
+     */
+    var onComplete = function onComplete(jqXHR, textStatus) {
+      --unloadedRemaining;
+
+      if (!loadedShaders[name]) {
+        loadedShaders[name] = {
+          vertex: "",
+          fragment: ""
+        };
+      }
+
+      loadedShaders[name][type] = jqXHR.responseText;
+
+      checkForRemaining();
+    };
+
+    var element = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(shaderElement);
+    var url = element.data("src");
+    var name = element.data("name");
+
+    __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
+      url: url,
+      dataType: "text",
+      context: {
+        name: name,
+        type: type
+      },
+      complete: onComplete
+    });
+  };
+
+  /************************
+   * Load the shaders here *
+   ************************/
+
+  var loadedShaders = {};
+
+  // Get all of the shaders from the DOM
+  var vertexShaders = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('script[type="x-shader/x-vertex"]');
+  var fragmentShaders = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('script[type="x-shader/x-fragment"]');
+
+  var unloadedRemaining = vertexShaders.length + fragmentShaders.length;
+
+  // Load vertex shaders
+  var shader;
+  var i, shaderCount;
+  for (i = 0, shaderCount = vertexShaders.length; i < shaderCount; ++i) {
+    shader = vertexShaders[i];
+    loadShaderFile(shader, "vertex");
+  }
+
+  // Load fragment shaders
+  for (i = 0, shaderCount = fragmentShaders.length; i < shaderCount; ++i) {
+    shader = fragmentShaders[i];
+    loadShaderFile(shader, "fragment");
+  }
+
+  // Check if we're still waiting for any shaders to load, in case they already
+  // finished or if there were none.
+  checkForRemaining();
+};
+
+
+/***/ }),
+/* 164 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(164);
+var content = __webpack_require__(165);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -89332,7 +89482,7 @@ var transform;
 var options = {"hmr":true}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(6)(content, options);
+var update = __webpack_require__(5)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -89349,10 +89499,10 @@ if(false) {
 }
 
 /***/ }),
-/* 164 */
+/* 165 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(5)(false);
+exports = module.exports = __webpack_require__(4)(false);
 // imports
 
 
@@ -89363,7 +89513,7 @@ exports.push([module.i, ".pixi{\n\tposition: absolute;\n\ttop: 0;\n\tleft: 0;\n\
 
 
 /***/ }),
-/* 165 */
+/* 166 */
 /***/ (function(module, exports) {
 
 var width = window.innerWidth;
@@ -89403,13 +89553,13 @@ module.exports = uniforms;
 
 
 /***/ }),
-/* 166 */
+/* 167 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__css_popup_css__ = __webpack_require__(167);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__css_popup_css__ = __webpack_require__(168);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__css_popup_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__css_popup_css__);
 
 
@@ -89467,13 +89617,13 @@ class PopupController {
 
 
 /***/ }),
-/* 167 */
+/* 168 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(168);
+var content = __webpack_require__(169);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -89481,7 +89631,7 @@ var transform;
 var options = {"hmr":true}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(6)(content, options);
+var update = __webpack_require__(5)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -89498,10 +89648,10 @@ if(false) {
 }
 
 /***/ }),
-/* 168 */
+/* 169 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(5)(false);
+exports = module.exports = __webpack_require__(4)(false);
 // imports
 
 
@@ -89512,13 +89662,13 @@ exports.push([module.i, "#popup{\n\tposition: absolute;\n\tright: 0%;\n\theight:
 
 
 /***/ }),
-/* 169 */
+/* 170 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_three__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Models_ThreeScene_js__ = __webpack_require__(170);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__css_three_css__ = __webpack_require__(173);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Models_ThreeScene_js__ = __webpack_require__(171);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__css_three_css__ = __webpack_require__(174);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__css_three_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__css_three_css__);
 
 
@@ -89530,7 +89680,7 @@ class ThreeController {
     this.className = properties.className;
     this.verbose = properties.verbose;
     this.editor = properties.editor;
-    this.renderer = new __WEBPACK_IMPORTED_MODULE_0_three__["v" /* WebGLRenderer */]({
+    this.renderer = new __WEBPACK_IMPORTED_MODULE_0_three__["w" /* WebGLRenderer */]({
       antialias: false
     });
     this.width = window.innerWidth;
@@ -89578,39 +89728,37 @@ class ThreeController {
 
 
 /***/ }),
-/* 170 */
+/* 171 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_three__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__BotObject_js__ = __webpack_require__(171);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ArcadeObject_js__ = __webpack_require__(172);
-
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__BotObject_js__ = __webpack_require__(172);
 
 
 
 class ThreeScene {
   constructor() {
-    this.scene = new __WEBPACK_IMPORTED_MODULE_0_three__["p" /* Scene */]();
-    this.camera = new __WEBPACK_IMPORTED_MODULE_0_three__["m" /* PerspectiveCamera */](45, window.innerWidth / window.innerHeight, 1, 10000);
-    this.light = new __WEBPACK_IMPORTED_MODULE_0_three__["n" /* PointLight */](0xbababa, 1, 0);
-    this.hemiLight = new __WEBPACK_IMPORTED_MODULE_0_three__["e" /* HemisphereLight */](0x443333, 0x111122);
-    this.arcade = new __WEBPACK_IMPORTED_MODULE_2__ArcadeObject_js__["a" /* default */]('../../textures/arcade.png', 'arcadeVideo');
-    this.bot = new __WEBPACK_IMPORTED_MODULE_1__BotObject_js__["a" /* default */]('../../obj/Bot.json', '../../textures/cube/4/');
+    this.scene = new __WEBPACK_IMPORTED_MODULE_0_three__["q" /* Scene */]();
+    this.fog = new __WEBPACK_IMPORTED_MODULE_0_three__["e" /* FogExp2 */](0x000000, 0.077);
+    this.camera = new __WEBPACK_IMPORTED_MODULE_0_three__["n" /* PerspectiveCamera */](45, window.innerWidth / window.innerHeight, 1, 10000);
+    this.light = new __WEBPACK_IMPORTED_MODULE_0_three__["o" /* PointLight */](0xfffafa, 1, 0, 2);
+    this.hemiLight = new __WEBPACK_IMPORTED_MODULE_0_three__["f" /* HemisphereLight */](0x404040, 0x1f1f1f);
+    this.bot = new __WEBPACK_IMPORTED_MODULE_1__BotObject_js__["a" /* default */]('../../obj/Bot.json', '../../textures/cube/nice/');
     this.config();
     this.attach();
   }
   config() {
-    this.camera.position.x = -11;
-    var origin = new __WEBPACK_IMPORTED_MODULE_0_three__["t" /* Vector3 */]();
+    this.scene.fog = this.fog;
+    this.camera.position.x = -6.17403;
+    var origin = new __WEBPACK_IMPORTED_MODULE_0_three__["u" /* Vector3 */]();
     this.camera.lookAt(origin);
-    this.light.position.set(0, 200, 0);
+    this.light.position.set(-80, -40, -55);
   }
   attach() {
     this.scene.add(this.camera);
     this.scene.add(this.light);
-    // this.scene.add(this.hemiLight);
-    // this.scene.add(this.arcade.object);
+    this.scene.add(this.hemiLight);
     this.scene.add(this.bot.object);
   }
   animate() {
@@ -89626,28 +89774,31 @@ class ThreeScene {
 
 
 /***/ }),
-/* 171 */
+/* 172 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_three__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ArcadeObject_js__ = __webpack_require__(173);
+
 
 
 class BotObject {
   constructor(path, cubeTexturePath, parent = null) {
     this.parent = parent;
-    this.object = new __WEBPACK_IMPORTED_MODULE_0_three__["k" /* Object3D */]();
+    // Object
+    this.object = new __WEBPACK_IMPORTED_MODULE_0_three__["l" /* Object3D */]();
     if (this.parent != null) this.parent.add(this.object);
     // Loader
     this.path = path;
-    this.loader = new __WEBPACK_IMPORTED_MODULE_0_three__["l" /* ObjectLoader */](loader.manager);
+    this.loader = new __WEBPACK_IMPORTED_MODULE_0_three__["m" /* ObjectLoader */](loader.manager);
     this.loader.load(path, this.onLoaded.bind(this));
     // Textures
     this.textures = {};
-    this.textures.arcade = new __WEBPACK_IMPORTED_MODULE_0_three__["s" /* TextureLoader */](loader.manager).load('../../textures/arcade.png');
+    this.textures.arcade = new __WEBPACK_IMPORTED_MODULE_0_three__["t" /* TextureLoader */](loader.manager).load('../../textures/arcade.png');
     this.textures.reflexion = {};
     this.textures.reflexion.path = cubeTexturePath;
-    this.textures.reflexion.format = '.png';
+    this.textures.reflexion.format = '.jpg';
     this.textures.reflexion.urls = [
       this.textures.reflexion.path + 'px' + this.textures.reflexion.format,
       this.textures.reflexion.path + 'nx' + this.textures.reflexion.format,
@@ -89659,23 +89810,23 @@ class BotObject {
     this.textures.reflexion.cube = new __WEBPACK_IMPORTED_MODULE_0_three__["c" /* CubeTextureLoader */](loader.manager).load(this.textures.reflexion.urls);
     // Materials
     this.materials = {};
-    this.materials.black = new __WEBPACK_IMPORTED_MODULE_0_three__["j" /* MeshStandardMaterial */]({
-      color: 0x000000,
+    this.materials.black = new __WEBPACK_IMPORTED_MODULE_0_three__["k" /* MeshStandardMaterial */]({
+      color: 0x060606,
       roughness: 0.1,
-      metalness: 1,
+      metalness: 0.8,
       envMap: this.textures.reflexion.cube,
-      envMapIntensity: 0.4,
-      transparent: true,
-      opacity: 0.94
+      envMapIntensity: 1.5
+      // transparent: true,
+      // opacity: 0.93
     });
-    this.materials.white = new __WEBPACK_IMPORTED_MODULE_0_three__["j" /* MeshStandardMaterial */]({
+    this.materials.white = new __WEBPACK_IMPORTED_MODULE_0_three__["k" /* MeshStandardMaterial */]({
       color: 0xffffff,
-      roughness: 0.5,
-      metalness: 0.5,
+      roughness: 0.18,
+      metalness: 0.8,
       envMap: this.textures.reflexion.cube,
-      envMapIntensity: 0.16
+      envMapIntensity: 0.65
     });
-    this.materials.red = new __WEBPACK_IMPORTED_MODULE_0_three__["j" /* MeshStandardMaterial */]({
+    this.materials.red = new __WEBPACK_IMPORTED_MODULE_0_three__["k" /* MeshStandardMaterial */]({
       color: 0xff0024,
       roughness: 0.1,
       metalness: 0.3,
@@ -89683,27 +89834,28 @@ class BotObject {
       opacity: 0.8,
       emissive: 0.5
     });
-    // Sprites
-    this.materials.edesign = new __WEBPACK_IMPORTED_MODULE_0_three__["i" /* MeshBasicMaterial */]({
-      color: 0x00ff00
+    this.materials.edesign = new __WEBPACK_IMPORTED_MODULE_0_three__["j" /* MeshBasicMaterial */]({
+      color: 0x00ff00,
+      transparent: true
     });
-    this.materials.vfx = new __WEBPACK_IMPORTED_MODULE_0_three__["i" /* MeshBasicMaterial */]({
-      color: 0xff0000
+    this.materials.edesign.needsUpdate = true;
+    this.materials.vfx = new __WEBPACK_IMPORTED_MODULE_0_three__["j" /* MeshBasicMaterial */]({
+      color: 0xff0000,
+      transparent: true
     });
-    this.materials.arcade = new __WEBPACK_IMPORTED_MODULE_0_three__["i" /* MeshBasicMaterial */]({
-      map: this.textures.arcade
-    });
+    this.materials.vfx.needsUpdate = true;
     // Animation
     this.clock = new __WEBPACK_IMPORTED_MODULE_0_three__["b" /* Clock */]();
     this.actions = [];
     this.currentAction = null;
     this.config();
+    // Arcade
+    this.arcadeObject = new __WEBPACK_IMPORTED_MODULE_1__ArcadeObject_js__["a" /* default */]('../../textures/arcade.png', 'arcadeVideo');
   }
   config() {
-    this.textures.reflexion.cube.format = __WEBPACK_IMPORTED_MODULE_0_three__["o" /* RGBFormat */];
+    this.textures.reflexion.cube.format = __WEBPACK_IMPORTED_MODULE_0_three__["p" /* RGBFormat */];
     this.materials.edesign.side = __WEBPACK_IMPORTED_MODULE_0_three__["d" /* DoubleSide */];
     this.materials.vfx.side = __WEBPACK_IMPORTED_MODULE_0_three__["d" /* DoubleSide */];
-    this.materials.arcade.side = __WEBPACK_IMPORTED_MODULE_0_three__["d" /* DoubleSide */];
   }
   animate() {
     if (typeof this.mixer != "undefined") {
@@ -89724,14 +89876,14 @@ class BotObject {
     this.arcade = this.scene.children[3];
     this.edesign.material = this.materials.edesign;
     this.vfx.material = this.materials.vfx;
-    this.arcade.material = this.materials.arcade;
+    this.arcade.add(this.arcadeObject.object);
     this.object.add(this.scene);
 
     this.mixer = new __WEBPACK_IMPORTED_MODULE_0_three__["a" /* AnimationMixer */](this.scene);
     var numAnim = this.scene.animations.length;
     for (var i = 0; i < numAnim; i++) {
       var newAction = this.mixer.clipAction(this.scene.animations[i]);
-      newAction.setLoop(__WEBPACK_IMPORTED_MODULE_0_three__["h" /* LoopOnce */]);
+      newAction.setLoop(__WEBPACK_IMPORTED_MODULE_0_three__["i" /* LoopOnce */]);
       newAction.clampWhenFinished = true;
       newAction.timeScale = 1;
       newAction.weight = 0;
@@ -89739,6 +89891,7 @@ class BotObject {
     }
   }
   playAnimation(index) {
+    this.appearObjets(index);
     this.actions[index].weight = 1;
     this.actions[index].reset();
     if (this.currentAction == null){
@@ -89752,13 +89905,19 @@ class BotObject {
     }
     this.currentAction = this.actions[index];
   }
+  appearObjets(index) {
+    console.log("Aperaing objecets" + index);
+    this.materials.vfx.opacity = (index == 2) ? 1.0:0.0;
+    this.materials.edesign.opacity = (index == 1) ? 1.0:0.0;
+    console.log(this.materials.edesign.opacity);
+  }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = BotObject;
 
 
 
 /***/ }),
-/* 172 */
+/* 173 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -89773,40 +89932,38 @@ class ArcadeObject {
     // Video
     this.video = document.getElementById(this.videoId);
     // Loader
-    this.loader = new __WEBPACK_IMPORTED_MODULE_0_three__["s" /* TextureLoader */](loader.manager);
+    this.loader = new __WEBPACK_IMPORTED_MODULE_0_three__["t" /* TextureLoader */](loader.manager);
     // Textures
     this.mainTexture = this.loader.load(path);
-    this.videoTexture = new __WEBPACK_IMPORTED_MODULE_0_three__["u" /* VideoTexture */](this.video);
+    this.videoTexture = new __WEBPACK_IMPORTED_MODULE_0_three__["v" /* VideoTexture */](this.video);
     // Materials
-    this.mainMaterial = new __WEBPACK_IMPORTED_MODULE_0_three__["r" /* SpriteMaterial */]({
+    this.mainMaterial = new __WEBPACK_IMPORTED_MODULE_0_three__["s" /* SpriteMaterial */]({
       map: this.mainTexture
     });
-    this.videoMaterial = new __WEBPACK_IMPORTED_MODULE_0_three__["r" /* SpriteMaterial */]({
+    this.videoMaterial = new __WEBPACK_IMPORTED_MODULE_0_three__["s" /* SpriteMaterial */]({
       map: this.videoTexture
     });
     // Sprites
-    this.mainSprite = new __WEBPACK_IMPORTED_MODULE_0_three__["q" /* Sprite */](this.mainMaterial);
-    this.videoSprite = new __WEBPACK_IMPORTED_MODULE_0_three__["q" /* Sprite */](this.videoMaterial);
+    this.mainSprite = new __WEBPACK_IMPORTED_MODULE_0_three__["r" /* Sprite */](this.mainMaterial);
+    this.videoSprite = new __WEBPACK_IMPORTED_MODULE_0_three__["r" /* Sprite */](this.videoMaterial);
     // Object
-    this.object = new __WEBPACK_IMPORTED_MODULE_0_three__["k" /* Object3D */]();
+    this.object = new __WEBPACK_IMPORTED_MODULE_0_three__["l" /* Object3D */]();
     this.config();
   }
   config() {
     // Textures
-    this.videoTexture.minFilter = __WEBPACK_IMPORTED_MODULE_0_three__["f" /* LinearFilter */];
-    this.videoTexture.magFilter = __WEBPACK_IMPORTED_MODULE_0_three__["f" /* LinearFilter */];
-    this.videoTexture.format = __WEBPACK_IMPORTED_MODULE_0_three__["o" /* RGBFormat */];
+    this.videoTexture.minFilter = __WEBPACK_IMPORTED_MODULE_0_three__["g" /* LinearFilter */];
+    this.videoTexture.magFilter = __WEBPACK_IMPORTED_MODULE_0_three__["g" /* LinearFilter */];
+    this.videoTexture.format = __WEBPACK_IMPORTED_MODULE_0_three__["p" /* RGBFormat */];
     // Sprites
     this.mainSprite.scale.set(0.343, 0.859, 1);
     this.mainSprite.position.set(0, 0, 0);
     this.videoSprite.scale.set(0.285, 0.16, 1);
-    this.videoSprite.position.set(0.015, 0.16, -0.01);
+    this.videoSprite.position.set(0.17, 0.001, -0.015);
     // Object
     this.object.add(this.mainSprite);
     this.object.add(this.videoSprite);
-    this.object.scale.set(10, 10, 1);
-    this.object.position.set(5, 0, 0);
-    this.object.rotation.set(0, Math.PI / 2, 0);
+    this.object.scale.set(5, 5, 1);
   }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = ArcadeObject;
@@ -89814,13 +89971,13 @@ class ArcadeObject {
 
 
 /***/ }),
-/* 173 */
+/* 174 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(174);
+var content = __webpack_require__(175);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -89828,7 +89985,7 @@ var transform;
 var options = {"hmr":true}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(6)(content, options);
+var update = __webpack_require__(5)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -89845,10 +90002,10 @@ if(false) {
 }
 
 /***/ }),
-/* 174 */
+/* 175 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(5)(false);
+exports = module.exports = __webpack_require__(4)(false);
 // imports
 
 
@@ -89859,13 +90016,13 @@ exports.push([module.i, "video{\n\tdisplay: none;\n}\n.three{\n  position: absol
 
 
 /***/ }),
-/* 175 */
+/* 176 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__vimeo_player__ = __webpack_require__(176);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__vimeo_player__ = __webpack_require__(177);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__vimeo_player___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__vimeo_player__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__css_vimeo_css__ = __webpack_require__(177);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__css_vimeo_css__ = __webpack_require__(178);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__css_vimeo_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__css_vimeo_css__);
 
 
@@ -89941,7 +90098,7 @@ class VimeoController {
 
 
 /***/ }),
-/* 176 */
+/* 177 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, setImmediate) {/*! @vimeo/player v2.2.1 | (c) 2017 Vimeo | MIT License | https://github.com/vimeo/player.js */
@@ -92027,13 +92184,13 @@ return Player;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11), __webpack_require__(37).setImmediate))
 
 /***/ }),
-/* 177 */
+/* 178 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(178);
+var content = __webpack_require__(179);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -92041,7 +92198,7 @@ var transform;
 var options = {"hmr":true}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(6)(content, options);
+var update = __webpack_require__(5)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -92058,10 +92215,10 @@ if(false) {
 }
 
 /***/ }),
-/* 178 */
+/* 179 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(5)(false);
+exports = module.exports = __webpack_require__(4)(false);
 // imports
 
 
@@ -92072,13 +92229,13 @@ exports.push([module.i, "#vimeo iframe{\n\tposition: absolute;\n  height: 100%;\
 
 
 /***/ }),
-/* 179 */
+/* 180 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(180);
+var content = __webpack_require__(181);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -92086,7 +92243,7 @@ var transform;
 var options = {"hmr":true}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(6)(content, options);
+var update = __webpack_require__(5)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -92103,10 +92260,10 @@ if(false) {
 }
 
 /***/ }),
-/* 180 */
+/* 181 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(5)(false);
+exports = module.exports = __webpack_require__(4)(false);
 // imports
 
 
@@ -92117,13 +92274,13 @@ exports.push([module.i, "/* Reset CSS\n * --------------------------------------
 
 
 /***/ }),
-/* 181 */
+/* 182 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(182);
+var content = __webpack_require__(183);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -92131,7 +92288,7 @@ var transform;
 var options = {"hmr":true}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(6)(content, options);
+var update = __webpack_require__(5)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -92148,34 +92305,34 @@ if(false) {
 }
 
 /***/ }),
-/* 182 */
+/* 183 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var escape = __webpack_require__(66);
-exports = module.exports = __webpack_require__(5)(false);
+exports = module.exports = __webpack_require__(4)(false);
 // imports
 
 
 // module
-exports.push([module.i, "/* Custom CSS\n* --------------------------------------- */\n\nbody {\n  font-family: Roboto-Thin, helvetica;\n  color: #fff;\n  background-color: rgba(0, 0, 0, 1);\n}\n\nh1 {\n  font-size: 2.2em;\n  letter-spacing: 15px;\n  padding: 20px 0px;\n}\n\n/* fullpage: */\n\n.info {\n  margin-left: 250px;\n  /*padding-left: 55%;*/\n}\n\n.project h1 {\n  width: 350px;\n  font-size: 1.15em;\n  letter-spacing: 10px;\n  padding: 10px 0px;\n  padding-top: 150px;\n}\n\n.project p {\n  width: 350px;\n  font-size: 0.95em;\n  padding: 10px 0px;\n}\n\n.contact h1 {\n  font-family: Renogare, helvetica;\n  width: 350px;\n  font-size: 1.7em;\n  letter-spacing: 5px;\n}\n\n.contact p {\n  width: 350px;\n  font-size: 1.3em;\n  padding: 20px 0px;\n  letter-spacing: 5px;\n}\n\n.contact .field {\n  width: 400px;\n  font-size: 1.3em;\n  padding: 10px 0px;\n  letter-spacing: 5px;\n}\n\n/*\nAqui comienza para el menu\n*/\n\n.title {\n  font-family: Renogare, helvetica;\n  font-size: 1.3em;\n  display: block;\n}\n\n.title-logo {\n  width: 68%;\n}\n\n#menu {\n  font-family: Roboto-Light, helvetica;\n  position: absolute;\n  top: 25px;\n  left: 40px;\n  z-index: 10;\n}\n\n#menu li {\n  letter-spacing: 3px;\n  color: #fff;\n}\n\n#menu li.active {\n  color: #ddd;\n}\n\n#menu li a {\n  font-size: 0.85em;\n  display: block;\n  width: 150px;\n  text-decoration: none;\n  color: #777;\n  padding: 6px 10px;\n}\n\n#menu li a:hover {\n  color: #aaa;\n}\n\n#menu li.active a {\n  color: #fff;\n}\n\n#menu li.active a:hover {\n  color: #fff;\n}\n\n#help {\n  bottom: 10px;\n  position: absolute;\n  width: 100%;\n}\n\n#scroll_img {\n  display: table;\n  margin: auto;\n  background-image: url(" + escape(__webpack_require__(183)) + ");\n  z-index: 7;\n  bottom: 10px;\n  width: 80px;\n  height: 80px;\n  background-repeat: no-repeat;\n  background-size: contain;\n}\n", ""]);
+exports.push([module.i, "/* Custom CSS\n* --------------------------------------- */\n\nbody {\n  font-family: Roboto-Thin, helvetica;\n  color: #fff;\n  background-color: rgba(0, 0, 0, 1);\n}\n\nh1 {\n  font-size: 2.2em;\n  letter-spacing: 15px;\n  padding: 20px 0px;\n}\n\n/* fullpage: */\n\n.info {\n  margin-left: 250px;\n  /*padding-left: 55%;*/\n}\n\n.project h1 {\n  width: 350px;\n  font-size: 1.15em;\n  letter-spacing: 10px;\n  padding: 10px 0px;\n  padding-top: 150px;\n}\n\n.project p {\n  width: 350px;\n  font-size: 0.95em;\n  padding: 10px 0px;\n}\n\n.contact h1 {\n  font-family: Renogare, helvetica;\n  width: 350px;\n  font-size: 1.7em;\n  letter-spacing: 5px;\n}\n\n.contact p {\n  width: 350px;\n  font-size: 1.3em;\n  padding: 20px 0px;\n  letter-spacing: 5px;\n}\n\n.contact .field {\n  width: 400px;\n  font-size: 1.3em;\n  padding: 10px 0px;\n  letter-spacing: 5px;\n}\n\n/*\nAqui comienza para el menu\n*/\n#menu {\n  font-family: Roboto-Light, helvetica;\n  position: absolute;\n  top: 25px;\n  left: 40px;\n  z-index: 10;\n}\n#menu-head{\n  margin-bottom: 20px;\n}\n#menu-logo {\n  width: 70%;\n}\n#title {\n  padding-left: 9px;\n  font-family: Renogare, helvetica;\n  font-size: 1.3em;\n  display: block;\n}\n\n#menu li {\n  letter-spacing: 3px;\n  color: #fff;\n}\n\n#menu li.active {\n  color: #ddd;\n}\n\n#menu li a {\n  font-size: 0.85em;\n  display: block;\n  width: 150px;\n  text-decoration: none;\n  color: #777;\n  padding: 6px 10px;\n}\n\n#menu li a:hover {\n  color: #aaa;\n}\n\n#menu li.active a {\n  color: #fff;\n}\n\n#menu li.active a:hover {\n  color: #fff;\n}\n\n#help {\n  bottom: 10px;\n  position: absolute;\n  width: 100%;\n}\n\n#scroll_img {\n  display: table;\n  margin: auto;\n  background-image: url(" + escape(__webpack_require__(184)) + ");\n  z-index: 7;\n  bottom: 10px;\n  width: 80px;\n  height: 80px;\n  background-repeat: no-repeat;\n  background-size: contain;\n}\n", ""]);
 
 // exports
 
 
 /***/ }),
-/* 183 */
+/* 184 */
 /***/ (function(module, exports) {
 
 module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4QUaERIoti1LYgAABvtJREFUeNrtnVuIVlUUx9d2UsfRUUcdxUzS7AZikg8+FUgXkSB0tEFInbygkxAaltFFiKLHeqqXIrpRUGQXRVOr8Za+dDEowqIGzFIw1KzxNo3OrwfX8Vsev2++c77b3NaCw7nuvQ7//16Xvc85+wTpBQJICMHuDxORYSIyTkRGishgPdUuIn+LyDERORNCOJ2rDpciyDDbM4BHgX3kl6+AtcDt2epyKY6U24CdwNEswP8G7NKlNcv5I0ALMM2RLNIygACsB87HAH4qAhgYYBc9Ng14JkbgeWCd1ukAp3VRwCjgdQPoz8DTudxZrmPABuAXU89rQJ27sHSkjAL2GBBftCAmAdJep/W9ZOrbFdXnkh/EEcB2A958A2wxFidAo6n3M2C4W0l+4FYZ0FaUyrWUu/6+SsYtBqx1eiyUUE/Q9Xqj52YnJTchPypIXwA15QBJXddQTaMBvndCspPRCHQAp4DZ+UDKFdzzBX2j7z7gX9XZ4KRcDVTUYr9LUaYaaNYOYavGh+oU5Q+ozhZn4EpgbjB9hQ1JrEPX72Tpmb+RovxzWuYgMMmZyAB0F3CaFD4DmNrFONatKepBXdesnoDFgB7CyTgRGSoiv6YoM7nAc3E5JCK1eg9OiBrFKN39OkXRgwWei0ukc4QTckmqRORa3f4zKYkhhFYReT7L6WdDCIdSeL/Dup4AVHU3GNf0AEKCuisRkTOJCmQeNL0gIgdEZJXuvyoi22LX5JNI5zC9l35PiBQChFpJh4hs0iV+ruz30JeDenoGuwC8Nz+q7bWE9FVxQpwQFyfECXFxQpwQFyfECXFxQpwQFyfExQlxQlycECfExQlxQlycECfExQlxcUKcEBcnxAlx6XuEICLndLu6G/QP0fVZvZd+T0iniJzQ7fpu0B/pPK730r8JCSEgIr/r7kyRynx8aXTM1PVRvRePISLyj4j8JyLTlaRKNIRoc6pk5tnyGKJyWESOastdWm4rMR99NuuhI5L5cMcFGAzs1Q8wv6mg3m9V525goFuIXP64pl1ENuuh64HpFdA7Q0Qm6e6nIYQOnzjgapAOa4t9HxhSxqk1aoAPVdchRz43WA+Yb83vLGPsmGX0zHXkuwZrkwFrsmnVxVpFtD3F1L+xUml2ryUFqDOzAh0H7i5h/bOBE1r3D6rLgU9gJTcCJxW408CiLB26NJ0/AZqAM1rnSWCKW0c6UqYAfxn38iZwXZqP+4EqYGJskppj1hW6pCNlMLANuGgAfRm4B7gJqM1StlbP3Qu8YspdBLYCg3oyGaEnkxJCELWIO0TkLdNvaBeRP+TSgGCbDruIiAySSxPJjBGRiZKZgrxVRJaLyP4QwkWfdrxIS9Htgdrqt5Fctqk1DSwkBrmFJLAYs79EROaIyATJTBFyQS5NYLM9hPBurrIuZbKaUl7rUiZynIQKtvj+dC/dDUQVMKbSoJj0ekxPmLysJw2XzAN+AhbosVABvdEs142q+363EAUGeELT1A7gkXJbirGMNaoT4LFKNITeQsp4/UUROt40t1ykGDIazNjWXmC8M3ElQHXm31LnzPTf5ZiMf775a89eYIQH9eykjNanhdEob3OpgDI6VkeTNgPvAaOdjK4DfJ154eEC8GAJ61+kdUYvNvjzkITAjTYxpQ1oLLQVx/6+EFnGHv/lUXoAxwKfK4BnC4kpJmY0aB3o75Tq3U0VRspw4BMFsh1YkxRIU8daLQvwETDcySiOnLGx7CtvSmzImKdloj9/1juipbGUkcB+Q0rOHr1xUwsMGfs8tS09KfXm5bY28w5wyELGMr0G4AOPGeUjZYT+FDJ6Rr7UpMtiyIiewbe4ZZSfnHrTT2mL3JdxU20mtR3jiBXY+gtwX7tNTJmjSxQzdhYynO9WlAGiDliYpJ8RC/QblYBTukQxI5GbMjFnITDSmZDLw+9PRv2ENK1VLWW/ectkX5LUNvY2S9TPedyH3zMBucGMMe0CalL0NUbpC3BbolaesFyNcXsXgLnusjIgDQCWm5a+RX8amTSm1EZvMSYpo9+ebDX6lgL+zX4W92FJ2R5PaROUz0dEtL3D6HnIg3rXrb0J6DQDgdXFgmXqHmLI6AQWOxHJgFttSNkSxZQi664xbqoTeNjJSAdgk3Eru5KkxHlS292mvsWOcGGWYmPKxylT4myp7eWY4ZZRHCkdZjgkTUpcY4ZZOioxKUF/6TiuNC18swKdL6MaqtdGssI7fqVNiZcZcL/M1tJjqW2Lub7JU9vypcSRbI0+xIkRMSjW6VviRJQ/JY6ed+ywKbG6sh1mOKTZyahsStyprqlKlxbTf1niSFXWUlYYt/R27NNnz6YqnXnpeqkZJY5S26ZCO5EuJbAWoNkQstKtovtdlwAzgZl9IbX9HyEB553WaiXyAAAAAElFTkSuQmCC"
 
 /***/ }),
-/* 184 */
+/* 185 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(185);
+var content = __webpack_require__(186);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -92183,7 +92340,7 @@ var transform;
 var options = {"hmr":true}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(6)(content, options);
+var update = __webpack_require__(5)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -92200,53 +92357,98 @@ if(false) {
 }
 
 /***/ }),
-/* 185 */
+/* 186 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var escape = __webpack_require__(66);
-exports = module.exports = __webpack_require__(5)(false);
+exports = module.exports = __webpack_require__(4)(false);
 // imports
 
 
 // module
-exports.push([module.i, "@CHARSET \"ISO-8859-1\";\n@font-face {\n  font-family: Renogare;\n  src: url(" + escape(__webpack_require__(186)) + ") format(\"truetype\");\n  font-weight: bold;\n}\n\n@font-face {\n  font-family: Roboto-Light;\n  src: url(" + escape(__webpack_require__(187)) + ") format(\"truetype\");\n  font-weight: bold;\n}\n\n@font-face {\n  font-family: Roboto-Thin;\n  src: url(" + escape(__webpack_require__(188)) + ") format(\"truetype\");\n  font-weight: bold;\n}\n", ""]);
+exports.push([module.i, "@CHARSET \"ISO-8859-1\";\n@font-face {\n  font-family: Renogare;\n  src: url(" + escape(__webpack_require__(187)) + ") format(\"truetype\");\n  font-weight: bold;\n}\n\n@font-face {\n  font-family: Roboto-Light;\n  src: url(" + escape(__webpack_require__(188)) + ") format(\"truetype\");\n  font-weight: bold;\n}\n\n@font-face {\n  font-family: Roboto-Thin;\n  src: url(" + escape(__webpack_require__(189)) + ") format(\"truetype\");\n  font-weight: bold;\n}\n", ""]);
 
 // exports
 
 
 /***/ }),
-/* 186 */
+/* 187 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "fonts/Renogare.ttf";
 
 /***/ }),
-/* 187 */
+/* 188 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "fonts/Roboto-Light.ttf";
 
 /***/ }),
-/* 188 */
+/* 189 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "fonts/Roboto-Thin.ttf";
 
 /***/ }),
-/* 189 */
+/* 190 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(191);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// Prepare cssTransformation
+var transform;
+
+var options = {"hmr":true}
+options.transform = transform
+// add the styles to the DOM
+var update = __webpack_require__(5)(content, options);
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!../../node_modules/css-loader/index.js!../../node_modules/sass-loader/lib/loader.js??ref--0-2!./glitch.scss", function() {
+			var newContent = require("!!../../node_modules/css-loader/index.js!../../node_modules/sass-loader/lib/loader.js??ref--0-2!./glitch.scss");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 191 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(4)(false);
+// imports
+
+
+// module
+exports.push([module.i, "@keyframes glitch {\n  0% {\n    clip: rect(3px, 200px, 22px, 0px); }\n  1.25% {\n    clip: rect(2px, 200px, 27px, 0px); }\n  2.5% {\n    clip: rect(3px, 200px, 18px, 0px); }\n  3.75% {\n    clip: rect(2px, 200px, 16px, 0px); }\n  5% {\n    clip: rect(5px, 200px, 11px, 0px); }\n  6.25% {\n    clip: rect(2px, 200px, 20px, 0px); }\n  7.5% {\n    clip: rect(5px, 200px, 3px, 0px); }\n  8.75% {\n    clip: rect(3px, 200px, 27px, 0px); }\n  10% {\n    clip: rect(1px, 200px, 11px, 0px); }\n  11.25% {\n    clip: rect(5px, 200px, 10px, 0px); }\n  12.5% {\n    clip: rect(5px, 200px, 20px, 0px); }\n  13.75% {\n    clip: rect(5px, 200px, 14px, 0px); }\n  15% {\n    clip: rect(5px, 200px, 19px, 0px); }\n  16.25% {\n    clip: rect(4px, 200px, 18px, 0px); }\n  17.5% {\n    clip: rect(1px, 200px, 22px, 0px); }\n  18.75% {\n    clip: rect(1px, 200px, 6px, 0px); }\n  20% {\n    clip: rect(2px, 200px, 16px, 0px); }\n  21.25% {\n    clip: rect(3px, 200px, 21px, 0px); }\n  22.5% {\n    clip: rect(2px, 200px, 23px, 0px); }\n  23.75% {\n    clip: rect(1px, 200px, 5px, 0px); }\n  25% {\n    clip: rect(4px, 200px, 2px, 0px); }\n  26.25% {\n    clip: rect(4px, 200px, 14px, 0px); }\n  27.5% {\n    clip: rect(2px, 200px, 20px, 0px); }\n  28.75% {\n    clip: rect(1px, 200px, 19px, 0px); }\n  30% {\n    clip: rect(1px, 200px, 12px, 0px); }\n  31.25% {\n    clip: rect(1px, 200px, 16px, 0px); }\n  32.5% {\n    clip: rect(5px, 200px, 4px, 0px); }\n  33.75% {\n    clip: rect(3px, 200px, 13px, 0px); }\n  35% {\n    clip: rect(5px, 200px, 19px, 0px); }\n  36.25% {\n    clip: rect(4px, 200px, 27px, 0px); }\n  37.5% {\n    clip: rect(2px, 200px, 4px, 0px); }\n  38.75% {\n    clip: rect(2px, 200px, 30px, 0px); }\n  40% {\n    clip: rect(1px, 200px, 30px, 0px); }\n  41.25% {\n    clip: rect(2px, 200px, 15px, 0px); }\n  42.5% {\n    clip: rect(3px, 200px, 24px, 0px); }\n  43.75% {\n    clip: rect(2px, 200px, 11px, 0px); }\n  45% {\n    clip: rect(1px, 200px, 18px, 0px); }\n  46.25% {\n    clip: rect(3px, 200px, 6px, 0px); }\n  47.5% {\n    clip: rect(1px, 200px, 22px, 0px); }\n  48.75% {\n    clip: rect(3px, 200px, 27px, 0px); }\n  50% {\n    clip: rect(1px, 200px, 4px, 0px); }\n  51.25% {\n    clip: rect(5px, 200px, 11px, 0px); }\n  52.5% {\n    clip: rect(2px, 200px, 21px, 0px); }\n  53.75% {\n    clip: rect(1px, 200px, 11px, 0px); }\n  55% {\n    clip: rect(1px, 200px, 1px, 0px); }\n  56.25% {\n    clip: rect(1px, 200px, 9px, 0px); }\n  57.5% {\n    clip: rect(4px, 200px, 3px, 0px); }\n  58.75% {\n    clip: rect(2px, 200px, 30px, 0px); }\n  60% {\n    clip: rect(4px, 200px, 4px, 0px); }\n  61.25% {\n    clip: rect(5px, 200px, 22px, 0px); }\n  62.5% {\n    clip: rect(4px, 200px, 3px, 0px); }\n  63.75% {\n    clip: rect(1px, 200px, 12px, 0px); }\n  65% {\n    clip: rect(4px, 200px, 22px, 0px); }\n  66.25% {\n    clip: rect(5px, 200px, 29px, 0px); }\n  67.5% {\n    clip: rect(3px, 200px, 23px, 0px); }\n  68.75% {\n    clip: rect(2px, 200px, 8px, 0px); }\n  70% {\n    clip: rect(3px, 200px, 23px, 0px); }\n  71.25% {\n    clip: rect(4px, 200px, 25px, 0px); }\n  72.5% {\n    clip: rect(1px, 200px, 13px, 0px); }\n  73.75% {\n    clip: rect(2px, 200px, 2px, 0px); }\n  75% {\n    clip: rect(5px, 200px, 25px, 0px); }\n  76.25% {\n    clip: rect(4px, 200px, 18px, 0px); }\n  77.5% {\n    clip: rect(5px, 200px, 7px, 0px); }\n  78.75% {\n    clip: rect(1px, 200px, 18px, 0px); }\n  80% {\n    clip: rect(3px, 200px, 13px, 0px); }\n  81.25% {\n    clip: rect(3px, 200px, 12px, 0px); }\n  82.5% {\n    clip: rect(5px, 200px, 21px, 0px); }\n  83.75% {\n    clip: rect(4px, 200px, 25px, 0px); }\n  85% {\n    clip: rect(3px, 200px, 28px, 0px); }\n  86.25% {\n    clip: rect(4px, 200px, 15px, 0px); }\n  87.5% {\n    clip: rect(5px, 200px, 5px, 0px); }\n  88.75% {\n    clip: rect(5px, 200px, 29px, 0px); }\n  90% {\n    clip: rect(3px, 200px, 11px, 0px); }\n  91.25% {\n    clip: rect(1px, 200px, 25px, 0px); }\n  92.5% {\n    clip: rect(5px, 200px, 1px, 0px); }\n  93.75% {\n    clip: rect(3px, 200px, 9px, 0px); }\n  95% {\n    clip: rect(2px, 200px, 18px, 0px); }\n  96.25% {\n    clip: rect(2px, 200px, 27px, 0px); }\n  97.5% {\n    clip: rect(4px, 200px, 10px, 0px); }\n  98.75% {\n    clip: rect(1px, 200px, 24px, 0px); }\n  100% {\n    clip: rect(5px, 200px, 25px, 0px); } }\n\n.glitch {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  background-color: transparent;\n  position: absolute;\n  clip: rect(0, 180px, 0, 0);\n  animation: glitch 3s infinite alternate-reverse; }\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 192 */
 /***/ (function(module, exports) {
 
 function import$(t,e){var i={}.hasOwnProperty;for(var r in e)i.call(e,r)&&(t[r]=e[r]);return t}var slice$=[].slice;!function(){var t,e,i,r;return t={head:function(t){return'<?xml version="1.0" encoding="utf-8"?><svg xmlns="http://www.w3.org/2000/svg" viewBox="'+t+'">'},wrap:function(t){return"data:image/svg+xml;base64,"+btoa(t)},gradient:function(t,e){var i,r,a,l,n,h,s,d,o,u;for(null==t&&(t=45),null==e&&(e=1),i=slice$.call(arguments,2),r=[this.head("0 0 100 100")],a=4*i.length+1,t=t*Math.PI/180,l=Math.pow(Math.cos(t),2),n=Math.sqrt(l-Math.pow(l,2)),t>.25*Math.PI&&(n=Math.pow(Math.sin(t),2),l=Math.sqrt(n-Math.pow(n,2))),h=100*l,s=100*n,r.push('<defs><linearGradient id="gradient" x1="0" x2="'+l+'" y1="0" y2="'+n+'">'),d=0;a>d;++d)o=d,u=100*o/(a-1),r.push('<stop offset="'+u+'%" stop-color="'+i[o%i.length]+'"/>');return r.push(['</linearGradient></defs>\n<rect x="0" y="0" width="400" height="400" fill="url(#gradient)">\n<animateTransform attributeName="transform" type="translate" from="-'+h+",-"+s+'"\nto="0,0" dur="'+e+'s" repeatCount="indefinite"/></rect></svg>'].join("")),this.wrap(r.join(""))},stripe:function(t,e,i){var r,a;return null==t&&(t="#b4b4b4"),null==e&&(e="#e6e6e6"),null==i&&(i=1),r=[this.head("0 0 100 100")],r=r.concat(['<rect fill="'+e+'" width="100" height="100"/>',"<g><g>",function(){var e,i=[];for(e=0;13>e;++e)a=e,i.push('<polygon fill="'+t+'" '+('points="'+(-90+20*a)+",100 "+(-100+20*a)+",")+("100 "+(-60+20*a)+",0 "+(-50+20*a)+',0 "/>'));return i}().join(""),'</g><animateTransform attributeName="transform" type="translate" ','from="0,0" to="20,0" dur="'+i+'s" repeatCount="indefinite"/></g></svg>'].join("")),this.wrap(r)},bubble:function(t,e,i,r,a,l){var n,h,s,d,o,u,f;for(null==t&&(t="#39d"),null==e&&(e="#9cf"),null==i&&(i=15),null==r&&(r=1),null==a&&(a=6),null==l&&(l=1),n=[this.head("0 0 200 200"),'<rect x="0" y="0" width="200" height="200" fill="'+t+'"/>'],h=0;i>h;++h)s=h,d=-(s/i)*r,o=184*Math.random()+8,u=(.7*Math.random()+.3)*a,f=r*(1+.5*Math.random()),n.push(['<circle cx="'+o+'" cy="0" r="'+u+'" fill="none" stroke="'+e+'" stroke-width="'+l+'">','<animate attributeName="cy" values="190;-10" times="0;1" ','dur="'+f+'s" begin="'+d+'s" repeatCount="indefinite"/>',"</circle>",'<circle cx="'+o+'" cy="0" r="'+u+'" fill="none" stroke="'+e+'" stroke-width="'+l+'">','<animate attributeName="cy" values="390;190" times="0;1" ','dur="'+f+'s" begin="'+d+'s" repeatCount="indefinite"/>',"</circle>"].join(""));return this.wrap(n.join("")+"</svg>")}},e={queue:{},running:!1,main:function(t){var e,i,r,a,l,n,h=this;e=!1,i=[];for(r in a=this.queue)l=a[r],n=l(t),n||i.push(l),e=e||n;for(r in a=this.queue)l=a[r],i.indexOf(l)>=0&&delete this.queue[r];return e?requestAnimationFrame(function(t){return h.main(t)}):this.running=!1},add:function(t,e){var i=this;return this.queue[t]||(this.queue[t]=e),this.running?void 0:(this.running=!0,requestAnimationFrame(function(t){return i.main(t)}))}},i={rainbow:{type:"stroke",path:"M10 10L90 10",stroke:"data:ldbar/res,gradient(0,1,#a551df,#fd51ad,#ff7f82,#ffb874,#ffeb90)"},energy:{type:"fill",path:"M15 5L85 5A5 5 0 0 1 85 15L15 15A5 5 0 0 1 15 5",stroke:"#f00",fill:"data:ldbar/res,gradient(45,2,#4e9,#8fb,#4e9)","fill-dir":"ltr","fill-background":"#444","fill-background-extrude":1},stripe:{type:"fill",path:"M15 5L85 5A5 5 0 0 1 85 15L15 15A5 5 0 0 1 15 5",stroke:"#f00",fill:"data:ldbar/res,stripe(#25b,#58e,1)","fill-dir":"ltr","fill-background":"#ddd","fill-background-extrude":1},text:{type:"fill",img:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="70" height="20" viewBox="0 0 70 20"><text x="35" y="10" text-anchor="middle" dominant-baseline="central" font-family="arial">LOADING</text></svg>',"fill-background-extrude":1.3,"pattern-size":100,"fill-dir":"ltr","img-size":"70,20"},line:{type:"stroke",path:"M10 10L90 10",stroke:"#25b","stroke-width":3,"stroke-trail":"#ddd","stroke-trail-width":1},fan:{type:"stroke",path:"M10 90A40 40 0 0 1 90 90","fill-dir":"btt",fill:"#25b","fill-background":"#ddd","fill-background-extrude":3,"stroke-dir":"normal",stroke:"#25b","stroke-width":"3","stroke-trail":"#ddd","stroke-trail-width":.5},circle:{type:"stroke",path:"M50 10A40 40 0 0 1 50 90A40 40 0 0 1 50 10","fill-dir":"btt",fill:"#25b","fill-background":"#ddd","fill-background-extrude":3,"stroke-dir":"normal",stroke:"#25b","stroke-width":"3","stroke-trail":"#ddd","stroke-trail-width":.5},bubble:{type:"fill",path:"M50 10A40 40 0 0 1 50 90A40 40 0 0 1 50 10","fill-dir":"btt",fill:"data:ldbar/res,bubble(#39d,#cef)","pattern-size":"150","fill-background":"#ddd","fill-background-extrude":2,"stroke-dir":"normal",stroke:"#25b","stroke-width":"3","stroke-trail":"#ddd","stroke-trail-width":.5}},window.ldBar=r=function(r,a){var l,n,h,s,d,o,u,f,c,g,p,w,m,k,b,x,y,v,M,A,q,C,S,B,L=this;return null==a&&(a={}),l={xlink:"http://www.w3.org/1999/xlink"},n="string"==typeof r?document.querySelector(r):r,(h=n.ldBar)?h:(s=n.getAttribute("class"),s.indexOf("ldBar")||n.setAttribute("class",s+" ldBar"),d="ldBar-"+Math.random().toString(16).substring(2),d={key:d,clip:d+"-clip",filter:d+"-filter",pattern:d+"-pattern",mask:d+"-mask",maskPath:d+"-mask-path"},o=function(t,e){var i,r;t=u(t);for(i in e)r=e[i],"attr"!==i&&t.appendChild(o(i,r||{}));return t.attrs(e.attr||{}),t},u=function(t){return document.createElementNS("http://www.w3.org/2000/svg",t)},f=document.body.__proto__.__proto__.__proto__,f.text=function(t){return this.appendChild(document.createTextNode(t))},f.attrs=function(t){var e,i,r,a=[];for(e in t)i=t[e],r=/([^:]+):([^:]+)/.exec(e),a.push(r&&l[r[1]]?this.setAttributeNS(l[r[1]],e,i):this.setAttribute(e,i));return a},f.styles=function(t){var e,i,r=[];for(e in t)i=t[e],r.push(this.style[e]=i);return r},f.append=function(t){var e;return this.appendChild(e=document.createElementNS("http://www.w3.og/2000/svg",t))},f.attr=function(t,e){return null!=e?this.setAttribute(t,e):this.getAttribute(t)},c={type:"stroke",img:"",path:"M10 10L90 10","fill-dir":"btt",fill:"#25b","fill-background":"#ddd","fill-background-extrude":3,"pattern-size":null,"stroke-dir":"normal",stroke:"#25b","stroke-width":"3","stroke-trail":"#ddd","stroke-trail-width":.5,duration:1,easing:"linear",value:0,"img-size":null},c.preset=n.attr("data-preset")||a.preset,null!=c.preset&&import$(c,i[c.preset]),function(){var t,e=[];for(g in t=c)p=t[g],e.push({k:g,v:p});return e}().map(function(t){return[t.k,n.attr("data-"+t.k)]}).filter(function(t){return t[1]}).map(function(t){return c[t[0]]=t[1]}),c.img&&(c.path=null),import$(c,a),w="stroke"===c.type,m=function(e){var i,r;return i=/data:ldbar\/res,([^()]+)\(([^)]+)\)/,r=i.exec(e),r?r=t[r[1]].apply(t,r[2].split(",")):e},c.fill=m(c.fill),c.stroke=m(c.stroke),k={attr:{"xmlns:xlink":"http://www.w3.org/1999/xlink",preserveAspectRatio:"xMidYMid",width:"100%",height:"100%"},defs:{filter:{attr:{id:d.filter,x:-1,y:-1,width:3,height:3},feMorphology:{attr:{operator:+c["fill-background-extrude"]>=0?"dilate":"erode",radius:Math.abs(+c["fill-background-extrude"])}},feColorMatrix:{attr:{values:"0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0",result:"cm"}}},mask:{attr:{id:d.mask},image:{attr:{"xlink:href":c.img,filter:"url(#"+d.filter+")",x:0,y:0,width:100,height:100,preserveAspectRatio:"xMidYMid"}}},g:{mask:{attr:{id:d.maskPath},path:{attr:{d:c.path||"",fill:"#fff",stroke:"#fff",filter:"url(#"+d.filter+")"}}}},clipPath:{attr:{id:d.clip},rect:{attr:{"class":"mask",fill:"#000"}}},pattern:{attr:{id:d.pattern,patternUnits:"userSpaceOnUse",x:0,y:0,width:300,height:300},image:{attr:{x:0,y:0,width:300,height:300}}}}},b=o("svg",k),x=document.createElement("div"),x.setAttribute("class","ldBar-label"),n.appendChild(b),n.appendChild(x),y=[0,0],v=0,this.fit=function(){var t,e,i;return t=y[1].getBBox(),e=1.5*Math.max.apply(null,["stroke-width","stroke-trail-width","fill-background-extrude"].map(function(t){return c[t]})),b.attrs({viewBox:[t.x-e,t.y-e,t.width+2*e,t.height+2*e].join(" ")}),n.style.width||n.styles({width:t.width+2*e+"px"}),n.style.height||n.styles({height:t.height+2*e+"px"}),i=y[0].querySelector("rect"),i?i.attrs({x:t.x-e,y:t.y-e,width:t.width+2*e,height:t.height+2*e}):void 0},c.path?(y[0]=w?o("g",{path:{attr:{d:c.path,fill:"none","class":"baseline"}}}):o("g",{rect:{attr:{x:0,y:0,width:100,height:100,mask:"url(#"+d.maskPath+")",fill:c["fill-background"],"class":"frame"}}}),b.appendChild(y[0]),y[1]=o("g",{path:{attr:{d:c.path,"class":w?"mainline":"solid","clip-path":"fill"===c.type?"url(#"+d.clip+")":""}}}),b.appendChild(y[1]),M=y[0].querySelector(w?"path":"rect"),A=y[1].querySelector("path"),w&&A.attrs({fill:"none"}),q=b.querySelector("pattern image"),C=new Image,C.addEventListener("load",function(){var t,e;return t=(e=c["pattern-size"])?{width:+e,height:+e}:C.width&&C.height?{width:C.width,height:C.height}:{width:300,height:300},b.querySelector("pattern").attrs({width:t.width,height:t.height}),q.attrs({width:t.width,height:t.height})}),/.+\..+|^data:/.exec(w?c.stroke:c.fill)&&(C.src=w?c.stroke:c.fill,q.attrs({"xlink:href":C.src})),w&&(M.attrs({stroke:c["stroke-trail"],"stroke-width":c["stroke-trail-width"]}),A.attrs({"stroke-width":c["stroke-width"],stroke:/.+\..+|^data:/.exec(c.stroke)?"url(#"+d.pattern+")":c.stroke})),c.fill&&!w&&A.attrs({fill:/.+\..+|^data:/.exec(c.fill)?"url(#"+d.pattern+")":c.fill}),v=A.getTotalLength(),this.fit(),this.inited=!0):c.img&&(c["img-size"]?(S=c["img-size"].split(","),B={width:+S[0],height:+S[1]}):B={width:100,height:100},y[0]=o("g",{rect:{attr:{x:0,y:0,width:100,height:100,mask:"url(#"+d.mask+")",fill:c["fill-background"]}}}),b.querySelector("mask image").attrs({width:B.width,height:B.height}),y[1]=o("g",{image:{attr:{width:B.width,height:B.height,x:0,y:0,preserveAspectRatio:"xMidYMid","clip-path":"fill"===c.type?"url(#"+d.clip+")":"","xlink:href":c.img,"class":"solid"}}}),C=new Image,C.addEventListener("load",function(){var t,e;return c["img-size"]?(t=c["img-size"].split(","),e={width:+t[0],height:+t[1]}):e=C.width&&C.height?{width:C.width,height:C.height}:{width:100,height:100},b.querySelector("mask image").attrs({width:e.width,height:e.height}),y[1].querySelector("image").attrs({width:e.width,height:e.height}),L.fit(),L.set(void 0,!1),L.inited=!0}),C.src=c.img,b.appendChild(y[0]),b.appendChild(y[1])),b.attrs({width:"100%",height:"100%"}),this.transition={value:{src:0,des:0},time:{},ease:function(t,e,i,r){return t/=.5*r,1>t?.5*i*t*t+e:(t-=1,.5*-i*(t*(t-2)-1)+e)},handler:function(t){var e,i,r,a,l,n,h,s,d;return null==this.time.src&&(this.time.src=t),e=[this.value.des-this.value.src,.001*(t-this.time.src),+c.duration||1],i=e[0],r=e[1],a=e[2],x.textContent=l=Math.round(this.ease(r,this.value.src,i,a)),w?(n=A,h={"stroke-dasharray":"reverse"===c["stroke-dir"]?"0 "+v*(100-l)*.01+" "+v*l*.01+" 0":.01*l*v+" "+(.01*(100-l)*v+1)}):(s=y[1].getBBox(),d=c["fill-dir"],h="btt"!==d&&d?"ttb"===d?{y:s.y,height:s.height*l*.01,x:s.x,width:s.width}:"ltr"===d?{y:s.y,height:s.height,x:s.x,width:s.width*l*.01}:"rtl"===d?{y:s.y,height:s.height,x:s.x+s.width*(100-l)*.01,width:s.width*l*.01}:void 0:{y:s.y+s.height*(100-l)*.01,height:s.height*l*.01,x:s.x,width:s.width},n=b.querySelector("rect")),n.attrs(h),r>=a?(delete this.time.src,!1):!0},start:function(t,i,r){var a,l=this;return a=this.value,a.src=t,a.des=i,!!(n.offsetWidth||n.offsetHeight||n.getClientRects().length),r&&(n.offsetWidth||n.offsetHeight||n.getClientRects().length)?e.add(d.key,function(t){return l.handler(t)}):(this.time.src=0,void this.handler(1e3))}},this.set=function(t,e){var i,r;return null==e&&(e=!0),i=this.value||0,null!=t?this.value=t:t=this.value,r=this.value,this.transition.start(i,r,e)},this.set(+c.value||0,!1),this)},window.addEventListener("load",function(){return Array.from(document.querySelectorAll(".ldBar")).forEach(function(t){return t.ldBar=new r(t)})},!1)}();
 
 /***/ }),
-/* 190 */
+/* 193 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_animate_css__ = __webpack_require__(191);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_animate_css__ = __webpack_require__(194);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_animate_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_animate_css__);
 
 
@@ -92318,13 +92520,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 /***/ }),
-/* 191 */
+/* 194 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(192);
+var content = __webpack_require__(195);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -92332,7 +92534,7 @@ var transform;
 var options = {"hmr":true}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(6)(content, options);
+var update = __webpack_require__(5)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -92349,10 +92551,10 @@ if(false) {
 }
 
 /***/ }),
-/* 192 */
+/* 195 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(5)(false);
+exports = module.exports = __webpack_require__(4)(false);
 // imports
 
 
