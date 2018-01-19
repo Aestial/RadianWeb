@@ -18,7 +18,7 @@ export default class PixiController {
     this.renderer.view.className = properties.className;
     this.container.appendChild(this.renderer.view);
     // SMOKE
-    this.smoke = PIXI.Sprite.fromImage("textures/pixi/pixi.png");
+    this.smoke = PIXI.Sprite.fromImage("assets/textures/pixi/pixi.png");
     this.smokeShader = new PixiShader(this.smoke, {
       uniforms: require('../Data/uniforms.js').smoke,
       width: window.innerWidth,
@@ -26,7 +26,7 @@ export default class PixiController {
     });
     this.stage.addChild(this.smoke);
     // TEAM
-    this.team = PIXI.Sprite.fromImage("textures/pixi/siluetas.png");
+    this.team = PIXI.Sprite.fromImage("assets/textures/pixi/siluetas.png");
     this.team.anchor.set(0.5, 0.9);
     var textureRatio = 1920 / 441;
     var newWidth = this.renderer.width < 1280 ? 1280 : this.renderer.width;

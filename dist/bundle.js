@@ -84,11 +84,11 @@ var core = module.exports = Object.assign(__webpack_require__(1), __webpack_requ
     ticker: __webpack_require__(101),
 
     // display
-    DisplayObject:          __webpack_require__(38),
+    DisplayObject:          __webpack_require__(39),
     Container:              __webpack_require__(16),
 
     // sprites
-    Sprite:                 __webpack_require__(42),
+    Sprite:                 __webpack_require__(43),
     ParticleContainer:      __webpack_require__(105),
     SpriteRenderer:         __webpack_require__(106),
     ParticleRenderer:       __webpack_require__(110),
@@ -98,15 +98,15 @@ var core = module.exports = Object.assign(__webpack_require__(1), __webpack_requ
 
     // primitives
     Graphics:               __webpack_require__(114),
-    GraphicsData:           __webpack_require__(50),
+    GraphicsData:           __webpack_require__(51),
     GraphicsRenderer:       __webpack_require__(115),
 
     // textures
     Texture:                __webpack_require__(12),
     BaseTexture:            __webpack_require__(14),
     RenderTexture:          __webpack_require__(26),
-    VideoBaseTexture:       __webpack_require__(39),
-    TextureUvs:             __webpack_require__(40),
+    VideoBaseTexture:       __webpack_require__(40),
+    TextureUvs:             __webpack_require__(41),
 
     // renderers - canvas
     CanvasRenderer:         __webpack_require__(118),
@@ -116,18 +116,18 @@ var core = module.exports = Object.assign(__webpack_require__(1), __webpack_requ
     // renderers - webgl
     WebGLRenderer:          __webpack_require__(17),
     WebGLManager:           __webpack_require__(8),
-    ShaderManager:          __webpack_require__(45),
+    ShaderManager:          __webpack_require__(46),
     Shader:                 __webpack_require__(19),
     TextureShader:          __webpack_require__(18),
-    PrimitiveShader:        __webpack_require__(47),
-    ComplexPrimitiveShader: __webpack_require__(46),
+    PrimitiveShader:        __webpack_require__(48),
+    ComplexPrimitiveShader: __webpack_require__(47),
     ObjectRenderer:         __webpack_require__(13),
     RenderTarget:           __webpack_require__(15),
 
     // filters - webgl
     AbstractFilter:         __webpack_require__(28),
-    FXAAFilter:             __webpack_require__(49),
-    SpriteMaskFilter:       __webpack_require__(48),
+    FXAAFilter:             __webpack_require__(50),
+    SpriteMaskFilter:       __webpack_require__(49),
 
     /**
      * This helper function will automatically detect which renderer you should be using.
@@ -411,7 +411,7 @@ var utils = module.exports = {
 
     EventEmitter:   __webpack_require__(10),
     pluginTarget:   __webpack_require__(99),
-    async:          __webpack_require__(36),
+    async:          __webpack_require__(37),
 
     /**
      * Gets the next unique identifier
@@ -1147,8 +1147,8 @@ module.exports = {
     // internal module requires.
 
     Point:      __webpack_require__(23),
-    Matrix:     __webpack_require__(34),
-    GroupD8:    __webpack_require__(35),
+    Matrix:     __webpack_require__(35),
+    GroupD8:    __webpack_require__(36),
 
     Circle:     __webpack_require__(95),
     Ellipse:    __webpack_require__(96),
@@ -57772,8 +57772,8 @@ module.exports = g;
 /***/ (function(module, exports, __webpack_require__) {
 
 var BaseTexture = __webpack_require__(14),
-    VideoBaseTexture = __webpack_require__(39),
-    TextureUvs = __webpack_require__(40),
+    VideoBaseTexture = __webpack_require__(40),
+    TextureUvs = __webpack_require__(41),
     EventEmitter = __webpack_require__(10),
     math = __webpack_require__(6),
     utils = __webpack_require__(3);
@@ -59057,7 +59057,7 @@ RenderTarget.prototype.destroy = function ()
 
 var math = __webpack_require__(6),
     utils = __webpack_require__(3),
-    DisplayObject = __webpack_require__(38),
+    DisplayObject = __webpack_require__(39),
     RenderTexture = __webpack_require__(26),
     _tempMatrix = new math.Matrix();
 
@@ -59703,15 +59703,15 @@ Container.prototype.destroy = function (destroyChildren)
 /* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var SystemRenderer = __webpack_require__(44),
-    ShaderManager = __webpack_require__(45),
+var SystemRenderer = __webpack_require__(45),
+    ShaderManager = __webpack_require__(46),
     MaskManager = __webpack_require__(107),
     StencilManager = __webpack_require__(108),
-    FilterManager = __webpack_require__(41),
+    FilterManager = __webpack_require__(42),
     BlendModeManager = __webpack_require__(109),
     RenderTarget = __webpack_require__(15),
     ObjectRenderer = __webpack_require__(13),
-    FXAAFilter = __webpack_require__(49),
+    FXAAFilter = __webpack_require__(50),
     utils = __webpack_require__(3),
     CONST = __webpack_require__(1);
 
@@ -61093,7 +61093,7 @@ module.exports.middleware = {
     }
 };
 
-module.exports.async = __webpack_require__(58);
+module.exports.async = __webpack_require__(59);
 
 
 /***/ }),
@@ -61947,7 +61947,7 @@ process.umask = function() { return 0; };
 var BaseTexture = __webpack_require__(14),
     Texture = __webpack_require__(12),
     RenderTarget = __webpack_require__(15),
-    FilterManager = __webpack_require__(41),
+    FilterManager = __webpack_require__(42),
     CanvasBuffer = __webpack_require__(27),
     math = __webpack_require__(6),
     CONST = __webpack_require__(1),
@@ -63124,8 +63124,8 @@ Object.defineProperties(BlurYFilter.prototype, {
 "use strict";
 
 
-var EventEmitter    = __webpack_require__(59);
-var parseUri        = __webpack_require__(57);
+var EventEmitter    = __webpack_require__(60);
+var parseUri        = __webpack_require__(58);
 
 // tests is CORS is supported in XHR, if not we need to use XDR
 var useXdr = !!(window.XDomainRequest && !('withCredentials' in (new XMLHttpRequest())));
@@ -64040,6 +64040,237 @@ function setExtMap(map, extname, val) {
 /* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
+/* WEBPACK VAR INJECTION */(function(process) {// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+// resolves . and .. elements in a path array with directory names there
+// must be no slashes, empty elements, or device names (c:\) in the array
+// (so also no leading and trailing slashes - it does not distinguish
+// relative and absolute paths)
+function normalizeArray(parts, allowAboveRoot) {
+  // if the path tries to go above the root, `up` ends up > 0
+  var up = 0;
+  for (var i = parts.length - 1; i >= 0; i--) {
+    var last = parts[i];
+    if (last === '.') {
+      parts.splice(i, 1);
+    } else if (last === '..') {
+      parts.splice(i, 1);
+      up++;
+    } else if (up) {
+      parts.splice(i, 1);
+      up--;
+    }
+  }
+
+  // if the path is allowed to go above the root, restore leading ..s
+  if (allowAboveRoot) {
+    for (; up--; up) {
+      parts.unshift('..');
+    }
+  }
+
+  return parts;
+}
+
+// Split a filename into [root, dir, basename, ext], unix version
+// 'root' is just a slash, or nothing.
+var splitPathRe =
+    /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
+var splitPath = function(filename) {
+  return splitPathRe.exec(filename).slice(1);
+};
+
+// path.resolve([from ...], to)
+// posix version
+exports.resolve = function() {
+  var resolvedPath = '',
+      resolvedAbsolute = false;
+
+  for (var i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
+    var path = (i >= 0) ? arguments[i] : process.cwd();
+
+    // Skip empty and invalid entries
+    if (typeof path !== 'string') {
+      throw new TypeError('Arguments to path.resolve must be strings');
+    } else if (!path) {
+      continue;
+    }
+
+    resolvedPath = path + '/' + resolvedPath;
+    resolvedAbsolute = path.charAt(0) === '/';
+  }
+
+  // At this point the path should be resolved to a full absolute path, but
+  // handle relative paths to be safe (might happen when process.cwd() fails)
+
+  // Normalize the path
+  resolvedPath = normalizeArray(filter(resolvedPath.split('/'), function(p) {
+    return !!p;
+  }), !resolvedAbsolute).join('/');
+
+  return ((resolvedAbsolute ? '/' : '') + resolvedPath) || '.';
+};
+
+// path.normalize(path)
+// posix version
+exports.normalize = function(path) {
+  var isAbsolute = exports.isAbsolute(path),
+      trailingSlash = substr(path, -1) === '/';
+
+  // Normalize the path
+  path = normalizeArray(filter(path.split('/'), function(p) {
+    return !!p;
+  }), !isAbsolute).join('/');
+
+  if (!path && !isAbsolute) {
+    path = '.';
+  }
+  if (path && trailingSlash) {
+    path += '/';
+  }
+
+  return (isAbsolute ? '/' : '') + path;
+};
+
+// posix version
+exports.isAbsolute = function(path) {
+  return path.charAt(0) === '/';
+};
+
+// posix version
+exports.join = function() {
+  var paths = Array.prototype.slice.call(arguments, 0);
+  return exports.normalize(filter(paths, function(p, index) {
+    if (typeof p !== 'string') {
+      throw new TypeError('Arguments to path.join must be strings');
+    }
+    return p;
+  }).join('/'));
+};
+
+
+// path.relative(from, to)
+// posix version
+exports.relative = function(from, to) {
+  from = exports.resolve(from).substr(1);
+  to = exports.resolve(to).substr(1);
+
+  function trim(arr) {
+    var start = 0;
+    for (; start < arr.length; start++) {
+      if (arr[start] !== '') break;
+    }
+
+    var end = arr.length - 1;
+    for (; end >= 0; end--) {
+      if (arr[end] !== '') break;
+    }
+
+    if (start > end) return [];
+    return arr.slice(start, end - start + 1);
+  }
+
+  var fromParts = trim(from.split('/'));
+  var toParts = trim(to.split('/'));
+
+  var length = Math.min(fromParts.length, toParts.length);
+  var samePartsLength = length;
+  for (var i = 0; i < length; i++) {
+    if (fromParts[i] !== toParts[i]) {
+      samePartsLength = i;
+      break;
+    }
+  }
+
+  var outputParts = [];
+  for (var i = samePartsLength; i < fromParts.length; i++) {
+    outputParts.push('..');
+  }
+
+  outputParts = outputParts.concat(toParts.slice(samePartsLength));
+
+  return outputParts.join('/');
+};
+
+exports.sep = '/';
+exports.delimiter = ':';
+
+exports.dirname = function(path) {
+  var result = splitPath(path),
+      root = result[0],
+      dir = result[1];
+
+  if (!root && !dir) {
+    // No dirname whatsoever
+    return '.';
+  }
+
+  if (dir) {
+    // It has a dirname, strip trailing slash
+    dir = dir.substr(0, dir.length - 1);
+  }
+
+  return root + dir;
+};
+
+
+exports.basename = function(path, ext) {
+  var f = splitPath(path)[2];
+  // TODO: make this comparison case-insensitive on windows?
+  if (ext && f.substr(-1 * ext.length) === ext) {
+    f = f.substr(0, f.length - ext.length);
+  }
+  return f;
+};
+
+
+exports.extname = function(path) {
+  return splitPath(path)[3];
+};
+
+function filter (xs, f) {
+    if (xs.filter) return xs.filter(f);
+    var res = [];
+    for (var i = 0; i < xs.length; i++) {
+        if (f(xs[i], i, xs)) res.push(xs[i]);
+    }
+    return res;
+}
+
+// String.prototype.substr - negative index don't work in IE8
+var substr = 'ab'.substr(-1) === 'b'
+    ? function (str, start, len) { return str.substr(start, len) }
+    : function (str, start, len) {
+        if (start < 0) start = str.length + start;
+        return str.substr(start, len);
+    }
+;
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(25)))
+
+/***/ }),
+/* 34 */
+/***/ (function(module, exports, __webpack_require__) {
+
 /* WEBPACK VAR INJECTION */(function(global) {// run the polyfills
 __webpack_require__(90);
 
@@ -64047,7 +64278,7 @@ var core = module.exports = __webpack_require__(0);
 
 // add core plugins.
 core.extras         = __webpack_require__(30);
-core.filters        = __webpack_require__(51);
+core.filters        = __webpack_require__(52);
 core.interaction    = __webpack_require__(148);
 core.loaders        = __webpack_require__(150);
 core.mesh           = __webpack_require__(64);
@@ -64072,7 +64303,7 @@ global.PIXI = core;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11)))
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // @todo - ignore the too many parameters warning for now
@@ -64516,7 +64747,7 @@ Matrix.TEMP_MATRIX = new Matrix();
 
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // Your friendly neighbour https://en.wikipedia.org/wiki/Dihedral_group of order 16
@@ -64526,7 +64757,7 @@ var uy = [0, 1, 1, 1, 0, -1, -1, -1, 0, 1, 1, 1, 0, -1, -1, -1];
 var vx = [0, -1, -1, -1, 0, 1, 1, 1, 0, 1, 1, 1, 0, -1, -1, -1];
 var vy = [1, 1, 0, -1, -1, -1, 0, 1, -1, -1, 0, 1, 1, 1, 0, -1];
 var tempMatrices = [];
-var Matrix = __webpack_require__(34);
+var Matrix = __webpack_require__(35);
 
 var mul = [];
 
@@ -64684,7 +64915,7 @@ module.exports = GroupD8;
 
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, setImmediate, process) {var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -65954,10 +66185,10 @@ module.exports = GroupD8;
 
 }());
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11), __webpack_require__(37).setImmediate, __webpack_require__(25)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11), __webpack_require__(38).setImmediate, __webpack_require__(25)))
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var apply = Function.prototype.apply;
@@ -66016,7 +66247,7 @@ exports.clearImmediate = clearImmediate;
 
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var math = __webpack_require__(6),
@@ -66586,7 +66817,7 @@ DisplayObject.prototype.destroy = function ()
 
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var BaseTexture = __webpack_require__(14),
@@ -66827,7 +67058,7 @@ function createSource(path, type)
 
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
@@ -66855,7 +67086,7 @@ function TextureUvs()
 
 module.exports = TextureUvs;
 
-var GroupD8 = __webpack_require__(35);
+var GroupD8 = __webpack_require__(36);
 
 /**
  * Sets the texture Uvs based on the given frame information
@@ -66910,7 +67141,7 @@ TextureUvs.prototype.set = function (frame, baseFrame, rotate)
 
 
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var WebGLManager = __webpack_require__(8),
@@ -67366,13 +67597,13 @@ FilterManager.prototype.destroy = function ()
 
 
 /***/ }),
-/* 42 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var math = __webpack_require__(6),
     Texture = __webpack_require__(12),
     Container = __webpack_require__(16),
-    CanvasTinter = __webpack_require__(43),
+    CanvasTinter = __webpack_require__(44),
     utils = __webpack_require__(3),
     CONST = __webpack_require__(1),
     tempPoint = new math.Point(),
@@ -67938,7 +68169,7 @@ Sprite.fromImage = function (imageId, crossorigin, scaleMode)
 
 
 /***/ }),
-/* 43 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var utils = __webpack_require__(3);
@@ -68194,7 +68425,7 @@ CanvasTinter.tintMethod = CanvasTinter.canUseMultiply ? CanvasTinter.tintWithMul
 
 
 /***/ }),
-/* 44 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var utils = __webpack_require__(3),
@@ -68459,13 +68690,13 @@ SystemRenderer.prototype.destroy = function (removeView) {
 
 
 /***/ }),
-/* 45 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var WebGLManager = __webpack_require__(8),
     TextureShader = __webpack_require__(18),
-    ComplexPrimitiveShader = __webpack_require__(46),
-    PrimitiveShader = __webpack_require__(47),
+    ComplexPrimitiveShader = __webpack_require__(47),
+    PrimitiveShader = __webpack_require__(48),
     utils = __webpack_require__(3);
 
 /**
@@ -68632,7 +68863,7 @@ ShaderManager.prototype.destroy = function ()
 
 
 /***/ }),
-/* 46 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Shader = __webpack_require__(19);
@@ -68698,7 +68929,7 @@ module.exports = ComplexPrimitiveShader;
 
 
 /***/ }),
-/* 47 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Shader = __webpack_require__(19);
@@ -68765,7 +68996,7 @@ module.exports = PrimitiveShader;
 
 
 /***/ }),
-/* 48 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(__dirname) {var AbstractFilter = __webpack_require__(28),
@@ -68867,7 +69098,7 @@ Object.defineProperties(SpriteMaskFilter.prototype, {
 /* WEBPACK VAR INJECTION */}.call(exports, "/"))
 
 /***/ }),
-/* 49 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(__dirname) {var AbstractFilter = __webpack_require__(28);
@@ -68927,7 +69158,7 @@ FXAAFilter.prototype.applyFilter = function (renderer, input, output)
 /* WEBPACK VAR INJECTION */}.call(exports, "/"))
 
 /***/ }),
-/* 50 */
+/* 51 */
 /***/ (function(module, exports) {
 
 /**
@@ -69024,7 +69255,7 @@ GraphicsData.prototype.destroy = function () {
 
 
 /***/ }),
-/* 51 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -69060,17 +69291,17 @@ module.exports = {
     SepiaFilter:        __webpack_require__(144),
     SmartBlurFilter:    __webpack_require__(145),
     TiltShiftFilter:    __webpack_require__(146),
-    TiltShiftXFilter:   __webpack_require__(52),
-    TiltShiftYFilter:   __webpack_require__(54),
+    TiltShiftXFilter:   __webpack_require__(53),
+    TiltShiftYFilter:   __webpack_require__(55),
     TwistFilter:        __webpack_require__(147)
 };
 
 
 /***/ }),
-/* 52 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var TiltShiftAxisFilter = __webpack_require__(53);
+var TiltShiftAxisFilter = __webpack_require__(54);
 
 /**
  * @author Vico @vicocotea
@@ -69109,7 +69340,7 @@ TiltShiftXFilter.prototype.updateDelta = function ()
 
 
 /***/ }),
-/* 53 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(__dirname) {var core = __webpack_require__(0);
@@ -69239,10 +69470,10 @@ Object.defineProperties(TiltShiftAxisFilter.prototype, {
 /* WEBPACK VAR INJECTION */}.call(exports, "/"))
 
 /***/ }),
-/* 54 */
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var TiltShiftAxisFilter = __webpack_require__(53);
+var TiltShiftAxisFilter = __webpack_require__(54);
 
 /**
  * @author Vico @vicocotea
@@ -69281,7 +69512,7 @@ TiltShiftYFilter.prototype.updateDelta = function ()
 
 
 /***/ }),
-/* 55 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var core = __webpack_require__(0);
@@ -69334,7 +69565,7 @@ InteractionData.prototype.getLocalPosition = function (displayObject, point, glo
 
 
 /***/ }),
-/* 56 */
+/* 57 */
 /***/ (function(module, exports) {
 
 /**
@@ -69387,7 +69618,7 @@ module.exports = interactiveTarget;
 
 
 /***/ }),
-/* 57 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -69424,7 +69655,7 @@ module.exports = function parseURI (str, opts) {
 
 
 /***/ }),
-/* 58 */
+/* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -69630,7 +69861,7 @@ function asyncQueue(worker, concurrency) {
 
 
 /***/ }),
-/* 59 */
+/* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -69948,7 +70179,7 @@ if (true) {
 
 
 /***/ }),
-/* 60 */
+/* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var core = __webpack_require__(0);
@@ -69974,13 +70205,13 @@ module.exports = function ()
 
 
 /***/ }),
-/* 61 */
+/* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Resource = __webpack_require__(21).Resource,
-    path = __webpack_require__(62),
+    path = __webpack_require__(33),
     core = __webpack_require__(0),
-    async = __webpack_require__(36);
+    async = __webpack_require__(37);
 
 var BATCH_SIZE = 1000;
 
@@ -70097,244 +70328,13 @@ module.exports = function ()
 
 
 /***/ }),
-/* 62 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(process) {// Copyright Joyent, Inc. and other Node contributors.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to permit
-// persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-// resolves . and .. elements in a path array with directory names there
-// must be no slashes, empty elements, or device names (c:\) in the array
-// (so also no leading and trailing slashes - it does not distinguish
-// relative and absolute paths)
-function normalizeArray(parts, allowAboveRoot) {
-  // if the path tries to go above the root, `up` ends up > 0
-  var up = 0;
-  for (var i = parts.length - 1; i >= 0; i--) {
-    var last = parts[i];
-    if (last === '.') {
-      parts.splice(i, 1);
-    } else if (last === '..') {
-      parts.splice(i, 1);
-      up++;
-    } else if (up) {
-      parts.splice(i, 1);
-      up--;
-    }
-  }
-
-  // if the path is allowed to go above the root, restore leading ..s
-  if (allowAboveRoot) {
-    for (; up--; up) {
-      parts.unshift('..');
-    }
-  }
-
-  return parts;
-}
-
-// Split a filename into [root, dir, basename, ext], unix version
-// 'root' is just a slash, or nothing.
-var splitPathRe =
-    /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
-var splitPath = function(filename) {
-  return splitPathRe.exec(filename).slice(1);
-};
-
-// path.resolve([from ...], to)
-// posix version
-exports.resolve = function() {
-  var resolvedPath = '',
-      resolvedAbsolute = false;
-
-  for (var i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
-    var path = (i >= 0) ? arguments[i] : process.cwd();
-
-    // Skip empty and invalid entries
-    if (typeof path !== 'string') {
-      throw new TypeError('Arguments to path.resolve must be strings');
-    } else if (!path) {
-      continue;
-    }
-
-    resolvedPath = path + '/' + resolvedPath;
-    resolvedAbsolute = path.charAt(0) === '/';
-  }
-
-  // At this point the path should be resolved to a full absolute path, but
-  // handle relative paths to be safe (might happen when process.cwd() fails)
-
-  // Normalize the path
-  resolvedPath = normalizeArray(filter(resolvedPath.split('/'), function(p) {
-    return !!p;
-  }), !resolvedAbsolute).join('/');
-
-  return ((resolvedAbsolute ? '/' : '') + resolvedPath) || '.';
-};
-
-// path.normalize(path)
-// posix version
-exports.normalize = function(path) {
-  var isAbsolute = exports.isAbsolute(path),
-      trailingSlash = substr(path, -1) === '/';
-
-  // Normalize the path
-  path = normalizeArray(filter(path.split('/'), function(p) {
-    return !!p;
-  }), !isAbsolute).join('/');
-
-  if (!path && !isAbsolute) {
-    path = '.';
-  }
-  if (path && trailingSlash) {
-    path += '/';
-  }
-
-  return (isAbsolute ? '/' : '') + path;
-};
-
-// posix version
-exports.isAbsolute = function(path) {
-  return path.charAt(0) === '/';
-};
-
-// posix version
-exports.join = function() {
-  var paths = Array.prototype.slice.call(arguments, 0);
-  return exports.normalize(filter(paths, function(p, index) {
-    if (typeof p !== 'string') {
-      throw new TypeError('Arguments to path.join must be strings');
-    }
-    return p;
-  }).join('/'));
-};
-
-
-// path.relative(from, to)
-// posix version
-exports.relative = function(from, to) {
-  from = exports.resolve(from).substr(1);
-  to = exports.resolve(to).substr(1);
-
-  function trim(arr) {
-    var start = 0;
-    for (; start < arr.length; start++) {
-      if (arr[start] !== '') break;
-    }
-
-    var end = arr.length - 1;
-    for (; end >= 0; end--) {
-      if (arr[end] !== '') break;
-    }
-
-    if (start > end) return [];
-    return arr.slice(start, end - start + 1);
-  }
-
-  var fromParts = trim(from.split('/'));
-  var toParts = trim(to.split('/'));
-
-  var length = Math.min(fromParts.length, toParts.length);
-  var samePartsLength = length;
-  for (var i = 0; i < length; i++) {
-    if (fromParts[i] !== toParts[i]) {
-      samePartsLength = i;
-      break;
-    }
-  }
-
-  var outputParts = [];
-  for (var i = samePartsLength; i < fromParts.length; i++) {
-    outputParts.push('..');
-  }
-
-  outputParts = outputParts.concat(toParts.slice(samePartsLength));
-
-  return outputParts.join('/');
-};
-
-exports.sep = '/';
-exports.delimiter = ':';
-
-exports.dirname = function(path) {
-  var result = splitPath(path),
-      root = result[0],
-      dir = result[1];
-
-  if (!root && !dir) {
-    // No dirname whatsoever
-    return '.';
-  }
-
-  if (dir) {
-    // It has a dirname, strip trailing slash
-    dir = dir.substr(0, dir.length - 1);
-  }
-
-  return root + dir;
-};
-
-
-exports.basename = function(path, ext) {
-  var f = splitPath(path)[2];
-  // TODO: make this comparison case-insensitive on windows?
-  if (ext && f.substr(-1 * ext.length) === ext) {
-    f = f.substr(0, f.length - ext.length);
-  }
-  return f;
-};
-
-
-exports.extname = function(path) {
-  return splitPath(path)[3];
-};
-
-function filter (xs, f) {
-    if (xs.filter) return xs.filter(f);
-    var res = [];
-    for (var i = 0; i < xs.length; i++) {
-        if (f(xs[i], i, xs)) res.push(xs[i]);
-    }
-    return res;
-}
-
-// String.prototype.substr - negative index don't work in IE8
-var substr = 'ab'.substr(-1) === 'b'
-    ? function (str, start, len) { return str.substr(start, len) }
-    : function (str, start, len) {
-        if (start < 0) start = str.length + start;
-        return str.substr(start, len);
-    }
-;
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(25)))
-
-/***/ }),
 /* 63 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Resource = __webpack_require__(21).Resource,
     core = __webpack_require__(0),
     extras = __webpack_require__(30),
-    path = __webpack_require__(62);
+    path = __webpack_require__(33);
 
 
 function parse(resource, texture) {
@@ -74885,7 +74885,7 @@ exports.push([module.i, ".ldBar{position:relative}.ldBar.label-center>.ldBar-lab
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_pixi_js__ = __webpack_require__(33);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_pixi_js__ = __webpack_require__(34);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_pixi_js___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_pixi_js__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Models_PixiShader_js__ = __webpack_require__(163);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__css_pixi_css__ = __webpack_require__(164);
@@ -74910,7 +74910,7 @@ class PixiController {
     this.renderer.view.className = properties.className;
     this.container.appendChild(this.renderer.view);
     // SMOKE
-    this.smoke = __WEBPACK_IMPORTED_MODULE_0_pixi_js___default.a.Sprite.fromImage("textures/pixi/pixi.png");
+    this.smoke = __WEBPACK_IMPORTED_MODULE_0_pixi_js___default.a.Sprite.fromImage("assets/textures/pixi/pixi.png");
     this.smokeShader = new __WEBPACK_IMPORTED_MODULE_1__Models_PixiShader_js__["a" /* default */](this.smoke, {
       uniforms: __webpack_require__(166).smoke,
       width: window.innerWidth,
@@ -74918,7 +74918,7 @@ class PixiController {
     });
     this.stage.addChild(this.smoke);
     // TEAM
-    this.team = __WEBPACK_IMPORTED_MODULE_0_pixi_js___default.a.Sprite.fromImage("textures/pixi/siluetas.png");
+    this.team = __WEBPACK_IMPORTED_MODULE_0_pixi_js___default.a.Sprite.fromImage("assets/textures/pixi/siluetas.png");
     this.team.anchor.set(0.5, 0.9);
     var textureRatio = 1920 / 441;
     var newWidth = this.renderer.width < 1280 ? 1280 : this.renderer.width;
@@ -77242,7 +77242,7 @@ SpriteRenderer.prototype.destroy = function ()
 /***/ (function(module, exports, __webpack_require__) {
 
 var WebGLManager = __webpack_require__(8),
-    AlphaMaskFilter = __webpack_require__(48);
+    AlphaMaskFilter = __webpack_require__(49);
 
 /**
  * @class
@@ -78544,7 +78544,7 @@ ParticleBuffer.prototype.destroy = function ()
 /* 113 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Sprite = __webpack_require__(42),
+var Sprite = __webpack_require__(43),
     Texture = __webpack_require__(12),
     math = __webpack_require__(6),
     utils = __webpack_require__(3),
@@ -79249,7 +79249,7 @@ var Container = __webpack_require__(16),
     Texture = __webpack_require__(12),
     CanvasBuffer = __webpack_require__(27),
     CanvasGraphics = __webpack_require__(29),
-    GraphicsData = __webpack_require__(50),
+    GraphicsData = __webpack_require__(51),
     math = __webpack_require__(6),
     CONST = __webpack_require__(1),
     tempPoint = new math.Point();
@@ -82122,7 +82122,7 @@ earcut.flatten = function (data) {
 /* 118 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var SystemRenderer = __webpack_require__(44),
+var SystemRenderer = __webpack_require__(45),
     CanvasMaskManager = __webpack_require__(119),
     utils = __webpack_require__(3),
     math = __webpack_require__(6),
@@ -83131,7 +83131,7 @@ MovieClip.fromImages = function (images)
 var core = __webpack_require__(0),
     // a sprite use dfor rendering textures..
     tempPoint = new core.Point(),
-    CanvasTinter = __webpack_require__(43);
+    CanvasTinter = __webpack_require__(44);
 
 /**
  * A tiling sprite is a fast way of rendering a tiling image
@@ -86085,8 +86085,8 @@ module.exports = SmartBlurFilter;
 /***/ (function(module, exports, __webpack_require__) {
 
 var core = __webpack_require__(0),
-    TiltShiftXFilter = __webpack_require__(52),
-    TiltShiftYFilter = __webpack_require__(54);
+    TiltShiftXFilter = __webpack_require__(53),
+    TiltShiftYFilter = __webpack_require__(55);
 
 /**
  * @author Vico @vicocotea
@@ -86299,9 +86299,9 @@ Object.defineProperties(TwistFilter.prototype, {
  * @namespace PIXI.interaction
  */
 module.exports = {
-    InteractionData:    __webpack_require__(55),
+    InteractionData:    __webpack_require__(56),
     InteractionManager: __webpack_require__(149),
-    interactiveTarget:  __webpack_require__(56)
+    interactiveTarget:  __webpack_require__(57)
 };
 
 
@@ -86310,12 +86310,12 @@ module.exports = {
 /***/ (function(module, exports, __webpack_require__) {
 
 var core = __webpack_require__(0),
-    InteractionData = __webpack_require__(55);
+    InteractionData = __webpack_require__(56);
 
 // Mix interactiveTarget into core.DisplayObject.prototype
 Object.assign(
     core.DisplayObject.prototype,
-    __webpack_require__(56)
+    __webpack_require__(57)
 );
 
 /**
@@ -87234,8 +87234,8 @@ module.exports = {
 
     // parsers
     bitmapFontParser:   __webpack_require__(63),
-    spritesheetParser:  __webpack_require__(61),
-    textureParser:      __webpack_require__(60),
+    spritesheetParser:  __webpack_require__(62),
+    textureParser:      __webpack_require__(61),
     Resource:           __webpack_require__(21).Resource
 };
 
@@ -87245,8 +87245,8 @@ module.exports = {
 /***/ (function(module, exports, __webpack_require__) {
 
 var ResourceLoader = __webpack_require__(21),
-    textureParser = __webpack_require__(60),
-    spritesheetParser = __webpack_require__(61),
+    textureParser = __webpack_require__(61),
+    spritesheetParser = __webpack_require__(62),
     bitmapFontParser = __webpack_require__(63);
 
 /**
@@ -87313,10 +87313,10 @@ Resource.setExtensionXhrType('fnt', Resource.XHR_RESPONSE_TYPE.DOCUMENT);
 "use strict";
 
 
-var parseUri        = __webpack_require__(57);
-var async           = __webpack_require__(58);
+var parseUri        = __webpack_require__(58);
+var async           = __webpack_require__(59);
 var Resource        = __webpack_require__(32);
-var EventEmitter    = __webpack_require__(59);
+var EventEmitter    = __webpack_require__(60);
 
 // some constants
 var DEFAULT_CONCURRENCY = 10;
@@ -89070,7 +89070,7 @@ core.CanvasRenderer.registerPlugin('accessibility', AccessibilityManager);
 var core = __webpack_require__(0),
     mesh = __webpack_require__(64),
     extras = __webpack_require__(30),
-    filters = __webpack_require__(51);
+    filters = __webpack_require__(52);
 
 /**
  * @class
@@ -89422,7 +89422,7 @@ core.utils.uuid = function ()
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_pixi_js__ = __webpack_require__(33);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_pixi_js__ = __webpack_require__(34);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_pixi_js___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_pixi_js__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Libraries_ShaderLoader_js__ = __webpack_require__(66);
 
@@ -89735,6 +89735,7 @@ class ThreeController {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__BotObject_js__ = __webpack_require__(172);
 
 
+var path = __webpack_require__(33);
 
 class Scene {
   constructor() {
@@ -89743,7 +89744,11 @@ class Scene {
     this.camera = new __WEBPACK_IMPORTED_MODULE_0_three__["p" /* PerspectiveCamera */](45, window.innerWidth / window.innerHeight, 1, 10000);
     this.light = new __WEBPACK_IMPORTED_MODULE_0_three__["r" /* PointLight */](0xfffafa, 1, 0, 2);
     this.hemiLight = new __WEBPACK_IMPORTED_MODULE_0_three__["f" /* HemisphereLight */](0x404040, 0x1f1f1f);
-    this.bot = new __WEBPACK_IMPORTED_MODULE_1__BotObject_js__["a" /* default */]('/obj/bot.json', '/textures/cube/nice/', '/textures/arcade.png');
+    this.bot = new __WEBPACK_IMPORTED_MODULE_1__BotObject_js__["a" /* default */](
+      'assets/meshes/bot.json',
+      'assets/textures/cube/nice/',
+      'assets/textures/arcade.png'
+    );
     this.config();
     this.attach();
   }
@@ -89790,6 +89795,7 @@ class BotObject {
     if (this.parent != null) this.parent.add(this.object);
     // Loader
     this.path = path;
+    console.log(this.path);
     this.loader = new __WEBPACK_IMPORTED_MODULE_0_three__["n" /* ObjectLoader */](loader.manager);
     this.loader.load(this.path, this.onLoaded.bind(this));
     // Textures
@@ -92228,7 +92234,7 @@ return Player;
 })));
 
 //# sourceMappingURL=player.js.map
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11), __webpack_require__(37).setImmediate))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11), __webpack_require__(38).setImmediate))
 
 /***/ }),
 /* 179 */
@@ -92476,7 +92482,7 @@ exports = module.exports = __webpack_require__(4)(false);
 
 
 // module
-exports.push([module.i, "@keyframes glitch {\n  0% {\n    clip: rect(4px, 200px, 23px, 0px); }\n  1.25% {\n    clip: rect(4px, 200px, 17px, 0px); }\n  2.5% {\n    clip: rect(4px, 200px, 28px, 0px); }\n  3.75% {\n    clip: rect(3px, 200px, 23px, 0px); }\n  5% {\n    clip: rect(2px, 200px, 12px, 0px); }\n  6.25% {\n    clip: rect(3px, 200px, 14px, 0px); }\n  7.5% {\n    clip: rect(4px, 200px, 22px, 0px); }\n  8.75% {\n    clip: rect(1px, 200px, 12px, 0px); }\n  10% {\n    clip: rect(1px, 200px, 28px, 0px); }\n  11.25% {\n    clip: rect(3px, 200px, 15px, 0px); }\n  12.5% {\n    clip: rect(4px, 200px, 23px, 0px); }\n  13.75% {\n    clip: rect(3px, 200px, 15px, 0px); }\n  15% {\n    clip: rect(2px, 200px, 25px, 0px); }\n  16.25% {\n    clip: rect(3px, 200px, 12px, 0px); }\n  17.5% {\n    clip: rect(1px, 200px, 27px, 0px); }\n  18.75% {\n    clip: rect(1px, 200px, 27px, 0px); }\n  20% {\n    clip: rect(5px, 200px, 6px, 0px); }\n  21.25% {\n    clip: rect(3px, 200px, 18px, 0px); }\n  22.5% {\n    clip: rect(1px, 200px, 7px, 0px); }\n  23.75% {\n    clip: rect(5px, 200px, 13px, 0px); }\n  25% {\n    clip: rect(3px, 200px, 12px, 0px); }\n  26.25% {\n    clip: rect(4px, 200px, 9px, 0px); }\n  27.5% {\n    clip: rect(4px, 200px, 16px, 0px); }\n  28.75% {\n    clip: rect(3px, 200px, 21px, 0px); }\n  30% {\n    clip: rect(3px, 200px, 20px, 0px); }\n  31.25% {\n    clip: rect(3px, 200px, 28px, 0px); }\n  32.5% {\n    clip: rect(2px, 200px, 14px, 0px); }\n  33.75% {\n    clip: rect(4px, 200px, 16px, 0px); }\n  35% {\n    clip: rect(2px, 200px, 22px, 0px); }\n  36.25% {\n    clip: rect(5px, 200px, 8px, 0px); }\n  37.5% {\n    clip: rect(1px, 200px, 16px, 0px); }\n  38.75% {\n    clip: rect(2px, 200px, 2px, 0px); }\n  40% {\n    clip: rect(4px, 200px, 27px, 0px); }\n  41.25% {\n    clip: rect(3px, 200px, 5px, 0px); }\n  42.5% {\n    clip: rect(4px, 200px, 15px, 0px); }\n  43.75% {\n    clip: rect(4px, 200px, 30px, 0px); }\n  45% {\n    clip: rect(2px, 200px, 15px, 0px); }\n  46.25% {\n    clip: rect(5px, 200px, 5px, 0px); }\n  47.5% {\n    clip: rect(5px, 200px, 25px, 0px); }\n  48.75% {\n    clip: rect(3px, 200px, 20px, 0px); }\n  50% {\n    clip: rect(3px, 200px, 25px, 0px); }\n  51.25% {\n    clip: rect(2px, 200px, 21px, 0px); }\n  52.5% {\n    clip: rect(5px, 200px, 10px, 0px); }\n  53.75% {\n    clip: rect(2px, 200px, 19px, 0px); }\n  55% {\n    clip: rect(1px, 200px, 17px, 0px); }\n  56.25% {\n    clip: rect(2px, 200px, 2px, 0px); }\n  57.5% {\n    clip: rect(5px, 200px, 17px, 0px); }\n  58.75% {\n    clip: rect(4px, 200px, 16px, 0px); }\n  60% {\n    clip: rect(5px, 200px, 29px, 0px); }\n  61.25% {\n    clip: rect(2px, 200px, 3px, 0px); }\n  62.5% {\n    clip: rect(2px, 200px, 8px, 0px); }\n  63.75% {\n    clip: rect(2px, 200px, 30px, 0px); }\n  65% {\n    clip: rect(5px, 200px, 30px, 0px); }\n  66.25% {\n    clip: rect(3px, 200px, 29px, 0px); }\n  67.5% {\n    clip: rect(3px, 200px, 18px, 0px); }\n  68.75% {\n    clip: rect(5px, 200px, 4px, 0px); }\n  70% {\n    clip: rect(3px, 200px, 2px, 0px); }\n  71.25% {\n    clip: rect(5px, 200px, 24px, 0px); }\n  72.5% {\n    clip: rect(3px, 200px, 9px, 0px); }\n  73.75% {\n    clip: rect(3px, 200px, 5px, 0px); }\n  75% {\n    clip: rect(5px, 200px, 16px, 0px); }\n  76.25% {\n    clip: rect(3px, 200px, 21px, 0px); }\n  77.5% {\n    clip: rect(5px, 200px, 1px, 0px); }\n  78.75% {\n    clip: rect(2px, 200px, 2px, 0px); }\n  80% {\n    clip: rect(5px, 200px, 5px, 0px); }\n  81.25% {\n    clip: rect(1px, 200px, 25px, 0px); }\n  82.5% {\n    clip: rect(2px, 200px, 4px, 0px); }\n  83.75% {\n    clip: rect(1px, 200px, 20px, 0px); }\n  85% {\n    clip: rect(5px, 200px, 18px, 0px); }\n  86.25% {\n    clip: rect(2px, 200px, 23px, 0px); }\n  87.5% {\n    clip: rect(1px, 200px, 7px, 0px); }\n  88.75% {\n    clip: rect(2px, 200px, 25px, 0px); }\n  90% {\n    clip: rect(3px, 200px, 27px, 0px); }\n  91.25% {\n    clip: rect(2px, 200px, 4px, 0px); }\n  92.5% {\n    clip: rect(2px, 200px, 17px, 0px); }\n  93.75% {\n    clip: rect(3px, 200px, 26px, 0px); }\n  95% {\n    clip: rect(4px, 200px, 4px, 0px); }\n  96.25% {\n    clip: rect(1px, 200px, 22px, 0px); }\n  97.5% {\n    clip: rect(2px, 200px, 28px, 0px); }\n  98.75% {\n    clip: rect(3px, 200px, 11px, 0px); }\n  100% {\n    clip: rect(5px, 200px, 14px, 0px); } }\n\n.glitch {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  background-color: transparent;\n  position: absolute;\n  clip: rect(0, 180px, 0, 0);\n  animation: glitch 3s infinite alternate-reverse; }\n", ""]);
+exports.push([module.i, "@keyframes glitch {\n  0% {\n    clip: rect(4px, 200px, 18px, 0px); }\n  1.25% {\n    clip: rect(5px, 200px, 24px, 0px); }\n  2.5% {\n    clip: rect(4px, 200px, 30px, 0px); }\n  3.75% {\n    clip: rect(2px, 200px, 25px, 0px); }\n  5% {\n    clip: rect(3px, 200px, 24px, 0px); }\n  6.25% {\n    clip: rect(5px, 200px, 9px, 0px); }\n  7.5% {\n    clip: rect(1px, 200px, 1px, 0px); }\n  8.75% {\n    clip: rect(2px, 200px, 15px, 0px); }\n  10% {\n    clip: rect(2px, 200px, 6px, 0px); }\n  11.25% {\n    clip: rect(5px, 200px, 10px, 0px); }\n  12.5% {\n    clip: rect(1px, 200px, 30px, 0px); }\n  13.75% {\n    clip: rect(3px, 200px, 13px, 0px); }\n  15% {\n    clip: rect(4px, 200px, 13px, 0px); }\n  16.25% {\n    clip: rect(1px, 200px, 20px, 0px); }\n  17.5% {\n    clip: rect(3px, 200px, 11px, 0px); }\n  18.75% {\n    clip: rect(5px, 200px, 9px, 0px); }\n  20% {\n    clip: rect(5px, 200px, 29px, 0px); }\n  21.25% {\n    clip: rect(1px, 200px, 27px, 0px); }\n  22.5% {\n    clip: rect(5px, 200px, 10px, 0px); }\n  23.75% {\n    clip: rect(5px, 200px, 13px, 0px); }\n  25% {\n    clip: rect(4px, 200px, 8px, 0px); }\n  26.25% {\n    clip: rect(2px, 200px, 17px, 0px); }\n  27.5% {\n    clip: rect(1px, 200px, 22px, 0px); }\n  28.75% {\n    clip: rect(5px, 200px, 19px, 0px); }\n  30% {\n    clip: rect(4px, 200px, 3px, 0px); }\n  31.25% {\n    clip: rect(5px, 200px, 28px, 0px); }\n  32.5% {\n    clip: rect(5px, 200px, 9px, 0px); }\n  33.75% {\n    clip: rect(2px, 200px, 29px, 0px); }\n  35% {\n    clip: rect(4px, 200px, 30px, 0px); }\n  36.25% {\n    clip: rect(4px, 200px, 8px, 0px); }\n  37.5% {\n    clip: rect(2px, 200px, 20px, 0px); }\n  38.75% {\n    clip: rect(5px, 200px, 15px, 0px); }\n  40% {\n    clip: rect(5px, 200px, 3px, 0px); }\n  41.25% {\n    clip: rect(2px, 200px, 21px, 0px); }\n  42.5% {\n    clip: rect(3px, 200px, 29px, 0px); }\n  43.75% {\n    clip: rect(1px, 200px, 24px, 0px); }\n  45% {\n    clip: rect(4px, 200px, 14px, 0px); }\n  46.25% {\n    clip: rect(2px, 200px, 10px, 0px); }\n  47.5% {\n    clip: rect(1px, 200px, 2px, 0px); }\n  48.75% {\n    clip: rect(4px, 200px, 21px, 0px); }\n  50% {\n    clip: rect(5px, 200px, 30px, 0px); }\n  51.25% {\n    clip: rect(5px, 200px, 26px, 0px); }\n  52.5% {\n    clip: rect(3px, 200px, 16px, 0px); }\n  53.75% {\n    clip: rect(1px, 200px, 18px, 0px); }\n  55% {\n    clip: rect(5px, 200px, 2px, 0px); }\n  56.25% {\n    clip: rect(1px, 200px, 4px, 0px); }\n  57.5% {\n    clip: rect(1px, 200px, 24px, 0px); }\n  58.75% {\n    clip: rect(2px, 200px, 2px, 0px); }\n  60% {\n    clip: rect(4px, 200px, 8px, 0px); }\n  61.25% {\n    clip: rect(4px, 200px, 10px, 0px); }\n  62.5% {\n    clip: rect(3px, 200px, 18px, 0px); }\n  63.75% {\n    clip: rect(5px, 200px, 10px, 0px); }\n  65% {\n    clip: rect(1px, 200px, 2px, 0px); }\n  66.25% {\n    clip: rect(4px, 200px, 5px, 0px); }\n  67.5% {\n    clip: rect(2px, 200px, 24px, 0px); }\n  68.75% {\n    clip: rect(4px, 200px, 2px, 0px); }\n  70% {\n    clip: rect(3px, 200px, 1px, 0px); }\n  71.25% {\n    clip: rect(3px, 200px, 23px, 0px); }\n  72.5% {\n    clip: rect(4px, 200px, 27px, 0px); }\n  73.75% {\n    clip: rect(4px, 200px, 4px, 0px); }\n  75% {\n    clip: rect(1px, 200px, 28px, 0px); }\n  76.25% {\n    clip: rect(3px, 200px, 17px, 0px); }\n  77.5% {\n    clip: rect(2px, 200px, 17px, 0px); }\n  78.75% {\n    clip: rect(3px, 200px, 20px, 0px); }\n  80% {\n    clip: rect(3px, 200px, 3px, 0px); }\n  81.25% {\n    clip: rect(2px, 200px, 24px, 0px); }\n  82.5% {\n    clip: rect(1px, 200px, 10px, 0px); }\n  83.75% {\n    clip: rect(5px, 200px, 10px, 0px); }\n  85% {\n    clip: rect(5px, 200px, 20px, 0px); }\n  86.25% {\n    clip: rect(3px, 200px, 9px, 0px); }\n  87.5% {\n    clip: rect(3px, 200px, 9px, 0px); }\n  88.75% {\n    clip: rect(3px, 200px, 27px, 0px); }\n  90% {\n    clip: rect(3px, 200px, 24px, 0px); }\n  91.25% {\n    clip: rect(1px, 200px, 19px, 0px); }\n  92.5% {\n    clip: rect(1px, 200px, 7px, 0px); }\n  93.75% {\n    clip: rect(3px, 200px, 14px, 0px); }\n  95% {\n    clip: rect(1px, 200px, 22px, 0px); }\n  96.25% {\n    clip: rect(5px, 200px, 15px, 0px); }\n  97.5% {\n    clip: rect(1px, 200px, 7px, 0px); }\n  98.75% {\n    clip: rect(5px, 200px, 12px, 0px); }\n  100% {\n    clip: rect(4px, 200px, 9px, 0px); } }\n\n.glitch {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  background-color: transparent;\n  position: absolute;\n  clip: rect(0, 180px, 0, 0);\n  animation: glitch 3s infinite alternate-reverse; }\n", ""]);
 
 // exports
 

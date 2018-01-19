@@ -8,7 +8,11 @@ export default class Scene {
     this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
     this.light = new THREE.PointLight(0xfffafa, 1, 0, 2);
     this.hemiLight = new THREE.HemisphereLight(0x404040, 0x1f1f1f);
-    this.bot = new BotObject('/obj/bot.json', '/textures/cube/nice/', '/textures/arcade.png');
+    this.bot = new BotObject(
+      'assets/meshes/bot.json',
+      'assets/textures/cube/nice/',
+      'assets/textures/arcade.png'
+    );
     this.config();
     this.attach();
   }
