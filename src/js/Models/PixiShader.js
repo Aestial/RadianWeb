@@ -1,5 +1,5 @@
 import PIXI from 'pixi.js';
-import loader from '../Libraries/ShaderLoader.js';
+import ShaderLoader from '../Libraries/ShaderLoader.js';
 
 export default class PixiShader {
   constructor(sprite, properties = {}) {
@@ -9,13 +9,13 @@ export default class PixiShader {
     this.height = properties.height;
     this.counter = 0;
     this.code = null;
-    loader.load(this.onloaded.bind(this));
+    ShaderLoader.load(this.onLoaded.bind(this));
   }
   update(delta) {
     this.counter += delta;
     this.shader.uniforms.time.value = this.counter;
   }
-  onloaded(data) {
+  onLoaded(data) {
     this.code = data.smoke.fragment;
     this.shader = new PIXI.AbstractFilter(null, this.code, this.uniforms);
     this.sprite.filters = [this.shader];

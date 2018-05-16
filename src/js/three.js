@@ -195,7 +195,7 @@ var three = (function() {
           }
         },
         vertexShader: data.ortho.vertex,
-        fragmentShader: data.zoom_blur.fragment,
+        fragmentShader: data.zoomblur.fragment,
         depthWrite: false
       });
       compositeShader = new THREE.ShaderMaterial({
@@ -411,7 +411,6 @@ var three = (function() {
     if (typeof mixer != "undefined") mixer.update(clock.getDelta());
     render();
   }
-
   function render() {
     renderer.render(glowScene, camera, glowTexture, true);
     renderer.render(scene, camera, baseTexture, true);

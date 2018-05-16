@@ -31,17 +31,17 @@ export default class BotObject {
     this.materials = {};
     this.materials.black = new THREE.MeshStandardMaterial({
       color: 0x060606,
-      roughness: 0.1,
-      metalness: 0.8,
+      roughness: 0.05,
+      metalness: 0.55,
       envMap: this.textures.reflexion.cube,
-      envMapIntensity: 1.5
+      envMapIntensity: 1.8
       // transparent: true,
       // opacity: 0.93
     });
     this.materials.white = new THREE.MeshStandardMaterial({
       color: 0xffffff,
-      roughness: 0.18,
-      metalness: 0.8,
+      roughness: 0.28,
+      metalness: 0.7,
       envMap: this.textures.reflexion.cube,
       envMapIntensity: 0.65
     });
@@ -104,7 +104,7 @@ export default class BotObject {
       var newAction = this.mixer.clipAction(this.scene.animations[i]);
       newAction.setLoop(THREE.LoopOnce);
       newAction.clampWhenFinished = true;
-      newAction.timeScale = 1;
+      newAction.timeScale = 1.5;
       newAction.weight = 0;
       this.actions.push(newAction);
     }

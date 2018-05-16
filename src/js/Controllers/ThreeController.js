@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import Scene from '../Models/Scene.js';
 import RenderPlane from '../Models/RenderPlane.js';
+
 import css from '../../css/three.css';
 
 export default class ThreeController {
@@ -12,18 +13,19 @@ export default class ThreeController {
     this.renderer = new THREE.WebGLRenderer({
       antialias: false
     });
+    console.log(this.renderer);
     this.width = window.innerWidth;
     this.height = window.innerHeight;
-    this.renderplane = new RenderPlane(this.width, this.height);
     this.scene = new Scene();
     this.config();
+    this.rp = new RenderPlane(this.renderer, 1.5);
+
   }
   config() {
     // Container
     this.container.appendChild(this.renderer.domElement);
     this.container.className = this.className;
-    var body = document.body;
-    body.insertBefore(this.container, body.firstChild);
+    document.body.insertBefore(this.container, document.body.firstChild);
     // Renderer
     this.renderer.setClearColor(0x000000);
     this.renderer.autoClear = false;
@@ -31,21 +33,23 @@ export default class ThreeController {
     this.renderer.setSize(this.width, this.height);
     this.renderer.gammaInput = true;
     this.renderer.gammaOutput = true;
-    // Events
-    window.addEventListener('resize', this.resize.bind(this), false);
-    setInterval(this.animate.bind(this), 1000 / 30);
-    // setInterval(function() {
-    //   if (!document.webkitHidden)
-    //     requestAnimationFrame(this.animate.bind(this));
-    // }, 1000 / 30);
+    // setInterval(this.animate.bind(this), 1000 / 30);
   }
   animate() {
     this.scene.animate();
     this.render();
   }
+  play() {
+    window.addEventListener('resize', this.resize.bind(this), false);
+    setInterval(this.animate.bind(this), 1000 / 30);
+  }
   render() {
-    this.renderer.render(this.scene.scene, this.scene.camera, this.renderplane.rt, true);
-    this.renderer.render(this.renderplane.scene, this.renderplane.camera);
+    // Base scene
+    // -- Direct:
+    // this.renderer.render(this.scene.scene, this.scene.camera);
+    // -- To RP:
+    this.rp.render(this.scene.scene, this.scene.camera);
+    //
   }
   resize() {
     this.width = window.innerWidth;
@@ -54,3 +58,8 @@ export default class ThreeController {
     this.scene.resize(this.width, this.height);
   }
 }
+
+// setInterval(function() {
+//   if (!document.webkitHidden)
+//     requestAnimationFrame(this.animate.bind(this));
+// }, 1000 / 30);

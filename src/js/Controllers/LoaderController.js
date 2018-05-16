@@ -43,9 +43,10 @@ export default class LoaderController {
     if (this.loaded && !this.entered) {
       this.dom.animateOnce('fadeOut');
       // ++ TODO: REMOVE THIS DEPENDENCIES!!!:
-      three.scene.bot.playAnimation(0);
-      pixi.animate();
       $.fn.fullpage.setAllowScrolling(true);
+      pixi.animate();
+      three.play();
+      three.scene.bot.playAnimation(0);
       // ++
       this.entered = true;
     }

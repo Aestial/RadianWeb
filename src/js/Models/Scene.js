@@ -4,10 +4,10 @@ import BotObject from './BotObject.js';
 export default class Scene {
   constructor() {
     this.scene = new THREE.Scene();
-    this.fog = new THREE.FogExp2(0x000000, 0.077);
+    this.fog = new THREE.FogExp2(0x000000, 0.065);
     this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
     this.light = new THREE.PointLight(0xfffafa, 1, 0, 2);
-    this.hemiLight = new THREE.HemisphereLight(0x404040, 0x1f1f1f);
+    this.hemiLight = new THREE.HemisphereLight(0x707070, 0x1f1f1f);
     this.bot = new BotObject(
       'assets/meshes/bot.json',
       'assets/textures/cube/nice/',
